@@ -28,6 +28,45 @@ st.set_page_config(
 # Apply AWS Theme
 AWSTheme.apply_aws_theme()
 
+# ===== GLOBAL CSS FIX FOR BUTTON VISIBILITY =====
+st.markdown("""
+<style>
+/* Make all button text visible across entire app */
+.stButton > button {
+    color: #1f1f1f !important;
+    font-weight: 600 !important;
+    background-color: white !important;
+    border: 2px solid #667eea !important;
+}
+.stButton > button:hover {
+    background-color: #667eea !important;
+    color: white !important;
+    border: 2px solid #667eea !important;
+}
+
+/* Primary button styling */
+.stButton > button[kind="primary"] {
+    background-color: #667eea !important;
+    color: white !important;
+    border: none !important;
+}
+.stButton > button[kind="primary"]:hover {
+    background-color: #5568d3 !important;
+}
+
+/* Secondary button styling */
+.stButton > button[kind="secondary"] {
+    color: #1f1f1f !important;
+    background-color: white !important;
+    border: 2px solid #667eea !important;
+}
+.stButton > button[kind="secondary"]:hover {
+    background-color: #f0f0f0 !important;
+}
+</style>
+""", unsafe_allow_html=True)
+# ===== END GLOBAL CSS FIX =====
+
 def main():
     """Main application entry point"""
     
