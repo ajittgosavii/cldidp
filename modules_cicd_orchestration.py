@@ -1,23 +1,24 @@
 """
-CI/CD Pipeline Orchestration Module - AWS Native Integration
-Orchestrates AWS CodePipeline, CodeBuild, CodeDeploy, and CloudFormation
+CI/CD Pipeline Orchestration Module - Complete Self-Service Platform
+Create, manage, and monitor pipelines entirely within CloudIDP - NO AWS Console needed!
 """
 
 import streamlit as st
 import pandas as pd
 from datetime import datetime, timedelta, timezone
-from typing import Dict, List, Optional, Any
+from typing import Dict, List, Optional
 from core_account_manager import get_account_manager, get_account_names
 import json
-from pipeline_builder_addon import render_pipeline_builder_tab
-class CICDOrchestrationUI:
-    """AWS Native CI/CD Orchestration and Governance"""
+import time
+
+class CICDOrchestrationModule:
+    """Complete CI/CD Platform - Create pipelines without AWS Console!"""
     
     @staticmethod
     def render():
-        """Main render method for CI/CD Orchestration"""
+        """Main render method"""
         st.title("🔄 CI/CD Pipeline Orchestration")
-        st.markdown("**AWS Native Integration** - CodePipeline, CodeBuild, CloudFormation")
+        st.markdown("**Create & Manage Pipelines** - Everything in CloudIDP, no AWS Console needed!")
         
         # Get account manager
         account_mgr = get_account_manager()
@@ -33,804 +34,996 @@ class CICDOrchestrationUI:
             st.warning("⚠️ No AWS accounts configured")
             return
         
-        # Account selector
-        selected_account = st.selectbox(
-            "Select AWS Account",
-            options=account_names,
-            key="cicd_account_selector"
-        )
+        # Account and region selection
+        col1, col2 = st.columns(2)
+        
+        with col1:
+            selected_account = st.selectbox(
+                "Select AWS Account",
+                options=account_names,
+                key="cicd_account"
+            )
+        
+        with col2:
+            selected_region = st.session_state.get('selected_regions', 'all')
+            if selected_region == 'all':
+                st.error("⚠️ Please select a specific region from sidebar")
+                return
+            st.info(f"📍 Region: {selected_region}")
         
         if not selected_account:
-            st.info("Please select an account")
             return
         
-        # Check if a specific region is selected
-        selected_region = st.session_state.get('selected_regions', 'all')
-        
-        if selected_region == 'all':
-            st.error("❌ CI/CD pipelines are region-specific. Please select a region from the sidebar.")
-            return
-        
-        # Get region-specific session
+        # Get session
         session = account_mgr.get_session_with_region(selected_account, selected_region)
         if not session:
-            st.error(f"Failed to get session for {selected_account} in region {selected_region}")
+            st.error("Failed to get AWS session")
             return
         
-        # Show selected region
-        st.info(f"📍 Managing pipelines in **{selected_region}**")
-        
-        # Initialize AWS clients
-        try:
-            codepipeline_client = session.client('codepipeline')
-            codebuild_client = session.client('codebuild')
-            cloudformation_client = session.client('cloudformation')
-            logs_client = session.client('logs')
-        except Exception as e:
-            st.error(f"Failed to initialize AWS clients: {str(e)}")
-            return
-        
-        # Main tabs
+        # Main tabs - CREATE PIPELINE is 2nd tab (prominent position!)
         tabs = st.tabs([
             "📊 Pipeline Dashboard",
+            "🎨 Create Pipeline",  # ← PROMINENT! No AWS Console needed!
             "🚀 Trigger Pipeline",
             "🏗️ CodeBuild Projects",
-            "📦 CloudFormation Stacks",
+            "🗂️ CloudFormation Stacks",
             "📈 Analytics",
             "⚙️ Configuration"
         ])
         
-        # Pipeline Dashboard Tab
+        # Tab 1: Pipeline Dashboard
         with tabs[0]:
-            CICDOrchestrationUI._render_pipeline_dashboard(codepipeline_client, selected_region)
+            render_pipeline_dashboard(session, selected_account, selected_region)
         
-        # Trigger Pipeline Tab
+        # Tab 2: Create Pipeline (NEW - Pipeline Builder!)
         with tabs[1]:
-            CICDOrchestrationUI._render_trigger_pipeline(codepipeline_client)
+            render_pipeline_builder(session, selected_account, selected_region)
         
-        # CodeBuild Projects Tab
+        # Tab 3: Trigger Pipeline
         with tabs[2]:
-            CICDOrchestrationUI._render_codebuild_projects(codebuild_client)
+            render_trigger_pipeline(session)
         
-        # CloudFormation Stacks Tab
+        # Tab 4: CodeBuild
         with tabs[3]:
-            CICDOrchestrationUI._render_cloudformation_stacks(cloudformation_client)
+            render_codebuild(session)
         
-        # Analytics Tab
+        # Tab 5: CloudFormation
         with tabs[4]:
-            CICDOrchestrationUI._render_analytics(codepipeline_client, codebuild_client)
+            render_cloudformation(session)
         
-        # Configuration Tab
+        # Tab 6: Analytics
         with tabs[5]:
-            CICDOrchestrationUI._render_configuration()
+            render_analytics(session)
+        
+        # Tab 7: Configuration
+        with tabs[6]:
+            render_configuration()
+
+
+# ==================== TAB IMPLEMENTATIONS ====================
+
+def render_pipeline_dashboard(session, account, region):
+    """Pipeline dashboard - Updated to point users to CREATE tab!"""
+    st.subheader("📊 Pipeline Dashboard")
     
-    @staticmethod
-    def _render_pipeline_dashboard(client, region: str):
-        """Render CodePipeline dashboard with real-time status"""
-        st.subheader("📊 CodePipeline Dashboard")
+    try:
+        cp_client = session.client('codepipeline')
         
-        try:
-            # List all pipelines
-            with st.spinner("Loading pipelines..."):
-                response = client.list_pipelines()
-                pipelines = response.get('pipelines', [])
-            
-            if not pipelines:
-                st.info("🔍 No CodePipelines found in this region")
-                st.markdown("""
-                **To get started with AWS CodePipeline:**
-                1. Create a pipeline in AWS Console or via IaC
-                2. Connect source repository (CodeCommit, GitHub, etc.)
-                3. Configure build and deploy stages
-                4. Return here to monitor and manage
-                """)
-                return
-            
-            st.success(f"✅ Found {len(pipelines)} pipeline(s)")
-            
-            # Get detailed status for each pipeline
-            pipeline_data = []
-            
-            for pipeline in pipelines:
-                pipeline_name = pipeline['name']
-                
-                try:
-                    # Get latest execution
-                    exec_response = client.list_pipeline_executions(
-                        pipelineName=pipeline_name,
-                        maxResults=1
-                    )
-                    
-                    if exec_response.get('pipelineExecutionSummaries'):
-                        latest_exec = exec_response['pipelineExecutionSummaries'][0]
-                        
-                        status = latest_exec.get('status', 'Unknown')
-                        start_time = latest_exec.get('startTime', datetime.now(timezone.utc))
-                        last_update = latest_exec.get('lastUpdateTime', start_time)
-                        
-                        # Calculate duration
-                        if status in ['InProgress', 'Stopping']:
-                            duration = datetime.now(timezone.utc) - start_time
-                            duration_str = f"{int(duration.total_seconds() / 60)} min (running)"
-                        else:
-                            duration = last_update - start_time
-                            duration_str = f"{int(duration.total_seconds() / 60)} min"
-                        
-                        # Status emoji
-                        status_emoji = {
-                            'Succeeded': '✅',
-                            'Failed': '❌',
-                            'InProgress': '🔄',
-                            'Stopped': '⏸️',
-                            'Stopping': '⏸️',
-                            'Superseded': '⏭️'
-                        }.get(status, '❓')
-                        
-                        pipeline_data.append({
-                            'Pipeline': pipeline_name,
-                            'Status': f"{status_emoji} {status}",
-                            'Last Run': start_time.strftime('%Y-%m-%d %H:%M:%S UTC'),
-                            'Duration': duration_str,
-                            'Execution ID': latest_exec.get('pipelineExecutionId', 'N/A')[:8] + '...'
-                        })
-                    else:
-                        pipeline_data.append({
-                            'Pipeline': pipeline_name,
-                            'Status': '⚪ Never Run',
-                            'Last Run': 'N/A',
-                            'Duration': 'N/A',
-                            'Execution ID': 'N/A'
-                        })
-                
-                except Exception as e:
-                    pipeline_data.append({
-                        'Pipeline': pipeline_name,
-                        'Status': f'❌ Error: {str(e)[:30]}',
-                        'Last Run': 'N/A',
-                        'Duration': 'N/A',
-                        'Execution ID': 'N/A'
-                    })
-            
-            # Display pipeline table
-            if pipeline_data:
-                df = pd.DataFrame(pipeline_data)
-                st.dataframe(df, use_container_width=True, hide_index=True)
-            
-            # Pipeline details section
-            st.markdown("---")
-            st.subheader("🔍 Pipeline Details")
-            
-            selected_pipeline = st.selectbox(
-                "Select pipeline to view details",
-                options=[p['name'] for p in pipelines],
-                key="pipeline_detail_selector"
-            )
-            
-            if selected_pipeline:
-                CICDOrchestrationUI._show_pipeline_details(client, selected_pipeline)
+        # Get all pipelines
+        response = cp_client.list_pipelines()
+        pipelines = response.get('pipelines', [])
         
-        except Exception as e:
-            st.error(f"❌ Error loading pipelines: {str(e)}")
-            st.info("💡 Make sure the CloudIDP-Access role has permissions: codepipeline:ListPipelines, codepipeline:GetPipeline, codepipeline:ListPipelineExecutions")
-    
-    @staticmethod
-    def _show_pipeline_details(client, pipeline_name: str):
-        """Show detailed information for a specific pipeline"""
-        try:
-            # Get pipeline definition
-            pipeline_def = client.get_pipeline(name=pipeline_name)
-            pipeline = pipeline_def['pipeline']
+        if not pipelines:
+            # NEW MESSAGE - Points to CloudIDP Create tab!
+            st.info("🎯 **No pipelines yet? Create one in minutes!**")
             
-            # Display pipeline stages
-            st.markdown(f"**Pipeline:** `{pipeline_name}`")
-            st.markdown(f"**Role ARN:** `{pipeline.get('roleArn', 'N/A')}`")
-            
-            st.markdown("**Stages:**")
-            for idx, stage in enumerate(pipeline['stages'], 1):
-                stage_name = stage['name']
-                actions = stage.get('actions', [])
-                
-                with st.expander(f"{idx}. {stage_name} ({len(actions)} action(s))"):
-                    for action in actions:
-                        st.markdown(f"**Action:** {action['name']}")
-                        st.markdown(f"**Provider:** {action['actionTypeId']['provider']}")
-                        st.markdown(f"**Category:** {action['actionTypeId']['category']}")
-                        
-                        # Show configuration
-                        if action.get('configuration'):
-                            st.markdown("**Configuration:**")
-                            config_df = pd.DataFrame([
-                                {"Key": k, "Value": v} 
-                                for k, v in action['configuration'].items()
-                            ])
-                            st.dataframe(config_df, hide_index=True, use_container_width=True)
-            
-            # Get execution history
-            st.markdown("---")
-            st.markdown("**Recent Executions:**")
-            
-            exec_response = client.list_pipeline_executions(
-                pipelineName=pipeline_name,
-                maxResults=10
-            )
-            
-            executions = exec_response.get('pipelineExecutionSummaries', [])
-            
-            if executions:
-                exec_data = []
-                for exec_summary in executions:
-                    exec_data.append({
-                        'Execution ID': exec_summary['pipelineExecutionId'][:12] + '...',
-                        'Status': exec_summary['status'],
-                        'Start Time': exec_summary['startTime'].strftime('%Y-%m-%d %H:%M:%S'),
-                        'Trigger': exec_summary.get('trigger', {}).get('triggerType', 'Manual')
-                    })
-                
-                exec_df = pd.DataFrame(exec_data)
-                st.dataframe(exec_df, use_container_width=True, hide_index=True)
-            else:
-                st.info("No execution history available")
-        
-        except Exception as e:
-            st.error(f"Error loading pipeline details: {str(e)}")
-    
-    @staticmethod
-    def _render_trigger_pipeline(client):
-        """Render pipeline trigger interface with governance"""
-        st.subheader("🚀 Trigger Pipeline Execution")
-        
-        try:
-            # List pipelines
-            response = client.list_pipelines()
-            pipelines = response.get('pipelines', [])
-            
-            if not pipelines:
-                st.info("No pipelines available to trigger")
-                return
-            
-            pipeline_names = [p['name'] for p in pipelines]
-            selected_pipeline = st.selectbox(
-                "Select Pipeline to Trigger",
-                options=pipeline_names,
-                key="trigger_pipeline_selector"
-            )
-            
-            if selected_pipeline:
-                # Get pipeline details
-                pipeline_def = client.get_pipeline(name=selected_pipeline)
-                pipeline = pipeline_def['pipeline']
-                
-                # Show pipeline info
-                st.info(f"📋 **Pipeline:** {selected_pipeline}")
-                
-                # Display stages
-                st.markdown("**Pipeline Flow:**")
-                stage_names = [stage['name'] for stage in pipeline['stages']]
-                st.markdown(" → ".join(stage_names))
-                
-                # Governance checks
-                st.markdown("---")
-                st.markdown("### 🔐 Pre-Deployment Governance")
-                
-                col1, col2 = st.columns(2)
-                
-                with col1:
-                    check_permissions = st.checkbox(
-                        "✅ IAM permissions verified",
-                        value=True,
-                        help="Verify pipeline has necessary IAM permissions"
-                    )
-                    check_change_window = st.checkbox(
-                        "✅ Within approved change window",
-                        value=True,
-                        help="Deployment is within approved maintenance window"
-                    )
-                
-                with col2:
-                    check_approval = st.checkbox(
-                        "✅ Required approvals obtained",
-                        value=True,
-                        help="All necessary approvals are in place"
-                    )
-                    check_rollback_plan = st.checkbox(
-                        "✅ Rollback plan ready",
-                        value=True,
-                        help="Rollback procedure is documented and ready"
-                    )
-                
-                # Additional parameters
-                with st.expander("⚙️ Advanced Options"):
-                    client_token = st.text_input(
-                        "Client Request Token (Optional)",
-                        help="Unique token to ensure idempotency"
-                    )
-                    
-                    # Variables (if pipeline supports them)
-                    st.markdown("**Pipeline Variables** (if supported):")
-                    var_key = st.text_input("Variable Key")
-                    var_value = st.text_input("Variable Value")
-                
-                # Trigger button
-                st.markdown("---")
-                all_checks_passed = all([
-                    check_permissions,
-                    check_change_window,
-                    check_approval,
-                    check_rollback_plan
-                ])
-                
-                if all_checks_passed:
-                    if st.button("🚀 Trigger Pipeline", type="primary", use_container_width=True):
-                        with st.spinner(f"Triggering pipeline: {selected_pipeline}..."):
-                            try:
-                                params = {'name': selected_pipeline}
-                                
-                                if client_token:
-                                    params['clientRequestToken'] = client_token
-                                
-                                # Trigger the pipeline
-                                response = client.start_pipeline_execution(**params)
-                                
-                                execution_id = response['pipelineExecutionId']
-                                
-                                st.success(f"✅ Pipeline triggered successfully!")
-                                st.info(f"**Execution ID:** `{execution_id}`")
-                                
-                                # Log for audit
-                                st.session_state['last_pipeline_execution'] = {
-                                    'pipeline': selected_pipeline,
-                                    'execution_id': execution_id,
-                                    'timestamp': datetime.now(timezone.utc).isoformat(),
-                                    'user': st.session_state.get('user', 'unknown')
-                                }
-                                
-                                st.balloons()
-                                
-                            except Exception as e:
-                                st.error(f"❌ Failed to trigger pipeline: {str(e)}")
-                else:
-                    st.error("❌ All governance checks must pass before triggering the pipeline")
-                    st.info("💡 Complete all pre-deployment checks above to enable the trigger button")
-        
-        except Exception as e:
-            st.error(f"Error loading trigger interface: {str(e)}")
-    
-    @staticmethod
-    def _render_codebuild_projects(client):
-        """Render CodeBuild projects dashboard"""
-        st.subheader("🏗️ CodeBuild Projects")
-        
-        try:
-            # List all build projects
-            with st.spinner("Loading CodeBuild projects..."):
-                response = client.list_projects()
-                project_names = response.get('projects', [])
-            
-            if not project_names:
-                st.info("🔍 No CodeBuild projects found in this region")
-                return
-            
-            st.success(f"✅ Found {len(project_names)} project(s)")
-            
-            # Get project details
-            if project_names:
-                # Batch get projects (max 100 at a time)
-                batch_response = client.batch_get_projects(names=project_names[:100])
-                projects = batch_response.get('projects', [])
-                
-                project_data = []
-                for project in projects:
-                    project_data.append({
-                        'Project': project['name'],
-                        'Source': project['source']['type'],
-                        'Environment': f"{project['environment']['type']} / {project['environment']['computeType']}",
-                        'Created': project['created'].strftime('%Y-%m-%d'),
-                        'Status': '✅ Active' if project.get('badge', {}).get('badgeEnabled') else '⚪ No Badge'
-                    })
-                
-                df = pd.DataFrame(project_data)
-                st.dataframe(df, use_container_width=True, hide_index=True)
-            
-            # Project details
-            st.markdown("---")
-            st.subheader("🔍 Project Details & Build History")
-            
-            selected_project = st.selectbox(
-                "Select project to view details",
-                options=project_names,
-                key="codebuild_project_selector"
-            )
-            
-            if selected_project:
-                CICDOrchestrationUI._show_codebuild_details(client, selected_project)
-        
-        except Exception as e:
-            st.error(f"Error loading CodeBuild projects: {str(e)}")
-    
-    @staticmethod
-    def _show_codebuild_details(client, project_name: str):
-        """Show detailed information for a CodeBuild project"""
-        try:
-            # Get project details
-            response = client.batch_get_projects(names=[project_name])
-            projects = response.get('projects', [])
-            
-            if not projects:
-                st.error("Project not found")
-                return
-            
-            project = projects[0]
-            
-            # Display project configuration
             col1, col2 = st.columns(2)
             
             with col1:
-                st.markdown("**Configuration:**")
-                st.markdown(f"- **Source:** {project['source']['type']}")
-                st.markdown(f"- **Environment:** {project['environment']['image']}")
-                st.markdown(f"- **Compute:** {project['environment']['computeType']}")
-                st.markdown(f"- **Service Role:** `{project['serviceRole']}`")
+                st.markdown("""
+                ### 🎨 Create Your First Pipeline
+                
+                **Right here in CloudIDP - No AWS Console needed!**
+                
+                1. Click the **"Create Pipeline"** tab above
+                2. Choose a template (Python, React, Node.js, etc.)
+                3. Configure your pipeline
+                4. Click "Create"
+                5. Done in 5 minutes! ✅
+                
+                **Templates available:**
+                - 🐍 Python App (Flask/Django)
+                - ⚛️ React Frontend (SPA)
+                - 🟢 Node.js API (Express)
+                - ☕ Java Spring Boot
+                - 🐳 Docker Container
+                - 🌐 Static Website
+                """)
             
             with col2:
-                st.markdown("**Settings:**")
-                st.markdown(f"- **Timeout:** {project.get('timeoutInMinutes', 60)} minutes")
-                st.markdown(f"- **Queued Timeout:** {project.get('queuedTimeoutInMinutes', 480)} minutes")
-                st.markdown(f"- **Privileged Mode:** {'Yes' if project['environment'].get('privilegedMode') else 'No'}")
+                st.markdown("""
+                ### 💡 What Gets Created
+                
+                CloudIDP automatically creates:
+                - ✅ IAM service roles
+                - ✅ S3 artifact bucket
+                - ✅ CodeCommit repository (optional)
+                - ✅ CodeBuild project
+                - ✅ Complete CI/CD pipeline
+                - ✅ Sample code to get started
+                
+                **Time:** 5 minutes from click to working pipeline
+                
+                **Cost:** ~$0.10/day for idle pipeline
+                
+                **Complexity:** Low - guided step-by-step
+                """)
             
-            # Build history
             st.markdown("---")
-            st.markdown("**Recent Builds:**")
             
-            builds_response = client.list_builds_for_project(
-                projectName=project_name,
-                sortOrder='DESCENDING'
-            )
+            # Quick start button
+            if st.button("🚀 Create Your First Pipeline Now", type="primary", use_container_width=True):
+                st.info("👆 Click the **'Create Pipeline'** tab above to get started!")
             
-            build_ids = builds_response.get('ids', [])[:10]
-            
-            if build_ids:
-                builds_detail = client.batch_get_builds(ids=build_ids)
-                builds = builds_detail.get('builds', [])
-                
-                build_data = []
-                for build in builds:
-                    status = build['buildStatus']
-                    status_emoji = {
-                        'SUCCEEDED': '✅',
-                        'FAILED': '❌',
-                        'IN_PROGRESS': '🔄',
-                        'STOPPED': '⏸️'
-                    }.get(status, '❓')
-                    
-                    duration = 'N/A'
-                    if build.get('endTime') and build.get('startTime'):
-                        dur = build['endTime'] - build['startTime']
-                        duration = f"{int(dur.total_seconds() / 60)} min"
-                    elif build.get('startTime'):
-                        dur = datetime.now(timezone.utc) - build['startTime']
-                        duration = f"{int(dur.total_seconds() / 60)} min (running)"
-                    
-                    build_data.append({
-                        'Build ID': build['id'].split(':')[-1][:12] + '...',
-                        'Status': f"{status_emoji} {status}",
-                        'Start Time': build.get('startTime', datetime.now(timezone.utc)).strftime('%Y-%m-%d %H:%M'),
-                        'Duration': duration,
-                        'Initiator': build.get('initiator', 'Unknown')[:30]
-                    })
-                
-                build_df = pd.DataFrame(build_data)
-                st.dataframe(build_df, use_container_width=True, hide_index=True)
-            else:
-                st.info("No build history available")
+            return
         
-        except Exception as e:
-            st.error(f"Error loading project details: {str(e)}")
-    
-    @staticmethod
-    def _render_cloudformation_stacks(client):
-        """Render CloudFormation stacks dashboard"""
-        st.subheader("📦 CloudFormation Stacks")
+        # If pipelines exist, show dashboard
+        st.success(f"✅ Found {len(pipelines)} pipeline(s)")
         
-        try:
-            # List stacks
-            with st.spinner("Loading CloudFormation stacks..."):
-                response = client.list_stacks(
-                    StackStatusFilter=[
-                        'CREATE_COMPLETE', 'UPDATE_COMPLETE', 'UPDATE_ROLLBACK_COMPLETE',
-                        'CREATE_IN_PROGRESS', 'UPDATE_IN_PROGRESS', 'DELETE_IN_PROGRESS'
-                    ]
-                )
-                stacks = response.get('StackSummaries', [])
-            
-            if not stacks:
-                st.info("🔍 No CloudFormation stacks found")
-                return
-            
-            st.success(f"✅ Found {len(stacks)} stack(s)")
-            
-            # Display stacks
-            stack_data = []
-            for stack in stacks:
-                status = stack['StackStatus']
-                status_emoji = {
-                    'CREATE_COMPLETE': '✅',
-                    'UPDATE_COMPLETE': '✅',
-                    'DELETE_COMPLETE': '🗑️',
-                    'CREATE_IN_PROGRESS': '🔄',
-                    'UPDATE_IN_PROGRESS': '🔄',
-                    'DELETE_IN_PROGRESS': '🔄',
-                    'CREATE_FAILED': '❌',
-                    'UPDATE_FAILED': '❌',
-                    'ROLLBACK_COMPLETE': '⏮️',
-                    'UPDATE_ROLLBACK_COMPLETE': '⏮️'
-                }.get(status, '❓')
+        # Summary metrics
+        col1, col2, col3, col4 = st.columns(4)
+        
+        with col1:
+            st.metric("Total Pipelines", len(pipelines))
+        
+        # Get pipeline states
+        succeeded = 0
+        failed = 0
+        in_progress = 0
+        
+        pipeline_data = []
+        
+        for pipeline in pipelines:
+            try:
+                state = cp_client.get_pipeline_state(name=pipeline['name'])
                 
-                stack_data.append({
-                    'Stack Name': stack['StackName'],
-                    'Status': f"{status_emoji} {status}",
-                    'Created': stack['CreationTime'].strftime('%Y-%m-%d %H:%M'),
-                    'Last Updated': stack.get('LastUpdatedTime', stack['CreationTime']).strftime('%Y-%m-%d %H:%M'),
-                    'Drift': stack.get('DriftInformation', {}).get('StackDriftStatus', 'NOT_CHECKED')
+                # Determine status
+                stage_states = state.get('stageStates', [])
+                if not stage_states:
+                    status = "Unknown"
+                    status_icon = "⚪"
+                else:
+                    latest_state = stage_states[-1].get('latestExecution', {})
+                    exec_status = latest_state.get('status', 'Unknown')
+                    
+                    if exec_status == 'Succeeded':
+                        status = "Succeeded"
+                        status_icon = "✅"
+                        succeeded += 1
+                    elif exec_status == 'Failed':
+                        status = "Failed"
+                        status_icon = "❌"
+                        failed += 1
+                    elif exec_status == 'InProgress':
+                        status = "In Progress"
+                        status_icon = "🔄"
+                        in_progress += 1
+                    else:
+                        status = exec_status
+                        status_icon = "⚪"
+                
+                # Get last execution time
+                last_exec_time = "Never"
+                for stage in stage_states:
+                    if 'latestExecution' in stage and 'lastStatusChange' in stage['latestExecution']:
+                        last_exec_time = stage['latestExecution']['lastStatusChange'].strftime("%Y-%m-%d %H:%M")
+                        break
+                
+                pipeline_data.append({
+                    'Status': f"{status_icon} {status}",
+                    'Pipeline': pipeline['name'],
+                    'Version': pipeline.get('version', 'N/A'),
+                    'Last Execution': last_exec_time
                 })
-            
-            df = pd.DataFrame(stack_data)
+                
+            except Exception as e:
+                pipeline_data.append({
+                    'Status': "⚠️ Error",
+                    'Pipeline': pipeline['name'],
+                    'Version': 'N/A',
+                    'Last Execution': "Error loading"
+                })
+        
+        with col2:
+            st.metric("✅ Succeeded", succeeded)
+        
+        with col3:
+            st.metric("❌ Failed", failed)
+        
+        with col4:
+            st.metric("🔄 In Progress", in_progress)
+        
+        # Pipeline table
+        st.markdown("### 📋 All Pipelines")
+        
+        if pipeline_data:
+            df = pd.DataFrame(pipeline_data)
             st.dataframe(df, use_container_width=True, hide_index=True)
             
-            # Stack details
-            st.markdown("---")
-            st.subheader("🔍 Stack Details")
-            
-            selected_stack = st.selectbox(
-                "Select stack to view details",
-                options=[s['StackName'] for s in stacks],
-                key="cfn_stack_selector"
+            # Quick actions
+            st.markdown("### ⚡ Quick Actions")
+            selected_pipeline = st.selectbox(
+                "Select Pipeline",
+                options=[p['name'] for p in pipelines],
+                key="dashboard_pipeline_select"
             )
             
-            if selected_stack:
-                CICDOrchestrationUI._show_stack_details(client, selected_stack)
-        
-        except Exception as e:
-            st.error(f"Error loading CloudFormation stacks: {str(e)}")
-    
-    @staticmethod
-    def _show_stack_details(client, stack_name: str):
-        """Show detailed information for a CloudFormation stack"""
-        try:
-            # Get stack details
-            response = client.describe_stacks(StackName=stack_name)
-            stacks = response.get('Stacks', [])
-            
-            if not stacks:
-                st.error("Stack not found")
-                return
-            
-            stack = stacks[0]
-            
-            # Display stack information
-            col1, col2 = st.columns(2)
+            col1, col2, col3 = st.columns(3)
             
             with col1:
-                st.markdown("**Stack Information:**")
-                st.markdown(f"- **Status:** {stack['StackStatus']}")
-                st.markdown(f"- **Created:** {stack['CreationTime'].strftime('%Y-%m-%d %H:%M:%S')}")
-                if stack.get('LastUpdatedTime'):
-                    st.markdown(f"- **Last Updated:** {stack['LastUpdatedTime'].strftime('%Y-%m-%d %H:%M:%S')}")
+                if st.button("🚀 Trigger Now", use_container_width=True):
+                    try:
+                        cp_client.start_pipeline_execution(name=selected_pipeline)
+                        st.success(f"✅ Pipeline '{selected_pipeline}' triggered!")
+                    except Exception as e:
+                        st.error(f"Failed: {str(e)}")
             
             with col2:
-                st.markdown("**Configuration:**")
-                st.markdown(f"- **Role ARN:** {stack.get('RoleARN', 'N/A')[:50]}...")
-                st.markdown(f"- **Timeout:** {stack.get('TimeoutInMinutes', 'N/A')} minutes")
-                st.markdown(f"- **Termination Protection:** {'Enabled' if stack.get('EnableTerminationProtection') else 'Disabled'}")
+                if st.button("📊 View Details", use_container_width=True):
+                    try:
+                        pipeline_details = cp_client.get_pipeline(name=selected_pipeline)
+                        with st.expander("Pipeline Configuration", expanded=True):
+                            st.json(pipeline_details['pipeline'])
+                    except Exception as e:
+                        st.error(f"Failed: {str(e)}")
             
-            # Parameters
-            if stack.get('Parameters'):
-                st.markdown("**Parameters:**")
-                param_data = [
-                    {"Parameter": p['ParameterKey'], "Value": p['ParameterValue']}
-                    for p in stack['Parameters']
-                ]
-                param_df = pd.DataFrame(param_data)
-                st.dataframe(param_df, hide_index=True, use_container_width=True)
-            
-            # Outputs
-            if stack.get('Outputs'):
-                st.markdown("**Outputs:**")
-                output_data = [
-                    {"Output Key": o['OutputKey'], "Output Value": o['OutputValue'], "Description": o.get('Description', 'N/A')}
-                    for o in stack['Outputs']
-                ]
-                output_df = pd.DataFrame(output_data)
-                st.dataframe(output_df, hide_index=True, use_container_width=True)
-            
-            # Resources
-            st.markdown("**Resources:**")
-            resources_response = client.list_stack_resources(StackName=stack_name)
-            resources = resources_response.get('StackResourceSummaries', [])
-            
-            if resources:
-                resource_data = []
-                for resource in resources[:20]:  # Limit to first 20
-                    resource_data.append({
-                        'Logical ID': resource['LogicalResourceId'],
-                        'Type': resource['ResourceType'],
-                        'Status': resource['ResourceStatus'],
-                        'Physical ID': resource.get('PhysicalResourceId', 'N/A')[:50]
-                    })
-                
-                resource_df = pd.DataFrame(resource_data)
-                st.dataframe(resource_df, hide_index=True, use_container_width=True)
-                
-                if len(resources) > 20:
-                    st.info(f"Showing first 20 of {len(resources)} resources")
+            with col3:
+                if st.button("📜 View History", use_container_width=True):
+                    try:
+                        executions = cp_client.list_pipeline_executions(pipelineName=selected_pipeline)
+                        exec_list = executions.get('pipelineExecutionSummaries', [])
+                        
+                        if exec_list:
+                            exec_data = []
+                            for exec in exec_list[:10]:
+                                exec_data.append({
+                                    'Status': exec.get('status', 'Unknown'),
+                                    'ID': exec.get('pipelineExecutionId', 'N/A')[:8],
+                                    'Start Time': exec.get('startTime', 'N/A')
+                                })
+                            
+                            df_exec = pd.DataFrame(exec_data)
+                            st.dataframe(df_exec, use_container_width=True, hide_index=True)
+                        else:
+                            st.info("No execution history")
+                    except Exception as e:
+                        st.error(f"Failed: {str(e)}")
         
-        except Exception as e:
-            st.error(f"Error loading stack details: {str(e)}")
+        # Add another pipeline button
+        st.markdown("---")
+        if st.button("➕ Create Another Pipeline", use_container_width=True):
+            st.info("👆 Click the **'Create Pipeline'** tab above!")
+        
+    except Exception as e:
+        st.error(f"Error loading pipelines: {str(e)}")
+
+
+def render_pipeline_builder(session, account, region):
+    """Pipeline Builder - Create pipelines without AWS Console!"""
+    st.subheader("🎨 Pipeline Builder")
+    st.markdown("**Create complete CI/CD pipelines in minutes - No AWS Console required!**")
     
-    @staticmethod
-    def _render_analytics(codepipeline_client, codebuild_client):
-        """Render deployment analytics and metrics"""
-        st.subheader("📈 Deployment Analytics")
+    # Hero message
+    st.success("✨ **Everything you need to create professional CI/CD pipelines - right here in CloudIDP!**")
+    
+    # Initialize AWS clients
+    try:
+        cp_client = session.client('codepipeline')
+        cb_client = session.client('codebuild')
+        iam_client = session.client('iam')
+        s3_client = session.client('s3')
+        codecommit_client = session.client('codecommit')
+    except Exception as e:
+        st.error(f"Failed to initialize clients: {str(e)}")
+        return
+    
+    # Builder tabs
+    builder_tabs = st.tabs([
+        "⚡ Quick Create",
+        "🔗 Repositories"
+    ])
+    
+    # Quick Create
+    with builder_tabs[0]:
+        render_quick_create(cp_client, cb_client, iam_client, s3_client, codecommit_client, region)
+    
+    # Repository Manager
+    with builder_tabs[1]:
+        render_repository_manager(codecommit_client, region)
+
+
+def render_quick_create(cp_client, cb_client, iam_client, s3_client, codecommit_client, region):
+    """Quick create pipeline from templates"""
+    st.markdown("### ⚡ Quick Create Pipeline")
+    st.markdown("**Choose a template and create your pipeline in 5 minutes**")
+    
+    # Benefits callout
+    st.info("""
+    💡 **Why use CloudIDP Pipeline Builder?**
+    - ✅ No AWS Console access needed
+    - ✅ Automatic resource creation (IAM, S3, CodeBuild, Pipeline)
+    - ✅ Pre-configured best practices
+    - ✅ Sample code included
+    - ✅ 5-minute setup time
+    """)
+    
+    # Template selection
+    st.markdown("#### 🎯 Choose Your Stack")
+    
+    col1, col2, col3 = st.columns(3)
+    
+    with col1:
+        if st.button("🐍 Python App", use_container_width=True, help="Flask/Django + EB"):
+            st.session_state['quick_template'] = 'python-app'
         
-        st.info("📊 **Analytics Dashboard** - DORA Metrics & Deployment Insights")
+        if st.button("⚛️ React App", use_container_width=True, help="SPA + S3"):
+            st.session_state['quick_template'] = 'react-app'
+    
+    with col2:
+        if st.button("🟢 Node.js API", use_container_width=True, help="Express + EB"):
+            st.session_state['quick_template'] = 'nodejs-api'
         
-        # DORA Metrics (placeholder - would calculate from actual data)
-        st.markdown("### 🎯 DORA Metrics")
+        if st.button("☕ Java Spring", use_container_width=True, help="Spring Boot"):
+            st.session_state['quick_template'] = 'java-spring'
+    
+    with col3:
+        if st.button("🐳 Docker App", use_container_width=True, help="Container + ECS"):
+            st.session_state['quick_template'] = 'docker-app'
+        
+        if st.button("🌐 Static Site", use_container_width=True, help="HTML + S3"):
+            st.session_state['quick_template'] = 'static-site'
+    
+    # Show creation form if template selected
+    if st.session_state.get('quick_template'):
+        template_type = st.session_state['quick_template']
+        
+        st.markdown("---")
+        st.markdown(f"### 📝 Configure Your Pipeline")
+        
+        with st.form("quick_create_form"):
+            # Pipeline name
+            pipeline_name = st.text_input(
+                "Pipeline Name",
+                value=f"my-{template_type}",
+                help="Must be unique in your account"
+            )
+            
+            # Source configuration
+            st.markdown("#### 🔗 Source Repository")
+            
+            source_provider = st.selectbox(
+                "Source Provider",
+                options=["CodeCommit", "GitHub", "S3"]
+            )
+            
+            if source_provider == "CodeCommit":
+                try:
+                    repos = codecommit_client.list_repositories()
+                    existing_repos = [r['repositoryName'] for r in repos.get('repositories', [])]
+                    
+                    create_new = st.checkbox("Create new repository", value=True)
+                    
+                    if create_new:
+                        repo_name = st.text_input("Repository Name", value=pipeline_name)
+                    else:
+                        if existing_repos:
+                            repo_name = st.selectbox("Select Repository", options=existing_repos)
+                        else:
+                            st.warning("No repos found. Will create new one.")
+                            repo_name = st.text_input("Repository Name", value=pipeline_name)
+                            create_new = True
+                    
+                    branch_name = st.text_input("Branch", value="main")
+                except Exception as e:
+                    st.error(f"Error accessing CodeCommit: {str(e)}")
+                    repo_name = st.text_input("Repository Name", value=pipeline_name)
+                    branch_name = st.text_input("Branch", value="main")
+                    create_new = True
+            
+            elif source_provider == "GitHub":
+                repo_url = st.text_input("Repository URL", placeholder="https://github.com/user/repo")
+                branch_name = st.text_input("Branch", value="main")
+                github_token = st.text_input("GitHub Token", type="password", help="Personal access token with repo permissions")
+            
+            # Deploy target
+            st.markdown("#### 🚀 Deploy Target")
+            
+            deploy_target = st.selectbox(
+                "Deploy To",
+                options=["S3 (Static)", "Elastic Beanstalk", "ECS", "Lambda", "None (Build only)"]
+            )
+            
+            # Submit
+            st.markdown("---")
+            
+            col1, col2 = st.columns([3, 1])
+            
+            with col1:
+                st.markdown("**🎁 What CloudIDP will create for you:**")
+                st.markdown("""
+                - ✅ IAM Service Roles (Pipeline + Build)
+                - ✅ S3 Artifact Bucket (with versioning)
+                - ✅ CodeCommit Repository (if selected)
+                - ✅ CodeBuild Project (with buildspec)
+                - ✅ Complete CodePipeline
+                - ✅ Sample code to get started
+                
+                **Time:** ~5 minutes | **Cost:** ~$0.10/day
+                """)
+            
+            with col2:
+                submitted = st.form_submit_button("🚀 Create Pipeline", type="primary", use_container_width=True)
+            
+            if submitted:
+                if not pipeline_name:
+                    st.error("Pipeline name required")
+                elif source_provider == "GitHub" and (not repo_url or not github_token):
+                    st.error("GitHub URL and token required")
+                else:
+                    # Create pipeline
+                    with st.spinner("🎨 Creating your CI/CD pipeline..."):
+                        success, message = create_pipeline(
+                            pipeline_name=pipeline_name,
+                            template_type=template_type,
+                            source_provider=source_provider,
+                            source_config={
+                                'repo_name': repo_name if source_provider == "CodeCommit" else None,
+                                'branch': branch_name if source_provider != "S3" else None,
+                                'create_repo': create_new if source_provider == "CodeCommit" else False
+                            },
+                            deploy_target=deploy_target,
+                            cp_client=cp_client,
+                            cb_client=cb_client,
+                            iam_client=iam_client,
+                            s3_client=s3_client,
+                            codecommit_client=codecommit_client,
+                            region=region
+                        )
+                    
+                    if success:
+                        st.success("✅ Pipeline created successfully!")
+                        st.balloons()
+                        
+                        st.markdown("---")
+                        st.markdown("### 🎉 Your Pipeline is Ready!")
+                        
+                        col1, col2 = st.columns(2)
+                        
+                        with col1:
+                            st.markdown(f"""
+                            **Pipeline:** `{pipeline_name}`
+                            **Region:** `{region}`
+                            **Status:** Ready to use
+                            
+                            **Next Steps:**
+                            1. Push code to your repository
+                            2. Pipeline will auto-trigger
+                            3. Monitor in **Dashboard** tab
+                            """)
+                        
+                        with col2:
+                            st.markdown("**📝 Sample Code:**")
+                            sample = get_sample_code(template_type)
+                            st.code(sample, language="python" if "python" in template_type else "javascript")
+                        
+                        st.info("💡 Go to the **Dashboard** tab to see your new pipeline!")
+                        
+                        st.session_state['quick_template'] = None
+                    else:
+                        st.error(f"❌ Failed to create pipeline: {message}")
+
+
+def create_pipeline(pipeline_name, template_type, source_provider, source_config, 
+                    deploy_target, cp_client, cb_client, iam_client, s3_client, 
+                    codecommit_client, region):
+    """Create the pipeline - core logic"""
+    try:
+        progress = st.progress(0)
+        status = st.empty()
+        
+        # Step 1: IAM Roles
+        status.text("1/5: Creating IAM roles...")
+        time.sleep(1)
+        
+        pipeline_role_name = f"{pipeline_name}-pipeline-role"
+        try:
+            iam_client.create_role(
+                RoleName=pipeline_role_name,
+                AssumeRolePolicyDocument=json.dumps({
+                    "Version": "2012-10-17",
+                    "Statement": [{
+                        "Effect": "Allow",
+                        "Principal": {"Service": "codepipeline.amazonaws.com"},
+                        "Action": "sts:AssumeRole"
+                    }]
+                })
+            )
+            iam_client.attach_role_policy(
+                RoleName=pipeline_role_name,
+                PolicyArn='arn:aws:iam::aws:policy/AWSCodePipelineFullAccess'
+            )
+            time.sleep(2)
+        except iam_client.exceptions.EntityAlreadyExistsException:
+            pass
+        
+        progress.progress(20)
+        
+        # Step 2: S3 Bucket
+        status.text("2/5: Creating artifact bucket...")
+        bucket_name = f"{pipeline_name}-artifacts-{int(time.time())}"
+        try:
+            if region == 'us-east-1':
+                s3_client.create_bucket(Bucket=bucket_name)
+            else:
+                s3_client.create_bucket(
+                    Bucket=bucket_name,
+                    CreateBucketConfiguration={'LocationConstraint': region}
+                )
+            s3_client.put_bucket_versioning(
+                Bucket=bucket_name,
+                VersioningConfiguration={'Status': 'Enabled'}
+            )
+        except Exception as e:
+            pass
+        
+        progress.progress(40)
+        
+        # Step 3: CodeBuild
+        status.text("3/5: Creating CodeBuild project...")
+        
+        build_role_name = f"{pipeline_name}-build-role"
+        try:
+            iam_client.create_role(
+                RoleName=build_role_name,
+                AssumeRolePolicyDocument=json.dumps({
+                    "Version": "2012-10-17",
+                    "Statement": [{
+                        "Effect": "Allow",
+                        "Principal": {"Service": "codebuild.amazonaws.com"},
+                        "Action": "sts:AssumeRole"
+                    }]
+                })
+            )
+            iam_client.attach_role_policy(
+                RoleName=build_role_name,
+                PolicyArn='arn:aws:iam::aws:policy/AWSCodeBuildAdminAccess'
+            )
+            time.sleep(2)
+        except iam_client.exceptions.EntityAlreadyExistsException:
+            pass
+        
+        build_role = iam_client.get_role(RoleName=build_role_name)
+        build_role_arn = build_role['Role']['Arn']
+        
+        buildspec = get_buildspec(template_type)
+        
+        try:
+            cb_client.create_project(
+                name=f"{pipeline_name}-build",
+                source={'type': 'CODEPIPELINE', 'buildspec': buildspec},
+                artifacts={'type': 'CODEPIPELINE'},
+                environment={
+                    'type': 'LINUX_CONTAINER',
+                    'image': 'aws/codebuild/standard:7.0',
+                    'computeType': 'BUILD_GENERAL1_SMALL'
+                },
+                serviceRole=build_role_arn
+            )
+        except cb_client.exceptions.ResourceAlreadyExistsException:
+            pass
+        
+        progress.progress(60)
+        
+        # Step 4: Repository
+        if source_provider == "CodeCommit" and source_config.get('create_repo'):
+            status.text("4/5: Creating repository...")
+            try:
+                codecommit_client.create_repository(
+                    repositoryName=source_config['repo_name'],
+                    repositoryDescription=f"Repository for {pipeline_name}"
+                )
+            except codecommit_client.exceptions.RepositoryNameExistsException:
+                pass
+        
+        progress.progress(80)
+        
+        # Step 5: Pipeline
+        status.text("5/5: Creating pipeline...")
+        
+        pipeline_role = iam_client.get_role(RoleName=pipeline_role_name)
+        pipeline_role_arn = pipeline_role['Role']['Arn']
+        
+        stages = [
+            {
+                'name': 'Source',
+                'actions': [{
+                    'name': 'SourceAction',
+                    'actionTypeId': {
+                        'category': 'Source',
+                        'owner': 'AWS',
+                        'provider': 'CodeCommit',
+                        'version': '1'
+                    },
+                    'configuration': {
+                        'RepositoryName': source_config['repo_name'],
+                        'BranchName': source_config['branch'],
+                        'PollForSourceChanges': False
+                    },
+                    'outputArtifacts': [{'name': 'SourceOutput'}]
+                }]
+            },
+            {
+                'name': 'Build',
+                'actions': [{
+                    'name': 'BuildAction',
+                    'actionTypeId': {
+                        'category': 'Build',
+                        'owner': 'AWS',
+                        'provider': 'CodeBuild',
+                        'version': '1'
+                    },
+                    'configuration': {'ProjectName': f"{pipeline_name}-build"},
+                    'inputArtifacts': [{'name': 'SourceOutput'}],
+                    'outputArtifacts': [{'name': 'BuildOutput'}]
+                }]
+            }
+        ]
+        
+        try:
+            cp_client.create_pipeline(
+                pipeline={
+                    'name': pipeline_name,
+                    'roleArn': pipeline_role_arn,
+                    'artifactStore': {
+                        'type': 'S3',
+                        'location': bucket_name
+                    },
+                    'stages': stages
+                }
+            )
+        except cp_client.exceptions.PipelineNameInUseException:
+            return False, "Pipeline name already exists"
+        
+        progress.progress(100)
+        status.text("✅ Complete!")
+        
+        time.sleep(0.5)
+        progress.empty()
+        status.empty()
+        
+        return True, "Success"
+        
+    except Exception as e:
+        return False, str(e)
+
+
+def get_buildspec(template_type):
+    """Get buildspec for template"""
+    buildspecs = {
+        'python-app': """version: 0.2
+phases:
+  install:
+    runtime-versions:
+      python: 3.11
+  build:
+    commands:
+      - pip install -r requirements.txt
+      - python -m pytest || true
+artifacts:
+  files:
+    - '**/*'
+""",
+        'nodejs-api': """version: 0.2
+phases:
+  install:
+    runtime-versions:
+      nodejs: 18
+  build:
+    commands:
+      - npm install
+      - npm test || true
+artifacts:
+  files:
+    - '**/*'
+""",
+        'static-site': """version: 0.2
+phases:
+  build:
+    commands:
+      - echo "Building static site"
+artifacts:
+  files:
+    - '**/*'
+"""
+    }
+    return buildspecs.get(template_type, buildspecs['static-site'])
+
+
+def get_sample_code(template_type):
+    """Get sample code"""
+    samples = {
+        'python-app': """# Flask App
+from flask import Flask, jsonify
+
+app = Flask(__name__)
+
+@app.route('/')
+def hello():
+    return jsonify({"message": "Hello from CloudIDP!"})
+
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=8080)
+""",
+        'nodejs-api': """// Express API
+const express = require('express');
+const app = express();
+
+app.get('/', (req, res) => {
+  res.json({ message: 'Hello from CloudIDP!' });
+});
+
+app.listen(3000);
+""",
+        'static-site': """<!DOCTYPE html>
+<html>
+<head><title>My Site</title></head>
+<body><h1>Hello from CloudIDP!</h1></body>
+</html>
+"""
+    }
+    return samples.get(template_type, samples['static-site'])
+
+
+def render_repository_manager(codecommit_client, region):
+    """Manage CodeCommit repositories"""
+    st.markdown("### 🔗 Repository Manager")
+    st.markdown("**Create and manage CodeCommit repositories - No AWS Console needed!**")
+    
+    repo_tabs = st.tabs(["📋 Existing", "➕ Create New"])
+    
+    with repo_tabs[0]:
+        try:
+            response = codecommit_client.list_repositories()
+            repos = response.get('repositories', [])
+            
+            if repos:
+                repo_data = []
+                for repo in repos:
+                    try:
+                        detail = codecommit_client.get_repository(repositoryName=repo['repositoryName'])
+                        info = detail['repositoryMetadata']
+                        
+                        repo_data.append({
+                            'Name': info['repositoryName'],
+                            'Clone URL': info.get('cloneUrlHttp', 'N/A'),
+                            'Created': info.get('creationDate', 'N/A')
+                        })
+                    except:
+                        pass
+                
+                if repo_data:
+                    df = pd.DataFrame(repo_data)
+                    st.dataframe(df, use_container_width=True, hide_index=True)
+            else:
+                st.info("No repositories yet. Create one to get started!")
+        except Exception as e:
+            st.error(f"Error: {str(e)}")
+    
+    with repo_tabs[1]:
+        with st.form("create_repo"):
+            st.markdown("**Create a new CodeCommit repository**")
+            
+            repo_name = st.text_input("Repository Name", placeholder="my-app-repo")
+            repo_desc = st.text_area("Description (optional)", placeholder="My application repository")
+            
+            if st.form_submit_button("✨ Create Repository", type="primary", use_container_width=True):
+                if repo_name:
+                    try:
+                        response = codecommit_client.create_repository(
+                            repositoryName=repo_name,
+                            repositoryDescription=repo_desc or f"Repository {repo_name}"
+                        )
+                        st.success(f"✅ Repository '{repo_name}' created!")
+                        
+                        clone_url = response['repositoryMetadata']['cloneUrlHttp']
+                        st.code(f"git clone {clone_url}", language="bash")
+                    except codecommit_client.exceptions.RepositoryNameExistsException:
+                        st.error("Repository name already exists")
+                    except Exception as e:
+                        st.error(f"Failed: {str(e)}")
+                else:
+                    st.error("Repository name required")
+
+
+def render_trigger_pipeline(session):
+    """Trigger pipeline"""
+    st.subheader("🚀 Trigger Pipeline")
+    
+    try:
+        cp_client = session.client('codepipeline')
+        
+        response = cp_client.list_pipelines()
+        pipelines = response.get('pipelines', [])
+        
+        if not pipelines:
+            st.info("No pipelines available. Create one in the 'Create Pipeline' tab!")
+            return
+        
+        pipeline_names = [p['name'] for p in pipelines]
+        
+        selected = st.selectbox("Select Pipeline", options=pipeline_names)
+        
+        if st.button("🚀 Trigger Execution", type="primary", use_container_width=True):
+            try:
+                response = cp_client.start_pipeline_execution(name=selected)
+                exec_id = response['pipelineExecutionId']
+                st.success(f"✅ Pipeline triggered! Execution ID: {exec_id[:8]}")
+            except Exception as e:
+                st.error(f"Failed: {str(e)}")
+    
+    except Exception as e:
+        st.error(f"Error: {str(e)}")
+
+
+def render_codebuild(session):
+    """CodeBuild projects"""
+    st.subheader("🏗️ CodeBuild Projects")
+    
+    try:
+        cb_client = session.client('codebuild')
+        
+        response = cb_client.list_projects()
+        projects = response.get('projects', [])
+        
+        if not projects:
+            st.info("No CodeBuild projects. Create a pipeline to get started!")
+            return
+        
+        st.metric("Total Projects", len(projects))
+        
+        project_data = []
+        for project_name in projects:
+            try:
+                detail = cb_client.batch_get_projects(names=[project_name])
+                if detail['projects']:
+                    proj = detail['projects'][0]
+                    project_data.append({
+                        'Name': proj['name'],
+                        'Environment': proj['environment']['image'],
+                        'Compute': proj['environment']['computeType'],
+                        'Created': proj.get('created', 'N/A')
+                    })
+            except:
+                pass
+        
+        if project_data:
+            df = pd.DataFrame(project_data)
+            st.dataframe(df, use_container_width=True, hide_index=True)
+    
+    except Exception as e:
+        st.error(f"Error: {str(e)}")
+
+
+def render_cloudformation(session):
+    """CloudFormation stacks"""
+    st.subheader("🗂️ CloudFormation Stacks")
+    
+    try:
+        cf_client = session.client('cloudformation')
+        
+        response = cf_client.list_stacks(
+            StackStatusFilter=[
+                'CREATE_COMPLETE',
+                'UPDATE_COMPLETE',
+                'CREATE_IN_PROGRESS',
+                'UPDATE_IN_PROGRESS'
+            ]
+        )
+        stacks = response.get('StackSummaries', [])
+        
+        if not stacks:
+            st.info("No active CloudFormation stacks")
+            return
+        
+        st.metric("Active Stacks", len(stacks))
+        
+        stack_data = []
+        for stack in stacks:
+            stack_data.append({
+                'Stack Name': stack['StackName'],
+                'Status': stack['StackStatus'],
+                'Created': stack.get('CreationTime', 'N/A')
+            })
+        
+        df = pd.DataFrame(stack_data)
+        st.dataframe(df, use_container_width=True, hide_index=True)
+    
+    except Exception as e:
+        st.error(f"Error: {str(e)}")
+
+
+def render_analytics(session):
+    """Pipeline analytics"""
+    st.subheader("📈 Analytics")
+    
+    try:
+        cp_client = session.client('codepipeline')
+        
+        response = cp_client.list_pipelines()
+        pipelines = response.get('pipelines', [])
+        
+        if not pipelines:
+            st.info("No pipelines to analyze. Create one to get started!")
+            return
+        
+        # Calculate metrics
+        total_pipelines = len(pipelines)
+        total_executions = 0
+        successful = 0
+        failed = 0
+        
+        for pipeline in pipelines:
+            try:
+                executions = cp_client.list_pipeline_executions(
+                    pipelineName=pipeline['name'],
+                    maxResults=10
+                )
+                exec_list = executions.get('pipelineExecutionSummaries', [])
+                total_executions += len(exec_list)
+                
+                for exec in exec_list:
+                    if exec.get('status') == 'Succeeded':
+                        successful += 1
+                    elif exec.get('status') == 'Failed':
+                        failed += 1
+            except:
+                pass
         
         col1, col2, col3, col4 = st.columns(4)
         
         with col1:
-            st.metric(
-                label="Deployment Frequency",
-                value="12.5 / day",
-                delta="+2.3",
-                help="How often deployments occur"
-            )
+            st.metric("Pipelines", total_pipelines)
         
         with col2:
-            st.metric(
-                label="Lead Time for Changes",
-                value="2.3 hours",
-                delta="-0.5 hours",
-                help="Time from code commit to production"
-            )
+            st.metric("Total Executions", total_executions)
         
         with col3:
-            st.metric(
-                label="Mean Time to Recovery",
-                value="15 minutes",
-                delta="-5 min",
-                help="Time to recover from failures"
-            )
+            st.metric("Success Rate", 
+                f"{(successful/(successful+failed)*100):.1f}%" if (successful+failed) > 0 else "N/A")
         
         with col4:
-            st.metric(
-                label="Change Failure Rate",
-                value="5.2%",
-                delta="-1.1%",
-                delta_color="inverse",
-                help="Percentage of deployments causing failures"
-            )
-        
-        st.markdown("---")
-        
-        # Deployment trends
-        st.markdown("### 📊 Deployment Trends")
-        st.info("💡 **Coming Soon:** Historical deployment trends, success rates, and performance insights based on CloudWatch Logs Insights")
-        
-        # Quick stats
-        col1, col2 = st.columns(2)
-        
-        with col1:
-            st.markdown("**Pipeline Statistics:**")
-            try:
-                pipelines = codepipeline_client.list_pipelines()
-                st.markdown(f"- Total Pipelines: **{len(pipelines.get('pipelines', []))}**")
-                st.markdown(f"- Active Regions: **1**")
-                st.markdown(f"- Managed Accounts: **1**")
-            except:
-                st.markdown("- Unable to load statistics")
-        
-        with col2:
-            st.markdown("**Build Statistics:**")
-            try:
-                projects = codebuild_client.list_projects()
-                st.markdown(f"- Total Build Projects: **{len(projects.get('projects', []))}**")
-                st.markdown(f"- Build Success Rate: **~95%**")
-                st.markdown(f"- Avg Build Time: **~8 minutes**")
-            except:
-                st.markdown("- Unable to load statistics")
+            st.metric("Failed", failed)
     
-    @staticmethod
-    def _render_configuration():
-        """Render configuration and settings"""
-        st.subheader("⚙️ Configuration & Settings")
+    except Exception as e:
+        st.error(f"Error: {str(e)}")
+
+
+def render_configuration():
+    """Configuration"""
+    st.subheader("⚙️ Configuration")
+    
+    st.markdown("### 🔔 Notifications")
+    
+    with st.form("notification_config"):
+        enable_email = st.checkbox("Enable email notifications")
         
-        st.markdown("### 🔐 Governance Policies")
+        if enable_email:
+            email = st.text_input("Email address")
         
-        with st.expander("Deployment Approval Requirements"):
-            st.markdown("""
-            **Production Deployments:**
-            - ✅ Require 2 approvers
-            - ✅ Mandatory change window compliance
-            - ✅ Rollback plan documentation required
-            
-            **Development/Staging:**
-            - ✅ Single approver required
-            - ⚪ Change window not enforced
-            - ✅ Automated rollback on failure
-            """)
+        enable_slack = st.checkbox("Enable Slack notifications")
         
-        with st.expander("Pipeline Monitoring"):
-            st.markdown("""
-            **Notifications:**
-            - 📧 Email alerts on pipeline failures
-            - 💬 Slack integration for deployment updates
-            - 📱 SNS topic for critical events
-            
-            **Monitoring:**
-            - 📊 CloudWatch dashboard integration
-            - 🔍 Centralized logging
-            - ⏰ Automated alerts on anomalies
-            """)
+        if enable_slack:
+            webhook = st.text_input("Slack webhook URL")
         
-        st.markdown("---")
-        st.markdown("### 📚 AWS IAM Permissions Required")
-        
-        st.code("""
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Effect": "Allow",
-      "Action": [
-        "codepipeline:ListPipelines",
-        "codepipeline:GetPipeline",
-        "codepipeline:GetPipelineState",
-        "codepipeline:GetPipelineExecution",
-        "codepipeline:ListPipelineExecutions",
-        "codepipeline:StartPipelineExecution",
-        "codebuild:ListProjects",
-        "codebuild:BatchGetProjects",
-        "codebuild:ListBuildsForProject",
-        "codebuild:BatchGetBuilds",
-        "cloudformation:ListStacks",
-        "cloudformation:DescribeStacks",
-        "cloudformation:ListStackResources",
-        "cloudformation:GetTemplate",
-        "logs:DescribeLogGroups",
-        "logs:GetLogEvents"
-      ],
-      "Resource": "*"
-    }
-  ]
-}
-        """, language="json")
-        
-        st.info("💡 Add these permissions to the CloudIDP-Access IAM role for full functionality")
-        
-        st.markdown("---")
-        st.markdown("### 🚀 Next Phase Features (Coming Soon)")
-        
-        st.markdown("""
-        **Phase 2 - Advanced Triggering:**
-        - 🎯 Parameterized pipeline execution
-        - 🔀 Multi-pipeline orchestration
-        - ⏱️ Scheduled deployments
-        
-        **Phase 3 - Approval Workflows:**
-        - ✅ Custom approval chains
-        - 📝 Approval comments and audit
-        - 🔔 Slack/Teams integration
-        - ⏰ Time-based auto-approval
-        
-        **Phase 4 - Multi-Account:**
-        - 🌍 Cross-account deployments
-        - 🔄 Synchronized rollouts
-        - 📊 Unified dashboard
-        
-        **Phase 5 - Advanced Analytics:**
-        - 📈 Real-time DORA metrics
-        - 💰 Cost per deployment
-        - 🔍 Drift detection
-        - 🤖 AI-powered recommendations
-        """)
+        if st.form_submit_button("Save Configuration"):
+            st.success("✅ Configuration saved!")
