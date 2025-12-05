@@ -52,23 +52,14 @@ class NetworkManagementUI:
             st.info("📍 Network resources (VPCs, Subnets, Security Groups) are region-specific. Please select a specific region from the sidebar to view network infrastructure.")
             return
         
-        # Get session for selected account
-        session = account_mgr.get_session(selected_account)
+        # Get region-specific session for selected account
+        session = account_mgr.get_session_with_region(selected_account, selected_region)
         if not session:
-            st.error(f"Failed to get session for {selected_account}")
+            st.error(f"Failed to get session for {selected_account} in region {selected_region}")
             return
         
-        # Create a region-specific session
-        import boto3
-        region_session = boto3.Session(
-            aws_access_key_id=session._credentials.access_key,
-            aws_secret_access_key=session._credentials.secret_key,
-            aws_session_token=session._credentials.token,
-            region_name=selected_region
-        )
-        
         # Initialize VPC Manager with region-specific session
-        vpc_mgr = VPCManager(region_session)
+        vpc_mgr = VPCManager(session)
         
         # Show selected region
         st.info(f"📍 Viewing network resources in **{selected_region}**")

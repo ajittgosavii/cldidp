@@ -298,6 +298,38 @@ class AWSAccountManager:
                     return assumed_session.session
         
         return None
+    
+    def get_session_with_region(self, account_name: str, region: str) -> Optional[boto3.Session]:
+        """
+        Get boto3 session for an account with specific region
+        
+        Args:
+            account_name: Name of the account
+            region: AWS region (e.g., 'us-east-2')
+            
+        Returns:
+            boto3.Session configured for the specified region, or None
+        """
+        from config_settings import AppConfig
+        accounts = AppConfig.load_aws_accounts()
+        
+        for account in accounts:
+            if account.account_name == account_name:
+                assumed_session = self.assume_role(
+                    account_id=account.account_id,
+                    account_name=account.account_name,
+                    role_arn=account.role_arn
+                )
+                if assumed_session:
+                    # Create a new session with the specified region
+                    return boto3.Session(
+                        aws_access_key_id=assumed_session.credentials['AccessKeyId'],
+                        aws_secret_access_key=assumed_session.credentials['SecretAccessKey'],
+                        aws_session_token=assumed_session.credentials['SessionToken'],
+                        region_name=region
+                    )
+        
+        return None
 
 @st.cache_resource(ttl=300)
 def get_account_manager() -> Optional[AWSAccountManager]:
