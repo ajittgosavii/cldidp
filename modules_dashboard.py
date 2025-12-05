@@ -1,6 +1,6 @@
 """
 Module 0: Main Dashboard
-Enterprise overview of multi-account AWS environment
+Enterprise overview of multi-account AWS environment with AWS theming
 """
 
 import streamlit as st
@@ -11,16 +11,17 @@ from config_settings import AppConfig
 from core_account_manager import get_account_manager
 from core_session_manager import SessionManager
 from utils_helpers import Helpers
+from aws_theme import AWSTheme
 
 class DashboardModule:
-    """Main dashboard with enterprise overview"""
+    """Main dashboard with enterprise overview and AWS styling"""
     
     @staticmethod
     def render():
         """Render dashboard"""
         
         st.markdown("## 🏠 Enterprise Cloud Dashboard")
-        st.caption("Multi-account AWS environment overview")
+        st.caption("Multi-account AWS environment overview with real-time metrics")
         
         # Load account manager
         account_mgr = get_account_manager()
@@ -37,8 +38,8 @@ class DashboardModule:
             st.info("Go to **Account Lifecycle** → **Onboard Account** to add your first account.")
             return
         
-        # Top metrics
-        DashboardModule._render_top_metrics(account_mgr, active_accounts)
+        # Top metrics with AWS styling
+        DashboardModule._render_top_metrics_aws(account_mgr, active_accounts)
         
         st.markdown("---")
         
@@ -62,17 +63,16 @@ class DashboardModule:
         DashboardModule._render_recent_resources(account_mgr, active_accounts)
     
     @staticmethod
-    def _render_top_metrics(account_mgr, active_accounts):
-        """Render top-level metrics"""
+    def _render_top_metrics_aws(account_mgr, active_accounts):
+        """Render top-level metrics with AWS theming"""
         
         col1, col2, col3, col4 = st.columns(4)
         
         with col1:
-            st.metric(
+            AWSTheme.aws_metric_card(
                 label="Connected Accounts",
-                value=len(active_accounts),
-                delta=None,
-                help="Number of active AWS accounts"
+                value=str(len(active_accounts)),
+                icon="🔗"
             )
         
         with col2:
@@ -93,30 +93,28 @@ class DashboardModule:
                 except:
                     pass
             
-            st.metric(
+            AWSTheme.aws_metric_card(
                 label="Total Resources",
                 value=Helpers.format_number(total_resources) if total_resources > 0 else "N/A",
-                delta=None,
-                help="EC2 instances across accounts (sampled)"
+                icon="📦"
+            )
             )
         
         with col3:
             # Estimated monthly cost
             estimated_cost = total_resources * 73  # $73/month per t3.micro
-            st.metric(
+            AWSTheme.aws_metric_card(
                 label="Est. Monthly Cost",
                 value=Helpers.format_currency(estimated_cost),
-                delta=None,
-                help="Estimated cost based on resource count"
+                icon="💰"
             )
         
         with col4:
             # Compliance score (placeholder)
-            st.metric(
+            AWSTheme.aws_metric_card(
                 label="Compliance Score",
                 value="N/A",
-                delta=None,
-                help="Overall security compliance score"
+                icon="🛡️"
             )
     
     @staticmethod
