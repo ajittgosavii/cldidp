@@ -1,5 +1,5 @@
 """
-CloudIDP Enhanced v2.0 - Enterprise Multi-Account Cloud Infrastructure Development Platform
+Cloud Infrastructure Platform - Enterprise Multi-Account Cloud Management
 Simple Blue Theme - Clean & Professional
 """
 
@@ -18,7 +18,7 @@ from components_sidebar import GlobalSidebar
 
 # Page configuration
 st.set_page_config(
-    page_title="CloudIDP Enhanced v2.0",
+    page_title="Cloud Infrastructure Platform",
     page_icon="☁️",
     layout="wide",
     initial_sidebar_state="expanded"
@@ -193,8 +193,8 @@ td {
 # Simple header
 st.markdown("""
 <div style="background: linear-gradient(135deg, #2E86DE 0%, #0652DD 100%); padding: 20px; border-radius: 10px; margin-bottom: 20px;">
-    <h1 style="color: white; margin: 0;">☁️ CloudIDP Enhanced v2.0</h1>
-    <p style="color: white; margin: 5px 0 0 0; opacity: 0.9;">Enterprise Multi-Account Cloud Infrastructure Development Platform</p>
+    <h1 style="color: white !important; margin: 0; font-weight: 600;">☁️ Cloud Infrastructure Platform</h1>
+    <p style="color: white !important; margin: 5px 0 0 0; font-size: 16px;">Enterprise Multi-Account Cloud Infrastructure Development Platform</p>
 </div>
 """, unsafe_allow_html=True)
 
@@ -218,7 +218,7 @@ def main():
     with col2:
         st.caption(f"🔗 Connected Accounts: {SessionManager.get_active_account_count()}")
     with col3:
-        st.caption("☁️ CloudIDP Enhanced v2.0")
+        st.caption("☁️ Cloud Infrastructure Platform")
 
 if __name__ == "__main__":
     main()
