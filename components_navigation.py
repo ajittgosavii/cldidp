@@ -21,6 +21,7 @@ class Navigation:
             "🏢 Organizations",
             "📐 Design & Planning",
             "🚀 Provisioning",
+            "🔄 CI/CD Pipelines",  # ← NEW TAB
             "⚙️ Operations",
             "⚡ Advanced Operations",
             "📜 Policy & Guardrails",
@@ -87,8 +88,16 @@ class Navigation:
             except Exception as e:
                 st.error(f"Error loading Provisioning: {str(e)}")
         
-        # Module 7: Operations
+        # Module 6.5: CI/CD Pipelines (NEW!)
         with tabs[7]:
+            try:
+                from modules_cicd_orchestration import CICDOrchestrationUI
+                CICDOrchestrationUI.render()
+            except Exception as e:
+                st.error(f"Error loading CI/CD Pipelines: {str(e)}")
+        
+        # Module 7: Operations
+        with tabs[8]:
             try:
                 from modules_operations import OperationsModule
                 OperationsModule.render()
@@ -96,7 +105,7 @@ class Navigation:
                 st.error(f"Error loading Operations: {str(e)}")
         
         # Module 7.5: Advanced Operations
-        with tabs[8]:
+        with tabs[9]:
             try:
                 from modules_advanced_operations import AdvancedOperationsModule
                 AdvancedOperationsModule.render()
@@ -104,7 +113,7 @@ class Navigation:
                 st.error(f"Error loading Advanced Operations: {str(e)}")
         
         # Module 8: Policy & Guardrails
-        with tabs[9]:
+        with tabs[10]:
             try:
                 from modules_policy_guardrails import PolicyGuardrailsModule
                 PolicyGuardrailsModule.render()
@@ -112,7 +121,7 @@ class Navigation:
                 st.error(f"Error loading Policy & Guardrails: {str(e)}")
         
         # Module 9: EKS Management
-        with tabs[10]:
+        with tabs[11]:
             try:
                 from modules_eks_management import EKSManagementModule
                 EKSManagementModule.render()
@@ -120,7 +129,7 @@ class Navigation:
                 st.error(f"Error loading EKS Management: {str(e)}")
         
         # Module 10: Security & Compliance
-        with tabs[11]:
+        with tabs[12]:
             try:
                 from modules_security_compliance import SecurityComplianceUI
                 SecurityComplianceUI.render()
@@ -128,7 +137,7 @@ class Navigation:
                 st.error(f"Error loading Security & Compliance: {str(e)}")
         
         # Module 11: FinOps
-        with tabs[12]:
+        with tabs[13]:
             try:
                 from modules_finops import FinOpsModule
                 FinOpsModule.render()
@@ -136,7 +145,7 @@ class Navigation:
                 st.error(f"Error loading FinOps: {str(e)}")
         
         # Module 12: Account Lifecycle
-        with tabs[13]:
+        with tabs[14]:
             try:
                 from modules_account_lifecycle import AccountLifecycleModule
                 AccountLifecycleModule.render()
@@ -144,7 +153,7 @@ class Navigation:
                 st.error(f"Error loading Account Lifecycle: {str(e)}")
         
         # Module 13: AI Assistant
-        with tabs[14]:
+        with tabs[15]:
             try:
                 from modules_ai_assistant import AIAssistantModule
                 AIAssistantModule.render()
