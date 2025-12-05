@@ -28,44 +28,66 @@ st.set_page_config(
 # Apply AWS Theme
 AWSTheme.apply_aws_theme()
 
-# ===== GLOBAL CSS FIX FOR BUTTON VISIBILITY =====
+# ===== ULTRA-AGGRESSIVE CSS FIX FOR BUTTON VISIBILITY =====
 st.markdown("""
 <style>
-/* Make all button text visible across entire app */
-.stButton button {
+/* ULTRA-AGGRESSIVE: Make ALL button text visible everywhere */
+button {
+    color: #1f1f1f !important;
+    font-weight: 600 !important;
+}
+
+div[data-testid="stButton"] button {
     color: #1f1f1f !important;
     font-weight: 600 !important;
     background-color: white !important;
     border: 2px solid #667eea !important;
 }
-.stButton button:hover {
+
+div[data-testid="stButton"] button:hover {
     background-color: #667eea !important;
     color: white !important;
+}
+
+.stButton button,
+.stButton > button,
+button[kind="secondary"],
+button[data-baseweb="button"] {
+    color: #1f1f1f !important;
+    font-weight: 600 !important;
+    background-color: white !important;
     border: 2px solid #667eea !important;
 }
 
-/* Primary button styling */
-.stButton button[kind="primary"] {
+.stButton button:hover,
+.stButton > button:hover {
+    background-color: #667eea !important;
+    color: white !important;
+}
+
+button[kind="primary"],
+button[kind="primary"][data-baseweb="button"] {
     background-color: #667eea !important;
     color: white !important;
     border: none !important;
 }
-.stButton button[kind="primary"]:hover {
+
+button[kind="primary"]:hover {
     background-color: #5568d3 !important;
 }
 
-/* Secondary button styling */
-.stButton button[kind="secondary"] {
-    color: #1f1f1f !important;
-    background-color: white !important;
-    border: 2px solid #667eea !important;
+/* Force text visibility */
+button span {
+    color: inherit !important;
 }
-.stButton button[kind="secondary"]:hover {
-    background-color: #f0f0f0 !important;
+
+/* Override any theme that might hide text */
+button[data-baseweb="button"] > div {
+    color: inherit !important;
 }
 </style>
 """, unsafe_allow_html=True)
-# ===== END GLOBAL CSS FIX =====
+# ===== END ULTRA-AGGRESSIVE CSS FIX =====
 
 def main():
     """Main application entry point"""
