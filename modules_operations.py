@@ -14,33 +14,6 @@ class OperationsModule:
     def render():
         """Main render method"""
         
-        # Custom CSS for button visibility
-        st.markdown("""
-        <style>
-        /* Make button text visible */
-        .stButton button {
-            color: #1f1f1f !important;
-            font-weight: 600 !important;
-            background-color: white !important;
-            border: 2px solid #667eea !important;
-        }
-        .stButton button:hover {
-            background-color: #667eea !important;
-            color: white !important;
-            border: 2px solid #667eea !important;
-        }
-        
-        /* Primary button styling */
-        .stButton button[kind="primary"] {
-            background-color: #667eea !important;
-            color: white !important;
-            border: none !important;
-        }
-        .stButton button[kind="primary"]:hover {
-            background-color: #5568d3 !important;
-        }
-        </style>
-        """, unsafe_allow_html=True)
         
         st.title("⚙️ Operations & Automation")
         
