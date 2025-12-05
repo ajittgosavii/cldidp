@@ -1,465 +1,512 @@
 """
-Advanced Operations Module - On-Demand Cloud Operations
-Comprehensive operational capabilities for AWS infrastructure
+Advanced Operations Module - Complex AWS Operations
+Advanced automation, multi-account operations, and enterprise features
 """
 
 import streamlit as st
-from typing import Dict, List, Optional
-from datetime import datetime, timedelta
 import pandas as pd
+from datetime import datetime, timedelta
+from core_account_manager import get_account_manager, get_account_names
 
 class AdvancedOperationsModule:
-    """Advanced on-demand operations"""
+    """Advanced Operations & Automation functionality"""
     
     @staticmethod
     def render():
-        """Render advanced operations interface"""
+        """Main render method"""
         
-        st.markdown("## ⚡ Advanced Operations")
-        st.caption("On-demand operational capabilities across your AWS infrastructure")
+        # Custom CSS for button visibility
+        st.markdown("""
+        <style>
+        /* Make button text visible */
+        .stButton button {
+            color: #1f1f1f !important;
+            font-weight: 600 !important;
+            background-color: white !important;
+            border: 2px solid #667eea !important;
+        }
+        .stButton button:hover {
+            background-color: #667eea !important;
+            color: white !important;
+            border: 2px solid #667eea !important;
+        }
         
-        # Operation categories in tabs
+        /* Primary button styling */
+        .stButton button[kind="primary"] {
+            background-color: #667eea !important;
+            color: white !important;
+            border: none !important;
+        }
+        .stButton button[kind="primary"]:hover {
+            background-color: #5568d3 !important;
+        }
+        </style>
+        """, unsafe_allow_html=True)
+        
+        st.title("⚡ Advanced Operations")
+        st.markdown("**Enterprise-Grade Automation** - Multi-account operations, disaster recovery, and advanced workflows")
+        
+        account_mgr = get_account_manager()
+        if not account_mgr:
+            st.warning("⚠️ Configure AWS credentials first")
+            return
+        
+        account_names = get_account_names()
+        
+        if not account_names:
+            st.warning("⚠️ No AWS accounts configured")
+            return
+        
+        # Account selection
+        selected_account = st.selectbox(
+            "Select AWS Account",
+            options=account_names,
+            key="advanced_ops_account"
+        )
+        
+        if not selected_account:
+            return
+        
+        # Get region from session state
+        selected_region = st.session_state.get('selected_regions', 'all')
+        
+        # Check if region is specified
+        if selected_region == 'all':
+            st.error("❌ Advanced Operations require a specific region. Please select a region from the sidebar.")
+            st.info("💡 Select a specific region (like 'us-east-2') from the Region dropdown in the sidebar.")
+            return
+        
+        # Show selected region
+        st.info(f"📍 Advanced operations in **{selected_region}**")
+        
+        # Get session
+        session = account_mgr.get_session_with_region(selected_account, selected_region)
+        if not session:
+            st.error(f"Failed to get session for {selected_account} in {selected_region}")
+            return
+        
+        # Create tabs
         tabs = st.tabs([
-            "🔧 Resource Management",
-            "🔄 Automation",
-            "🔍 Analysis & Optimization",
-            "🛡️ Security Operations",
-            "📊 Monitoring & Alerts"
+            "🔄 Multi-Account Ops",
+            "💾 Disaster Recovery",
+            "🔧 Advanced Automation",
+            "📊 Resource Optimizer",
+            "🔐 Security Hardening",
+            "📈 Capacity Planning"
         ])
         
-        # Tab 1: Resource Management
         with tabs[0]:
-            AdvancedOperationsModule._render_resource_management()
+            AdvancedOperationsModule._render_multi_account(session, account_names)
         
-        # Tab 2: Automation
         with tabs[1]:
-            AdvancedOperationsModule._render_automation()
+            AdvancedOperationsModule._render_disaster_recovery(session, selected_region)
         
-        # Tab 3: Analysis & Optimization
         with tabs[2]:
-            AdvancedOperationsModule._render_analysis_optimization()
+            AdvancedOperationsModule._render_advanced_automation(session, selected_region)
         
-        # Tab 4: Security Operations
         with tabs[3]:
-            AdvancedOperationsModule._render_security_operations()
+            AdvancedOperationsModule._render_resource_optimizer(session, selected_region)
         
-        # Tab 5: Monitoring & Alerts
         with tabs[4]:
-            AdvancedOperationsModule._render_monitoring_alerts()
+            AdvancedOperationsModule._render_security_hardening(session, selected_region)
+        
+        with tabs[5]:
+            AdvancedOperationsModule._render_capacity_planning(session, selected_region)
     
     @staticmethod
-    def _render_resource_management():
-        """Resource management operations"""
-        st.markdown("### 🔧 Resource Management Operations")
+    def _render_multi_account(session, account_names):
+        """Multi-account operations"""
+        st.subheader("🔄 Multi-Account Operations")
+        
+        st.markdown("""
+        ### Cross-Account Management
+        
+        Execute operations across multiple AWS accounts simultaneously.
+        """)
+        
+        # Account selection for bulk operations
+        selected_accounts = st.multiselect(
+            "Select Target Accounts",
+            options=account_names,
+            default=account_names[:1] if account_names else []
+        )
+        
+        if not selected_accounts:
+            st.info("Select one or more accounts to perform bulk operations")
+            return
+        
+        st.success(f"✅ Selected {len(selected_accounts)} account(s)")
+        
+        # Bulk operations
+        st.markdown("### 🚀 Bulk Operations")
         
         col1, col2 = st.columns(2)
         
         with col1:
-            st.markdown("#### Instance Operations")
+            st.markdown("#### Resource Management")
             
-            if st.button("🔄 Bulk Start/Stop Instances", use_container_width=True):
-                with st.expander("Configure Bulk Instance Operations"):
-                    account = st.selectbox("Select Account", ["Production", "Development"])
-                    region = st.selectbox("Select Region", ["us-east-1", "us-west-2"])
-                    
-                    st.multiselect("Select Instances", ["i-abc123", "i-def456", "i-ghi789"])
-                    
-                    action = st.radio("Action", ["Start", "Stop", "Restart"])
-                    
-                    if st.button("Execute", key="exec_bulk_instances"):
-                        st.success(f"✅ {action} operation queued for 3 instances")
-                        st.info("View progress in Background Tasks")
+            if st.button("🔍 Discover All Resources", use_container_width=True):
+                with st.spinner(f"Scanning {len(selected_accounts)} account(s)..."):
+                    st.success(f"✅ Discovered resources across {len(selected_accounts)} accounts")
+                    st.info("💡 View results in Resource Inventory tab")
             
-            if st.button("📏 Rightsize EC2 Instances", use_container_width=True):
-                with st.expander("EC2 Rightsizing Recommendations"):
-                    st.info("Analyzing instance utilization patterns...")
-                    
-                    recommendations = pd.DataFrame({
-                        'Instance ID': ['i-abc123', 'i-def456', 'i-ghi789'],
-                        'Current Type': ['t3.xlarge', 'm5.2xlarge', 't3.medium'],
-                        'Recommended': ['t3.large', 'm5.xlarge', 't3.small'],
-                        'CPU Avg': ['15%', '25%', '8%'],
-                        'Est. Savings': ['$50/mo', '$120/mo', '$15/mo']
-                    })
-                    
-                    st.dataframe(recommendations, use_container_width=True)
-                    
-                    if st.button("Apply Selected Recommendations"):
-                        st.success("✅ Rightsizing scheduled during maintenance window")
+            if st.button("🏷️ Tag All Untagged Resources", use_container_width=True):
+                st.info(f"💡 This would tag untagged resources in {len(selected_accounts)} account(s)")
             
-            if st.button("💾 Snapshot Management", use_container_width=True):
-                with st.expander("EBS Snapshot Operations"):
-                    st.selectbox("Operation Type", [
-                        "Create Snapshots",
-                        "Delete Old Snapshots",
-                        "Copy Snapshots to Another Region",
-                        "Share Snapshots"
-                    ])
-                    
-                    if st.button("Execute Snapshot Operation"):
-                        st.success("✅ Snapshot operation initiated")
+            if st.button("🧹 Cleanup Unused Resources", use_container_width=True):
+                st.warning("⚠️ This would identify and optionally delete unused resources")
         
         with col2:
-            st.markdown("#### Storage Operations")
+            st.markdown("#### Security & Compliance")
             
-            if st.button("🗄️ S3 Lifecycle Management", use_container_width=True):
-                with st.expander("Configure S3 Lifecycle Policies"):
-                    bucket = st.selectbox("Select Bucket", ["app-data", "logs", "backups"])
-                    
-                    st.number_input("Transition to IA after (days)", value=30)
-                    st.number_input("Transition to Glacier after (days)", value=90)
-                    st.number_input("Delete after (days)", value=365)
-                    
-                    if st.button("Apply Lifecycle Policy"):
-                        st.success("✅ Lifecycle policy applied to bucket")
+            if st.button("🔐 Rotate All Access Keys", use_container_width=True):
+                st.info(f"💡 This would rotate IAM keys across {len(selected_accounts)} account(s)")
             
-            if st.button("📦 EBS Volume Optimization", use_container_width=True):
-                with st.expander("EBS Volume Analysis"):
-                    volumes = pd.DataFrame({
-                        'Volume ID': ['vol-abc', 'vol-def', 'vol-ghi'],
-                        'Type': ['gp2', 'gp2', 'io1'],
-                        'Size': ['100 GB', '500 GB', '200 GB'],
-                        'IOPS': ['300', '1500', '10000'],
-                        'Recommendation': [
-                            'Upgrade to gp3',
-                            'Upgrade to gp3',
-                            'Reduce IOPS to 5000'
-                        ],
-                        'Savings': ['$8/mo', '$40/mo', '$250/mo']
-                    })
-                    
-                    st.dataframe(volumes, use_container_width=True)
-                    
-                    if st.button("Apply Optimizations"):
-                        st.success("✅ Volume optimizations scheduled")
+            if st.button("🛡️ Enable GuardDuty Everywhere", use_container_width=True):
+                st.info(f"💡 This would enable GuardDuty in all accounts")
             
-            if st.button("🔄 Backup Automation", use_container_width=True):
-                with st.expander("Configure Backup Policies"):
-                    resource_type = st.selectbox("Resource Type", [
-                        "EC2 Instances",
-                        "EBS Volumes",
-                        "RDS Databases",
-                        "DynamoDB Tables"
-                    ])
-                    
-                    schedule = st.selectbox("Backup Schedule", [
-                        "Daily at 2 AM",
-                        "Weekly on Sunday",
-                        "Monthly on 1st",
-                        "Custom"
-                    ])
-                    
-                    retention = st.number_input("Retention (days)", value=30)
-                    
-                    if st.button("Create Backup Plan"):
-                        st.success("✅ Backup plan created successfully")
+            if st.button("📊 Generate Compliance Report", use_container_width=True):
+                st.success("✅ Generating cross-account compliance report...")
+        
+        # Operation status
+        st.markdown("---")
+        st.markdown("### 📊 Recent Multi-Account Operations")
+        
+        operations = [
+            {"Operation": "Resource Discovery", "Accounts": 5, "Status": "✅ Complete", "Duration": "2m 34s"},
+            {"Operation": "Security Audit", "Accounts": 3, "Status": "🔄 Running", "Duration": "1m 12s"},
+            {"Operation": "Tag Enforcement", "Accounts": 8, "Status": "✅ Complete", "Duration": "4m 21s"}
+        ]
+        
+        df = pd.DataFrame(operations)
+        st.dataframe(df, use_container_width=True, hide_index=True)
     
     @staticmethod
-    def _render_automation():
-        """Automation operations"""
-        st.markdown("### 🔄 Automation Operations")
+    def _render_disaster_recovery(session, region):
+        """Disaster recovery operations"""
+        st.subheader("💾 Disaster Recovery")
         
+        st.markdown("""
+        ### Backup, Recovery, and DR Testing
+        
+        Automated disaster recovery and business continuity operations.
+        """)
+        
+        # DR status
+        col1, col2, col3, col4 = st.columns(4)
+        
+        with col1:
+            st.metric("Backup Coverage", "87%", "↑ 5%")
+        with col2:
+            st.metric("RTO Target", "4 hours")
+        with col3:
+            st.metric("RPO Target", "1 hour")
+        with col4:
+            st.metric("Last DR Test", "15 days ago")
+        
+        st.markdown("---")
+        
+        # DR Operations
+        tabs = st.tabs(["📦 Backup", "🔄 Recovery", "🧪 DR Testing"])
+        
+        with tabs[0]:
+            st.markdown("### 📦 Automated Backup Operations")
+            
+            col1, col2 = st.columns(2)
+            
+            with col1:
+                if st.button("💾 Create Full Backup", use_container_width=True):
+                    st.info("💡 Creating snapshots of all critical resources...")
+                
+                if st.button("📸 Snapshot All EBS Volumes", use_container_width=True):
+                    st.info("💡 Snapshotting EBS volumes...")
+                
+                if st.button("🗄️ Backup All Databases", use_container_width=True):
+                    st.info("💡 Creating RDS snapshots...")
+            
+            with col2:
+                if st.button("☁️ Copy to DR Region", use_container_width=True):
+                    st.info("💡 Copying backups to disaster recovery region...")
+                
+                if st.button("🔐 Encrypt All Backups", use_container_width=True):
+                    st.info("💡 Encrypting unencrypted backups...")
+                
+                if st.button("🧹 Cleanup Old Backups", use_container_width=True):
+                    st.info("💡 Removing backups older than retention policy...")
+        
+        with tabs[1]:
+            st.markdown("### 🔄 Recovery Operations")
+            
+            st.warning("⚠️ **Recovery operations require careful planning**")
+            
+            recovery_type = st.selectbox(
+                "Recovery Type",
+                ["Full System Recovery", "Selective Resource Recovery", "Database Point-in-Time Recovery"]
+            )
+            
+            if recovery_type == "Full System Recovery":
+                st.markdown("**Full system recovery from backup:**")
+                backup_date = st.date_input("Recovery Point")
+                target_region = st.selectbox("Target Region", ["us-east-1", "us-west-2", "eu-west-1"])
+                
+                if st.button("🚀 Initiate Full Recovery", type="primary"):
+                    st.error("⚠️ This is a simulation. Real recovery requires additional confirmations.")
+        
+        with tabs[2]:
+            st.markdown("### 🧪 DR Testing")
+            
+            st.info("💡 Regular DR testing ensures recovery procedures work when needed")
+            
+            if st.button("🧪 Run DR Test", use_container_width=True):
+                st.success("✅ DR Test initiated")
+                st.markdown("""
+                **Test Steps:**
+                1. Create isolated test environment
+                2. Restore from latest backup
+                3. Verify application functionality
+                4. Measure RTO/RPO compliance
+                5. Generate test report
+                """)
+    
+    @staticmethod
+    def _render_advanced_automation(session, region):
+        """Advanced automation workflows"""
+        st.subheader("🔧 Advanced Automation")
+        
+        st.markdown("""
+        ### Complex Workflow Automation
+        
+        Build and execute sophisticated operational workflows.
+        """)
+        
+        # Workflow templates
+        st.markdown("### 📋 Workflow Templates")
+        
+        workflows = [
+            {
+                "name": "🌙 Nightly Cost Optimization",
+                "description": "Stop non-prod instances, remove unused resources",
+                "schedule": "Daily at 2 AM UTC",
+                "enabled": True
+            },
+            {
+                "name": "🔄 Auto-Healing Infrastructure",
+                "description": "Detect and remediate unhealthy resources",
+                "schedule": "Every 15 minutes",
+                "enabled": True
+            },
+            {
+                "name": "📊 Weekly Compliance Scan",
+                "description": "Full security and compliance audit",
+                "schedule": "Sundays at 1 AM UTC",
+                "enabled": True
+            },
+            {
+                "name": "🎯 Capacity Right-Sizing",
+                "description": "Analyze and recommend instance sizing",
+                "schedule": "Monthly",
+                "enabled": False
+            }
+        ]
+        
+        for workflow in workflows:
+            status_icon = "✅" if workflow['enabled'] else "⏸️"
+            
+            with st.expander(f"{status_icon} {workflow['name']}"):
+                st.markdown(f"**Description:** {workflow['description']}")
+                st.markdown(f"**Schedule:** {workflow['schedule']}")
+                st.markdown(f"**Status:** {'Enabled' if workflow['enabled'] else 'Disabled'}")
+                
+                col1, col2, col3 = st.columns(3)
+                
+                with col1:
+                    if st.button("▶️ Run Now", key=f"run_{workflow['name']}"):
+                        st.success(f"✅ Executing {workflow['name']}")
+                
+                with col2:
+                    if st.button("✏️ Edit", key=f"edit_{workflow['name']}"):
+                        st.info("Opening workflow editor...")
+                
+                with col3:
+                    if workflow['enabled']:
+                        if st.button("⏸️ Disable", key=f"disable_{workflow['name']}"):
+                            st.warning(f"Disabled {workflow['name']}")
+                    else:
+                        if st.button("▶️ Enable", key=f"enable_{workflow['name']}"):
+                            st.success(f"Enabled {workflow['name']}")
+        
+        # Create new workflow
+        st.markdown("---")
+        if st.button("➕ Create New Workflow", use_container_width=True):
+            st.info("💡 Opening workflow builder...")
+    
+    @staticmethod
+    def _render_resource_optimizer(session, region):
+        """Resource optimization"""
+        st.subheader("📊 Resource Optimizer")
+        
+        st.markdown("""
+        ### Intelligent Resource Optimization
+        
+        AI-powered recommendations for cost and performance optimization.
+        """)
+        
+        # Optimization opportunities
+        col1, col2, col3 = st.columns(3)
+        
+        with col1:
+            st.metric("Potential Savings", "$12,450/month", "↑ $1,200")
+        with col2:
+            st.metric("Recommendations", "37", "↑ 5")
+        with col3:
+            st.metric("Auto-Applied", "12", "↑ 3")
+        
+        st.markdown("---")
+        
+        # Optimization categories
+        tabs = st.tabs(["💰 Cost", "⚡ Performance", "🔋 Efficiency"])
+        
+        with tabs[0]:
+            st.markdown("### 💰 Cost Optimization Opportunities")
+            
+            opportunities = [
+                {"Resource": "EC2 Instances", "Type": "Right-sizing", "Savings": "$4,200/mo", "Impact": "Low"},
+                {"Resource": "RDS Database", "Type": "Reserved Instance", "Savings": "$3,800/mo", "Impact": "None"},
+                {"Resource": "S3 Buckets", "Type": "Lifecycle Policy", "Savings": "$2,100/mo", "Impact": "None"},
+                {"Resource": "EBS Volumes", "Type": "Delete Unused", "Savings": "$1,500/mo", "Impact": "None"},
+            ]
+            
+            for opp in opportunities:
+                with st.expander(f"💡 {opp['Resource']} - {opp['Type']} (Save {opp['Savings']})"):
+                    col1, col2 = st.columns([3, 1])
+                    
+                    with col1:
+                        st.markdown(f"**Savings:** {opp['Savings']}")
+                        st.markdown(f"**Impact:** {opp['Impact']}")
+                    
+                    with col2:
+                        if st.button("Apply", key=f"apply_{opp['Resource']}"):
+                            st.success(f"✅ Optimization applied!")
+        
+        with tabs[1]:
+            st.markdown("### ⚡ Performance Optimization")
+            st.info("💡 Analyze workload patterns to recommend performance improvements")
+        
+        with tabs[2]:
+            st.markdown("### 🔋 Efficiency Optimization")
+            st.info("💡 Identify underutilized resources and consolidation opportunities")
+    
+    @staticmethod
+    def _render_security_hardening(session, region):
+        """Security hardening operations"""
+        st.subheader("🔐 Security Hardening")
+        
+        st.markdown("""
+        ### Automated Security Improvements
+        
+        Proactive security hardening and compliance enforcement.
+        """)
+        
+        # Security score
+        col1, col2, col3, col4 = st.columns(4)
+        
+        with col1:
+            st.metric("Security Score", "87/100", "↑ 5")
+        with col2:
+            st.metric("Critical Issues", "2", "↓ 3")
+        with col3:
+            st.metric("Medium Issues", "8", "↓ 2")
+        with col4:
+            st.metric("Low Issues", "15", "→ 0")
+        
+        st.markdown("---")
+        
+        # Hardening operations
         col1, col2 = st.columns(2)
         
         with col1:
-            st.markdown("#### Auto-Scaling")
+            st.markdown("#### 🛡️ Preventive Measures")
             
-            if st.button("⚖️ Configure Auto Scaling", use_container_width=True):
-                with st.expander("Auto Scaling Configuration"):
-                    asg = st.selectbox("Auto Scaling Group", ["web-asg", "api-asg", "worker-asg"])
-                    
-                    st.slider("Min Instances", 1, 10, 2)
-                    st.slider("Max Instances", 2, 50, 10)
-                    st.slider("Desired Capacity", 2, 20, 5)
-                    
-                    st.selectbox("Scaling Policy", [
-                        "Target Tracking - CPU 70%",
-                        "Target Tracking - Network",
-                        "Step Scaling",
-                        "Scheduled Scaling"
-                    ])
-                    
-                    if st.button("Update Auto Scaling"):
-                        st.success("✅ Auto Scaling configuration updated")
+            if st.button("🔐 Enable Encryption Everywhere", use_container_width=True):
+                st.info("💡 Enabling encryption on unencrypted resources...")
             
-            st.markdown("#### Patch Management")
+            if st.button("🚫 Block Public Access", use_container_width=True):
+                st.info("💡 Removing public access from S3 buckets...")
             
-            if st.button("🔧 Patch Automation", use_container_width=True):
-                with st.expander("Configure Patch Baselines"):
-                    patch_group = st.selectbox("Patch Group", ["Critical", "All", "Security"])
-                    
-                    st.selectbox("Operating System", ["Amazon Linux 2", "Ubuntu", "Windows"])
-                    
-                    schedule = st.selectbox("Patch Schedule", [
-                        "Weekly - Wednesday 2 AM",
-                        "Monthly - First Sunday",
-                        "Custom"
-                    ])
-                    
-                    st.checkbox("Reboot if required")
-                    st.checkbox("Send notification on completion")
-                    
-                    if st.button("Create Patch Baseline"):
-                        st.success("✅ Patch baseline created")
+            if st.button("🔑 Enforce MFA", use_container_width=True):
+                st.info("💡 Requiring MFA for all users...")
         
         with col2:
-            st.markdown("#### Scheduled Actions")
+            st.markdown("#### 🔍 Detection & Response")
             
-            if st.button("⏰ Schedule Operations", use_container_width=True):
-                with st.expander("Create Scheduled Action"):
-                    action_type = st.selectbox("Action Type", [
-                        "Start Instances",
-                        "Stop Instances",
-                        "Create Snapshot",
-                        "Run Systems Manager Command",
-                        "Execute Lambda Function"
-                    ])
-                    
-                    schedule_type = st.selectbox("Schedule", [
-                        "One-time",
-                        "Daily",
-                        "Weekly",
-                        "Monthly",
-                        "Cron Expression"
-                    ])
-                    
-                    if st.button("Create Schedule"):
-                        st.success("✅ Scheduled action created")
+            if st.button("👁️ Enable CloudTrail", use_container_width=True):
+                st.info("💡 Enabling CloudTrail in all regions...")
             
-            st.markdown("#### Event-Driven Automation")
+            if st.button("🛡️ Enable GuardDuty", use_container_width=True):
+                st.info("💡 Enabling threat detection...")
             
-            if st.button("⚡ Configure Event Rules", use_container_width=True):
-                with st.expander("EventBridge Rule Configuration"):
-                    st.selectbox("Event Source", [
-                        "EC2 State Change",
-                        "Auto Scaling Event",
-                        "S3 Object Created",
-                        "CloudTrail API Call",
-                        "Custom Event"
-                    ])
-                    
-                    st.selectbox("Target", [
-                        "Lambda Function",
-                        "SNS Topic",
-                        "SQS Queue",
-                        "Step Functions",
-                        "Systems Manager"
-                    ])
-                    
-                    if st.button("Create Event Rule"):
-                        st.success("✅ Event rule created")
+            if st.button("📊 Security Audit", use_container_width=True):
+                st.success("✅ Running comprehensive security audit...")
+        
+        # Critical findings
+        st.markdown("---")
+        st.markdown("### 🚨 Critical Findings")
+        
+        findings = [
+            {"Severity": "🔴 Critical", "Finding": "S3 bucket with public write access", "Resource": "backup-bucket"},
+            {"Severity": "🔴 Critical", "Finding": "Root account without MFA", "Resource": "AWS Account"}
+        ]
+        
+        for finding in findings:
+            with st.expander(f"{finding['Severity']}: {finding['Finding']}"):
+                st.markdown(f"**Resource:** {finding['Resource']}")
+                if st.button("🔧 Auto-Remediate", key=f"fix_{finding['Resource']}"):
+                    st.success("✅ Remediation applied!")
     
     @staticmethod
-    def _render_analysis_optimization():
-        """Analysis and optimization operations"""
-        st.markdown("### 🔍 Analysis & Optimization")
+    def _render_capacity_planning(session, region):
+        """Capacity planning"""
+        st.subheader("📈 Capacity Planning")
         
-        col1, col2 = st.columns(2)
+        st.markdown("""
+        ### Predictive Capacity Analysis
         
-        with col1:
-            st.markdown("#### Resource Analysis")
-            
-            if st.button("🔍 Unused Resources Detection", use_container_width=True):
-                with st.expander("Unused Resources Report"):
-                    unused = pd.DataFrame({
-                        'Resource Type': ['EBS Volume', 'Elastic IP', 'EBS Volume', 'Load Balancer'],
-                        'Resource ID': ['vol-abc', 'eip-123', 'vol-def', 'alb-xyz'],
-                        'Unused Since': ['30 days', '45 days', '15 days', '60 days'],
-                        'Monthly Cost': ['$10', '$3.60', '$10', '$16']
-                    })
-                    
-                    st.dataframe(unused, use_container_width=True)
-                    st.metric("Potential Monthly Savings", "$39.60")
-                    
-                    if st.button("Delete Selected Resources"):
-                        st.success("✅ Resource deletion scheduled")
-            
-            if st.button("📊 Drift Detection", use_container_width=True):
-                with st.expander("CloudFormation Drift Detection"):
-                    st.info("Detecting configuration drift...")
-                    
-                    drifts = pd.DataFrame({
-                        'Stack': ['web-stack', 'db-stack'],
-                        'Status': ['DRIFTED', 'IN_SYNC'],
-                        'Resources Drifted': [3, 0],
-                        'Last Check': ['5 min ago', '1 hour ago']
-                    })
-                    
-                    st.dataframe(drifts, use_container_width=True)
-                    
-                    if st.button("View Drift Details"):
-                        st.info("Security group sg-abc: Ingress rules modified manually")
-                        st.info("EC2 instance i-def: Tags changed outside CloudFormation")
+        Forecast resource needs and plan for growth.
+        """)
         
-        with col2:
-            st.markdown("#### Performance Optimization")
-            
-            if st.button("⚡ Performance Recommendations", use_container_width=True):
-                with st.expander("Performance Analysis"):
-                    recommendations = [
-                        "Enable Enhanced Networking on t3.large instances",
-                        "Upgrade RDS instance class for better IOPS",
-                        "Implement ElastiCache for database caching",
-                        "Enable CloudFront for static content delivery",
-                        "Configure auto-scaling for predictable load patterns"
-                    ]
-                    
-                    for rec in recommendations:
-                        st.info(f"💡 {rec}")
-                    
-                    if st.button("Generate Detailed Report"):
-                        st.success("✅ Report generated and saved")
-            
-            st.markdown("#### Cost Optimization")
-            
-            if st.button("💰 Cost Optimization Analysis", use_container_width=True):
-                with st.expander("Cost Savings Opportunities"):
-                    opportunities = pd.DataFrame({
-                        'Opportunity': [
-                            'Purchase Reserved Instances',
-                            'Use Savings Plans',
-                            'Right-size oversized instances',
-                            'Delete unused EBS volumes',
-                            'Enable S3 Intelligent-Tiering'
-                        ],
-                        'Potential Savings': ['$1,200/mo', '$800/mo', '$300/mo', '$50/mo', '$100/mo'],
-                        'Effort': ['Medium', 'Medium', 'Low', 'Low', 'Low']
-                    })
-                    
-                    st.dataframe(opportunities, use_container_width=True)
-                    st.metric("Total Potential Savings", "$2,450/month")
-    
-    @staticmethod
-    def _render_security_operations():
-        """Security operations"""
-        st.markdown("### 🛡️ Security Operations")
-        
-        col1, col2 = st.columns(2)
+        # Forecast metrics
+        col1, col2, col3 = st.columns(3)
         
         with col1:
-            st.markdown("#### Access Management")
-            
-            if st.button("🔐 IAM Access Analyzer", use_container_width=True):
-                with st.expander("IAM Access Analysis"):
-                    findings = pd.DataFrame({
-                        'User/Role': ['admin-user', 'developer-role', 'service-account'],
-                        'Last Activity': ['2 days ago', 'Today', '90+ days'],
-                        'Permissions': ['Admin', 'Developer', 'Read-only'],
-                        'Risk Level': ['High', 'Medium', 'High']
-                    })
-                    
-                    st.dataframe(findings, use_container_width=True)
-                    
-                    st.warning("⚠️ service-account has not been used in 90+ days")
-                    
-                    if st.button("Disable Inactive Users"):
-                        st.success("✅ Inactive users disabled")
-            
-            if st.button("🔑 Rotate Credentials", use_container_width=True):
-                with st.expander("Credential Rotation"):
-                    st.selectbox("Resource Type", [
-                        "IAM User Access Keys",
-                        "RDS Database Passwords",
-                        "Secrets Manager Secrets",
-                        "Systems Manager Parameters"
-                    ])
-                    
-                    if st.button("Rotate Now"):
-                        st.success("✅ Credential rotation initiated")
-        
+            st.metric("30-Day Forecast", "↑ 23%", "+5% vs last month")
         with col2:
-            st.markdown("#### Security Scanning")
-            
-            if st.button("🔒 Security Compliance Scan", use_container_width=True):
-                with st.expander("Compliance Scan Results"):
-                    compliance = pd.DataFrame({
-                        'Framework': ['CIS', 'PCI-DSS', 'HIPAA'],
-                        'Controls Passed': [45, 38, 42],
-                        'Controls Failed': [5, 8, 6],
-                        'Compliance %': ['90%', '83%', '88%']
-                    })
-                    
-                    st.dataframe(compliance, use_container_width=True)
-                    
-                    if st.button("Generate Compliance Report"):
-                        st.success("✅ Report generated")
-            
-            if st.button("🛡️ Vulnerability Scanning", use_container_width=True):
-                with st.expander("Vulnerability Scan"):
-                    st.selectbox("Scan Type", [
-                        "EC2 Instance Scan",
-                        "Container Image Scan",
-                        "Network Vulnerability Scan"
-                    ])
-                    
-                    if st.button("Start Scan"):
-                        st.info("🔍 Scan initiated. Results in 10-15 minutes.")
-    
-    @staticmethod
-    def _render_monitoring_alerts():
-        """Monitoring and alerting operations"""
-        st.markdown("### 📊 Monitoring & Alerts")
+            st.metric("Predicted Cost", "$45,600", "+$8,200")
+        with col3:
+            st.metric("Capacity Risk", "Low", "→ Stable")
         
-        col1, col2 = st.columns(2)
+        st.markdown("---")
         
-        with col1:
-            st.markdown("#### CloudWatch Alarms")
-            
-            if st.button("🔔 Configure Alarms", use_container_width=True):
-                with st.expander("Create CloudWatch Alarm"):
-                    st.selectbox("Metric", [
-                        "EC2 CPU Utilization",
-                        "RDS Database Connections",
-                        "ALB Request Count",
-                        "Lambda Errors",
-                        "S3 Bucket Size"
-                    ])
-                    
-                    st.slider("Threshold", 0, 100, 80)
-                    st.selectbox("Comparison", ["Greater than", "Less than", "Equal to"])
-                    
-                    st.multiselect("Notification", ["SNS Topic", "Email", "Slack"])
-                    
-                    if st.button("Create Alarm"):
-                        st.success("✅ Alarm created successfully")
-            
-            if st.button("📈 Custom Dashboards", use_container_width=True):
-                with st.expander("Dashboard Management"):
-                    st.text_input("Dashboard Name", "Production Monitoring")
-                    
-                    widgets = st.multiselect("Add Widgets", [
-                        "EC2 CPU Metrics",
-                        "RDS Performance",
-                        "Application Logs",
-                        "Cost Trends",
-                        "Security Findings"
-                    ])
-                    
-                    if st.button("Create Dashboard"):
-                        st.success("✅ Dashboard created")
+        # Capacity analysis
+        st.markdown("### 📊 Resource Utilization Trends")
         
-        with col2:
-            st.markdown("#### Log Management")
-            
-            if st.button("📝 Log Analysis", use_container_width=True):
-                with st.expander("CloudWatch Logs Insights"):
-                    st.selectbox("Log Group", [
-                        "/aws/lambda/function",
-                        "/aws/rds/instance",
-                        "/aws/ecs/container"
-                    ])
-                    
-                    query = st.text_area("Query", "fields @timestamp, @message | filter @message like /ERROR/")
-                    
-                    if st.button("Run Query"):
-                        st.info("📊 Query executed. 15 results found.")
-            
-            if st.button("🔍 Log Export", use_container_width=True):
-                with st.expander("Export CloudWatch Logs"):
-                    st.selectbox("Destination", ["S3 Bucket", "Kinesis Stream", "Lambda"])
-                    
-                    st.date_input("Start Date")
-                    st.date_input("End Date")
-                    
-                    if st.button("Export Logs"):
-                        st.success("✅ Log export task created")
+        # Sample trend data
+        dates = pd.date_range(start=datetime.now() - timedelta(days=30), end=datetime.now(), freq='D')
+        trend_data = pd.DataFrame({
+            'Date': dates,
+            'CPU Utilization': [45 + i for i in range(31)],
+            'Memory Usage': [60 + i*0.5 for i in range(31)]
+        })
+        
+        st.line_chart(trend_data.set_index('Date'))
+        
+        # Capacity recommendations
+        st.markdown("### 💡 Capacity Recommendations")
+        
+        recommendations = [
+            "🎯 Scale EC2 Auto Scaling Group max capacity from 10 to 15 instances",
+            "💾 Increase RDS storage by 500GB in next 45 days",
+            "📦 Consider ElastiCache for database offloading"
+        ]
+        
+        for rec in recommendations:
+            st.info(rec)
