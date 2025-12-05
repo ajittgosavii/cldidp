@@ -28,47 +28,61 @@ st.set_page_config(
 # Apply AWS Theme
 AWSTheme.apply_aws_theme()
 
-# ===== ULTRA-AGGRESSIVE CSS FIX FOR BUTTON VISIBILITY =====
+# ===== NUCLEAR OPTION: FORCE BUTTON TEXT VISIBILITY =====
 st.markdown("""
 <style>
-/* ULTRA-AGGRESSIVE: Make ALL button text visible everywhere */
-button {
-    color: #1f1f1f !important;
-    font-weight: 600 !important;
-}
-
-div[data-testid="stButton"] button {
-    color: #1f1f1f !important;
-    font-weight: 600 !important;
-    background-color: white !important;
-    border: 2px solid #667eea !important;
-}
-
-div[data-testid="stButton"] button:hover {
-    background-color: #667eea !important;
-    color: white !important;
-}
-
+/* NUCLEAR: Override EVERYTHING to force black text on white buttons */
+button,
+button *,
+button span,
+button div,
 .stButton button,
-.stButton > button,
-button[kind="secondary"],
-button[data-baseweb="button"] {
-    color: #1f1f1f !important;
+.stButton button *,
+.stButton button span,
+.stButton button div,
+div[data-testid="stButton"] button,
+div[data-testid="stButton"] button *,
+div[data-testid="stButton"] button span,
+div[data-testid="stButton"] button div,
+button[data-baseweb="button"],
+button[data-baseweb="button"] *,
+button[data-baseweb="button"] span,
+button[data-baseweb="button"] div {
+    color: #000000 !important;
     font-weight: 600 !important;
-    background-color: white !important;
+}
+
+/* Force button backgrounds to be white */
+button,
+.stButton button,
+div[data-testid="stButton"] button,
+button[data-baseweb="button"] {
+    background-color: #ffffff !important;
     border: 2px solid #667eea !important;
 }
 
+/* Hover state - purple background, white text */
+button:hover,
+button:hover *,
+button:hover span,
+button:hover div,
 .stButton button:hover,
-.stButton > button:hover {
+.stButton button:hover *,
+div[data-testid="stButton"] button:hover,
+div[data-testid="stButton"] button:hover *,
+button[data-baseweb="button"]:hover,
+button[data-baseweb="button"]:hover * {
+    color: #ffffff !important;
     background-color: #667eea !important;
-    color: white !important;
 }
 
+/* Primary buttons - purple background, white text always */
 button[kind="primary"],
-button[kind="primary"][data-baseweb="button"] {
+button[kind="primary"] *,
+button[kind="primary"] span,
+button[kind="primary"] div {
     background-color: #667eea !important;
-    color: white !important;
+    color: #ffffff !important;
     border: none !important;
 }
 
@@ -76,18 +90,23 @@ button[kind="primary"]:hover {
     background-color: #5568d3 !important;
 }
 
-/* Force text visibility */
-button span {
-    color: inherit !important;
+/* Force visibility of ALL text elements */
+* {
+    visibility: visible !important;
 }
 
-/* Override any theme that might hide text */
-button[data-baseweb="button"] > div {
-    color: inherit !important;
+/* Override any display:none on text */
+button span,
+button div,
+.stButton button span,
+.stButton button div {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
 }
 </style>
 """, unsafe_allow_html=True)
-# ===== END ULTRA-AGGRESSIVE CSS FIX =====
+# ===== END NUCLEAR OPTION =====
 
 def main():
     """Main application entry point"""
