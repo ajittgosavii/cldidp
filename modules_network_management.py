@@ -159,7 +159,10 @@ class NetworkManagementUI:
                     # Tags
                     if vpc_details.get('tags'):
                         st.write("**Tags:**")
-                        st.json(vpc_details['tags'])
+                        # Display tags as a nice table instead of JSON
+                        tags_data = [{"Key": k, "Value": v} for k, v in vpc_details['tags'].items()]
+                        tags_df = pd.DataFrame(tags_data)
+                        st.dataframe(tags_df, hide_index=True, use_container_width=True)
     
     @staticmethod
     def _render_create_vpc(vpc_mgr: VPCManager):
