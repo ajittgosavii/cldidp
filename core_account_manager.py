@@ -7,7 +7,7 @@ from botocore.exceptions import ClientError, BotoCoreError
 import streamlit as st
 from typing import Dict, List, Optional, Tuple
 from dataclasses import dataclass
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 import json
 
 @dataclass
@@ -68,13 +68,13 @@ class AWSAccountManager:
         if cache_key in self._session_cache:
             cached_session = self._session_cache[cache_key]
             # Check if session is still valid (with 5 min buffer)
-            if cached_session.expiration > datetime.now() + timedelta(minutes=5):
+            if cached_session.expiration > datetime.now(timezone.utc) + timedelta(minutes=5):
                 return cached_session
         
         try:
             # Generate session name
             if not session_name:
-                session_name = f"CloudIDP-{datetime.now().strftime('%Y%m%d-%H%M%S')}"
+                session_name = f"CloudIDP-{datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S')}"
             
             # Assume role
             response = self._sts_client.assume_role(
@@ -151,7 +151,7 @@ class AWSAccountManager:
                     'SecretAccessKey': self.management_credentials['secret_access_key'],
                     'SessionToken': None  # No session token for direct credentials
                 },
-                expiration=datetime.now() + timedelta(hours=24),  # Set far future expiration
+                expiration=datetime.now(timezone.utc) + timedelta(hours=24),  # Set far future expiration
                 session=direct_session
             )
             
