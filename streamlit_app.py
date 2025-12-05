@@ -28,39 +28,7 @@ st.set_page_config(
 # Apply AWS Theme
 AWSTheme.apply_aws_theme()
 
-# ==================================================================================
-# MINIMAL SAFE CSS - ONLY FIXES DROPDOWN TEXT, NOTHING ELSE
-# ==================================================================================
-st.markdown("""
-<style>
-/* ONLY fix dropdown option text color */
-div[data-baseweb="select"] [role="option"] {
-    color: #1f1f1f !important;
-}
-
-/* ONLY fix multiselect option text */
-div[data-baseweb="select"] li[role="option"] {
-    color: #1f1f1f !important;
-}
-
-/* ONLY fix dropdown selected value text */
-div[data-baseweb="select"] > div:first-child {
-    color: #1f1f1f !important;
-}
-
-/* ONLY fix button text */
-button {
-    color: #1f1f1f !important;
-}
-
-button:hover {
-    color: white !important;
-}
-</style>
-""", unsafe_allow_html=True)
-# ==================================================================================
-# END MINIMAL CSS
-# ==================================================================================
+# NO ADDITIONAL CSS - EMERGENCY RECOVERY MODE
 
 def main():
     """Main application entry point"""
