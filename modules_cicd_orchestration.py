@@ -17,6 +17,62 @@ class CICDOrchestrationModule:
     @staticmethod
     def render():
         """Main render method"""
+        
+        # Custom CSS for better button visibility
+        st.markdown("""
+        <style>
+        /* Template card styling */
+        .template-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: transform 0.2s;
+            margin-bottom: 10px;
+            color: white !important;
+            font-weight: bold;
+        }
+        .template-card:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+        .template-card h3 {
+            color: white !important;
+            margin: 0;
+            font-size: 1.2em;
+        }
+        .template-card p {
+            color: #f0f0f0 !important;
+            margin: 5px 0 0 0;
+            font-size: 0.9em;
+        }
+        
+        /* Button text fix */
+        .stButton button {
+            color: #1f1f1f !important;
+            font-weight: 600 !important;
+            background-color: white !important;
+            border: 2px solid #667eea !important;
+        }
+        .stButton button:hover {
+            background-color: #667eea !important;
+            color: white !important;
+            border: 2px solid #667eea !important;
+        }
+        
+        /* Primary button styling */
+        .stButton button[kind="primary"] {
+            background-color: #667eea !important;
+            color: white !important;
+            border: none !important;
+        }
+        .stButton button[kind="primary"]:hover {
+            background-color: #5568d3 !important;
+        }
+        </style>
+        """, unsafe_allow_html=True)
+        
         st.title("🔄 CI/CD Pipeline Orchestration")
         st.markdown("**Create & Manage Pipelines** - Everything in CloudIDP, no AWS Console needed!")
         
@@ -357,30 +413,37 @@ def render_quick_create(cp_client, cb_client, iam_client, s3_client, codecommit_
     - ✅ 5-minute setup time
     """)
     
-    # Template selection
+    # Template selection with visible text
     st.markdown("#### 🎯 Choose Your Stack")
     
+    # Create clickable cards using markdown and buttons with better styling
     col1, col2, col3 = st.columns(3)
     
     with col1:
-        if st.button("🐍 Python App", use_container_width=True, help="Flask/Django + EB"):
+        st.markdown('<div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 15px; border-radius: 10px; text-align: center; margin-bottom: 10px;"><h3 style="color: white; margin: 0;">🐍 Python App</h3><p style="color: #f0f0f0; margin: 5px 0 0 0;">Flask/Django + Elastic Beanstalk</p></div>', unsafe_allow_html=True)
+        if st.button("Select Python App", key="btn_python", use_container_width=True):
             st.session_state['quick_template'] = 'python-app'
         
-        if st.button("⚛️ React App", use_container_width=True, help="SPA + S3"):
+        st.markdown('<div style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); padding: 15px; border-radius: 10px; text-align: center; margin-bottom: 10px;"><h3 style="color: white; margin: 0;">⚛️ React App</h3><p style="color: #f0f0f0; margin: 5px 0 0 0;">SPA + S3 + CloudFront</p></div>', unsafe_allow_html=True)
+        if st.button("Select React App", key="btn_react", use_container_width=True):
             st.session_state['quick_template'] = 'react-app'
     
     with col2:
-        if st.button("🟢 Node.js API", use_container_width=True, help="Express + EB"):
+        st.markdown('<div style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); padding: 15px; border-radius: 10px; text-align: center; margin-bottom: 10px;"><h3 style="color: white; margin: 0;">🟢 Node.js API</h3><p style="color: #f0f0f0; margin: 5px 0 0 0;">Express + Elastic Beanstalk</p></div>', unsafe_allow_html=True)
+        if st.button("Select Node.js API", key="btn_nodejs", use_container_width=True):
             st.session_state['quick_template'] = 'nodejs-api'
         
-        if st.button("☕ Java Spring", use_container_width=True, help="Spring Boot"):
+        st.markdown('<div style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); padding: 15px; border-radius: 10px; text-align: center; margin-bottom: 10px;"><h3 style="color: white; margin: 0;">☕ Java Spring</h3><p style="color: #f0f0f0; margin: 5px 0 0 0;">Spring Boot + Elastic Beanstalk</p></div>', unsafe_allow_html=True)
+        if st.button("Select Java Spring", key="btn_java", use_container_width=True):
             st.session_state['quick_template'] = 'java-spring'
     
     with col3:
-        if st.button("🐳 Docker App", use_container_width=True, help="Container + ECS"):
+        st.markdown('<div style="background: linear-gradient(135deg, #30cfd0 0%, #330867 100%); padding: 15px; border-radius: 10px; text-align: center; margin-bottom: 10px;"><h3 style="color: white; margin: 0;">🐳 Docker App</h3><p style="color: #f0f0f0; margin: 5px 0 0 0;">Container + ECR + ECS</p></div>', unsafe_allow_html=True)
+        if st.button("Select Docker App", key="btn_docker", use_container_width=True):
             st.session_state['quick_template'] = 'docker-app'
         
-        if st.button("🌐 Static Site", use_container_width=True, help="HTML + S3"):
+        st.markdown('<div style="background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%); padding: 15px; border-radius: 10px; text-align: center; margin-bottom: 10px;"><h3 style="color: #333; margin: 0;">🌐 Static Site</h3><p style="color: #666; margin: 5px 0 0 0;">HTML/CSS/JS + S3</p></div>', unsafe_allow_html=True)
+        if st.button("Select Static Site", key="btn_static", use_container_width=True):
             st.session_state['quick_template'] = 'static-site'
     
     # Show creation form if template selected
