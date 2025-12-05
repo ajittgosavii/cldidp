@@ -47,18 +47,22 @@ class AWSAccountManager:
         duration: int = 3600
     ) -> Optional[AssumedRoleSession]:
         """
-        Assume role in target account
+        Assume role in target account, or use direct credentials if role_arn is empty
         
         Args:
             account_id: Target AWS account ID
             account_name: Friendly name for the account
-            role_arn: ARN of role to assume
+            role_arn: ARN of role to assume (empty string = use management credentials directly)
             session_name: Optional session name
             duration: Session duration in seconds (default: 1 hour)
         
         Returns:
             AssumedRoleSession if successful, None otherwise
         """
+        # Handle empty role_arn - use management credentials directly
+        if not role_arn or role_arn.strip() == "":
+            return self._create_direct_session(account_id, account_name)
+        
         # Check cache first
         cache_key = f"{account_id}:{role_arn}"
         if cache_key in self._session_cache:
@@ -113,6 +117,55 @@ class AWSAccountManager:
             return None
         except Exception as e:
             st.error(f"❌ Unexpected error assuming role in {account_name}: {str(e)}")
+            return None
+    
+    def _create_direct_session(self, account_id: str, account_name: str) -> Optional[AssumedRoleSession]:
+        """
+        Create a session using management credentials directly (no role assumption)
+        
+        Args:
+            account_id: Target AWS account ID
+            account_name: Friendly name for the account
+        
+        Returns:
+            AssumedRoleSession using management credentials
+        """
+        try:
+            # Create session with management credentials
+            direct_session = boto3.Session(
+                aws_access_key_id=self.management_credentials['access_key_id'],
+                aws_secret_access_key=self.management_credentials['secret_access_key'],
+                region_name=self.management_credentials.get('region', 'us-east-1')
+            )
+            
+            # Verify credentials work by getting caller identity
+            sts = direct_session.client('sts')
+            identity = sts.get_caller_identity()
+            
+            # Create a pseudo session object (long-lived, no expiration for direct creds)
+            role_session = AssumedRoleSession(
+                account_id=account_id,
+                account_name=account_name,
+                credentials={
+                    'AccessKeyId': self.management_credentials['access_key_id'],
+                    'SecretAccessKey': self.management_credentials['secret_access_key'],
+                    'SessionToken': None  # No session token for direct credentials
+                },
+                expiration=datetime.now() + timedelta(hours=24),  # Set far future expiration
+                session=direct_session
+            )
+            
+            st.success(f"✅ Connected to {account_name} using direct credentials (User: {identity['Arn'].split('/')[-1]})")
+            
+            return role_session
+            
+        except ClientError as e:
+            error_code = e.response['Error']['Code']
+            error_msg = e.response['Error']['Message']
+            st.error(f"❌ Failed to connect to {account_name} with direct credentials: {error_code} - {error_msg}")
+            return None
+        except Exception as e:
+            st.error(f"❌ Unexpected error connecting to {account_name}: {str(e)}")
             return None
     
     def get_account_identity(self, session: AssumedRoleSession) -> Optional[Dict]:

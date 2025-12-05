@@ -83,7 +83,7 @@ class AccountManagementModule:
         st.markdown("---")
         
         # Account cards
-        for acc in accounts:
+        for idx, acc in enumerate(accounts):
             with st.expander(
                 f"{'✅' if acc.status == 'active' else '❌'} **{acc.account_name}** ({acc.account_id})",
                 expanded=False
@@ -107,10 +107,10 @@ class AccountManagementModule:
                     - **Owner:** {acc.owner_email or 'Not set'}
                     """)
                 
-                # Test connection button
-                col1, col2, col3 = st.columns(3)
+                # Test connection, resources, costs, and DELETE buttons
+                col1, col2, col3, col4 = st.columns(4)
                 with col1:
-                    if st.button("🔄 Test Connection", key=f"test_{acc.account_id}"):
+                    if st.button("🔄 Test Connection", key=f"test_{acc.account_name}_{acc.account_id}_{idx}"):
                         with st.spinner("Testing connection..."):
                             success, error = account_mgr.test_account_connection(
                                 acc.account_id,
@@ -123,12 +123,72 @@ class AccountManagementModule:
                                 st.error(f"❌ Connection failed: {error}")
                 
                 with col2:
-                    if st.button("📊 View Resources", key=f"resources_{acc.account_id}"):
+                    if st.button("📊 View Resources", key=f"resources_{acc.account_name}_{acc.account_id}_{idx}"):
                         st.info("Navigate to Resource Inventory tab")
                 
                 with col3:
-                    if st.button("💰 View Costs", key=f"costs_{acc.account_id}"):
+                    if st.button("💰 View Costs", key=f"costs_{acc.account_name}_{acc.account_id}_{idx}"):
                         st.info("Navigate to FinOps tab")
+                
+                with col4:
+                    if st.button("🗑️ Delete", key=f"delete_{acc.account_name}_{acc.account_id}_{idx}", type="secondary"):
+                        AccountManagementModule._show_delete_instructions(acc)
+    
+    @staticmethod
+    def _show_delete_instructions(account):
+        """Show instructions for deleting an account"""
+        st.markdown("---")
+        st.warning(f"⚠️ **Delete Account: {account.account_name} ({account.account_id})**")
+        
+        st.markdown("""
+        To remove this account from CloudIDP:
+        
+        **Step 1: Locate the account section in secrets.toml**
+        """)
+        
+        # Generate the section name
+        section_name = account.account_name.lower().replace(' ', '_').replace('-', '_')
+        
+        st.code(f"""
+# Find and DELETE this entire section from .streamlit/secrets.toml:
+
+[aws_accounts.{section_name}]
+account_id = "{account.account_id}"
+account_name = "{account.account_name}"
+role_arn = "{account.role_arn}"
+regions = {list(account.regions)}
+environment = "{account.environment}"
+cost_center = "{account.cost_center or ''}"
+owner_email = "{account.owner_email or ''}"
+status = "{account.status}"
+        """, language="toml")
+        
+        st.markdown("""
+        **Step 2: Save the file**
+        
+        **Step 3: Restart CloudIDP**
+        ```bash
+        # Stop current process (Ctrl+C)
+        # Restart:
+        streamlit run streamlit_app.py
+        ```
+        
+        **Step 4: Verify removal**
+        - The account should no longer appear in the account list
+        - All references to this account will be removed
+        """)
+        
+        st.error("""
+        ⚠️ **Warning:**
+        - This action cannot be undone from the UI
+        - You must manually edit secrets.toml
+        - Make a backup of secrets.toml before deleting
+        - Deleting the account will not affect your actual AWS account
+        """)
+        
+        st.info("""
+        💡 **Alternative:** Instead of deleting, you can set `status = "suspended"` to temporarily disable the account without removing it.
+        """)
     
     @staticmethod
     def _render_connection_status(account_mgr):

@@ -98,7 +98,6 @@ class DashboardModule:
                 value=Helpers.format_number(total_resources) if total_resources > 0 else "N/A",
                 icon="📦"
             )
-            
         
         with col3:
             # Estimated monthly cost
