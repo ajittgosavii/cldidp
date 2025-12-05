@@ -4,7 +4,6 @@ Main Navigation Component
 
 import streamlit as st
 from core_session_manager import SessionManager
-from modules_cicd_orchestration import CICDOrchestrationModule
 
 class Navigation:
     """Main application navigation"""
@@ -22,7 +21,7 @@ class Navigation:
             "🏢 Organizations",
             "📐 Design & Planning",
             "🚀 Provisioning",
-            "🔄 CI/CD Pipelines",  # ← NEW TAB
+            "🔄 CI/CD Pipelines",  # ← CI/CD TAB (only once!)
             "⚙️ Operations",
             "⚡ Advanced Operations",
             "📜 Policy & Guardrails",
@@ -30,7 +29,6 @@ class Navigation:
             "🔒 Security & Compliance",
             "💰 FinOps & Cost",
             "🔄 Account Lifecycle",
-            "🔄 CI/CD Pipelines",
             "🤖 AI Assistant"
         ])
         
@@ -90,15 +88,15 @@ class Navigation:
             except Exception as e:
                 st.error(f"Error loading Provisioning: {str(e)}")
         
-        # Module 6.5: CI/CD Pipelines (NEW!)
+        # Module 7: CI/CD Pipelines (NEW!)
         with tabs[7]:
             try:
-                from modules_cicd_orchestration import CICDOrchestrationUI
-                CICDOrchestrationUI.render()
+                from modules_cicd_orchestration import CICDOrchestrationModule
+                CICDOrchestrationModule.render()
             except Exception as e:
                 st.error(f"Error loading CI/CD Pipelines: {str(e)}")
         
-        # Module 7: Operations
+        # Module 8: Operations
         with tabs[8]:
             try:
                 from modules_operations import OperationsModule
@@ -106,7 +104,7 @@ class Navigation:
             except Exception as e:
                 st.error(f"Error loading Operations: {str(e)}")
         
-        # Module 7.5: Advanced Operations
+        # Module 9: Advanced Operations
         with tabs[9]:
             try:
                 from modules_advanced_operations import AdvancedOperationsModule
@@ -114,7 +112,7 @@ class Navigation:
             except Exception as e:
                 st.error(f"Error loading Advanced Operations: {str(e)}")
         
-        # Module 8: Policy & Guardrails
+        # Module 10: Policy & Guardrails
         with tabs[10]:
             try:
                 from modules_policy_guardrails import PolicyGuardrailsModule
@@ -122,7 +120,7 @@ class Navigation:
             except Exception as e:
                 st.error(f"Error loading Policy & Guardrails: {str(e)}")
         
-        # Module 9: EKS Management
+        # Module 11: EKS Management
         with tabs[11]:
             try:
                 from modules_eks_management import EKSManagementModule
@@ -130,7 +128,7 @@ class Navigation:
             except Exception as e:
                 st.error(f"Error loading EKS Management: {str(e)}")
         
-        # Module 10: Security & Compliance
+        # Module 12: Security & Compliance
         with tabs[12]:
             try:
                 from modules_security_compliance import SecurityComplianceUI
@@ -138,7 +136,7 @@ class Navigation:
             except Exception as e:
                 st.error(f"Error loading Security & Compliance: {str(e)}")
         
-        # Module 11: FinOps
+        # Module 13: FinOps
         with tabs[13]:
             try:
                 from modules_finops import FinOpsModule
@@ -146,22 +144,16 @@ class Navigation:
             except Exception as e:
                 st.error(f"Error loading FinOps: {str(e)}")
         
-        # Module 12: Account Lifecycle
+        # Module 14: Account Lifecycle
         with tabs[14]:
             try:
                 from modules_account_lifecycle import AccountLifecycleModule
                 AccountLifecycleModule.render()
             except Exception as e:
                 st.error(f"Error loading Account Lifecycle: {str(e)}")
-            
-        with tabs[15]:
-    try:
-        CICDOrchestrationModule.render()
-    except Exception as e:
-        st.error(f"Error loading CI/CD: {str(e)}")
         
-        # Module 13: AI Assistant
-        with tabs[16]:
+        # Module 15: AI Assistant
+        with tabs[15]:
             try:
                 from modules_ai_assistant import AIAssistantModule
                 AIAssistantModule.render()
