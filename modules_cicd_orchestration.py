@@ -9,7 +9,7 @@ from datetime import datetime, timedelta, timezone
 from typing import Dict, List, Optional, Any
 from core_account_manager import get_account_manager, get_account_names
 import json
-
+from pipeline_builder_addon import render_pipeline_builder_tab
 class CICDOrchestrationUI:
     """AWS Native CI/CD Orchestration and Governance"""
     

@@ -4,6 +4,7 @@ Main Navigation Component
 
 import streamlit as st
 from core_session_manager import SessionManager
+from modules_cicd_orchestration import CICDOrchestrationModule
 
 class Navigation:
     """Main application navigation"""
@@ -29,6 +30,7 @@ class Navigation:
             "🔒 Security & Compliance",
             "💰 FinOps & Cost",
             "🔄 Account Lifecycle",
+            "🔄 CI/CD Pipelines",
             "🤖 AI Assistant"
         ])
         
@@ -151,9 +153,15 @@ class Navigation:
                 AccountLifecycleModule.render()
             except Exception as e:
                 st.error(f"Error loading Account Lifecycle: {str(e)}")
+            
+        with tabs[15]:
+    try:
+        CICDOrchestrationModule.render()
+    except Exception as e:
+        st.error(f"Error loading CI/CD: {str(e)}")
         
         # Module 13: AI Assistant
-        with tabs[15]:
+        with tabs[16]:
             try:
                 from modules_ai_assistant import AIAssistantModule
                 AIAssistantModule.render()
