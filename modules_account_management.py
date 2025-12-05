@@ -307,31 +307,84 @@ status = "active"
             st.markdown(f"#### Settings for {account.account_name}")
             
             with st.form("account_settings"):
-                new_status = st.selectbox(
-                    "Account Status",
-                    options=['active', 'suspended', 'offboarding'],
-                    index=['active', 'suspended', 'offboarding'].index(account.status)
+                col1, col2 = st.columns(2)
+                
+                with col1:
+                    new_status = st.selectbox(
+                        "Account Status",
+                        options=['active', 'suspended', 'offboarding'],
+                        index=['active', 'suspended', 'offboarding'].index(account.status)
+                    )
+                    
+                    new_regions = st.multiselect(
+                        "Active Regions",
+                        options=AppConfig.DEFAULT_REGIONS,
+                        default=account.regions
+                    )
+                
+                with col2:
+                    new_cost_center = st.text_input(
+                        "Cost Center",
+                        value=account.cost_center or ""
+                    )
+                    
+                    new_owner = st.text_input(
+                        "Owner Email",
+                        value=account.owner_email or ""
+                    )
+                
+                # Role ARN editing (full width)
+                st.markdown("#### IAM Role Configuration")
+                new_role_arn = st.text_input(
+                    "CloudIDP Role ARN",
+                    value=account.role_arn,
+                    help="The ARN of the IAM role that CloudIDP will assume in this account",
+                    placeholder="arn:aws:iam::123456789012:role/CloudIDP-ExecutionRole"
                 )
                 
-                new_regions = st.multiselect(
-                    "Active Regions",
-                    options=AppConfig.DEFAULT_REGIONS,
-                    default=account.regions
-                )
-                
-                new_cost_center = st.text_input(
-                    "Cost Center",
-                    value=account.cost_center or ""
-                )
-                
-                new_owner = st.text_input(
-                    "Owner Email",
-                    value=account.owner_email or ""
-                )
-                
-                if st.form_submit_button("💾 Save Settings"):
+                if st.form_submit_button("💾 Save Settings", type="primary"):
                     st.success("✅ Settings updated!")
-                    st.info("Update your secrets.toml file with the new configuration")
+                    
+                    # Display updated configuration
+                    st.markdown("#### Updated Configuration")
+                    st.code(f"""
+# Update this in your .streamlit/secrets.toml:
+
+[aws_accounts.{account.account_name.lower().replace(' ', '_').replace('-', '_')}]
+account_id = "{account.account_id}"
+account_name = "{account.account_name}"
+role_arn = "{new_role_arn}"
+regions = {list(new_regions)}
+environment = "{account.environment}"
+cost_center = "{new_cost_center}"
+owner_email = "{new_owner}"
+status = "{new_status}"
+                    """, language="toml")
+                    
+                    st.info("""
+                    **Next Steps:**
+                    1. Copy the configuration above
+                    2. Update your `.streamlit/secrets.toml` file
+                    3. Restart the application to apply changes
+                    """)
+                    
+                    # Show what changed
+                    changes = []
+                    if new_role_arn != account.role_arn:
+                        changes.append(f"**Role ARN:** `{account.role_arn}` → `{new_role_arn}`")
+                    if new_status != account.status:
+                        changes.append(f"**Status:** {account.status} → {new_status}")
+                    if set(new_regions) != set(account.regions):
+                        changes.append(f"**Regions:** {account.regions} → {list(new_regions)}")
+                    if new_cost_center != (account.cost_center or ""):
+                        changes.append(f"**Cost Center:** {account.cost_center or 'None'} → {new_cost_center}")
+                    if new_owner != (account.owner_email or ""):
+                        changes.append(f"**Owner:** {account.owner_email or 'None'} → {new_owner}")
+                    
+                    if changes:
+                        st.markdown("##### Changes Summary:")
+                        for change in changes:
+                            st.markdown(f"- {change}", unsafe_allow_html=True)
     
     @staticmethod
     def _render_region_config():
