@@ -31,6 +31,7 @@ class OperationsModule:
             st.info("👉 Go to the 'Account Management' tab to add your AWS accounts first.")
             return
         
+        # Account selection
         selected_account = st.selectbox(
             "Select AWS Account",
             options=account_names,
@@ -40,10 +41,24 @@ class OperationsModule:
         if not selected_account:
             return
         
-        session = account_mgr.get_session(selected_account)
-        if not session:
-            st.error("Failed to get session")
+        # ===== FIX: Get region from session state =====
+        selected_region = st.session_state.get('selected_regions', 'all')
+        
+        # Check if region is specified
+        if selected_region == 'all':
+            st.error("❌ Operations are region-specific. Please select a region from the sidebar.")
+            st.info("💡 Select a specific region (like 'us-east-2') from the Region dropdown in the sidebar.")
             return
+        
+        # Show selected region
+        st.info(f"📍 Managing operations in **{selected_region}**")
+        
+        # Get region-specific session
+        session = account_mgr.get_session_with_region(selected_account, selected_region)
+        if not session:
+            st.error(f"Failed to get session for {selected_account} in region {selected_region}")
+            return
+        # ===== END FIX =====
         
         ec2_svc = EC2Service(session)
         ssm_mgr = SystemsManagerManager(session)
