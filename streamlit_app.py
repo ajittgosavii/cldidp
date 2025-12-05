@@ -29,221 +29,37 @@ st.set_page_config(
 AWSTheme.apply_aws_theme()
 
 # ==================================================================================
-# GLOBAL CSS FIX FOR DROPDOWN TEXT VISIBILITY - APPLIES TO ENTIRE APPLICATION
+# MINIMAL SAFE CSS - ONLY FIXES DROPDOWN TEXT, NOTHING ELSE
 # ==================================================================================
 st.markdown("""
 <style>
-/* ===== DROPDOWN & SELECT MENUS ===== */
-/* Fix for all Streamlit selectbox dropdowns */
-.stSelectbox label,
-.stSelectbox label *,
-.stSelectbox div[data-baseweb="select"],
-.stSelectbox div[data-baseweb="select"] *,
-.stSelectbox div[data-baseweb="select"] span,
-.stSelectbox div[data-baseweb="select"] div,
-div[data-baseweb="select"],
-div[data-baseweb="select"] *,
-div[data-baseweb="select"] span,
-div[data-baseweb="select"] div,
-div[data-baseweb="select"] > div,
-div[role="button"][aria-haspopup="listbox"],
-div[role="button"][aria-haspopup="listbox"] *,
-div[role="button"][aria-haspopup="listbox"] span,
-[role="option"],
-[role="option"] *,
-[role="option"] span,
-[role="option"] div,
-li[role="option"],
-li[role="option"] *,
-li[role="option"] span,
-ul[role="listbox"] li,
-ul[role="listbox"] li *,
-ul[role="listbox"] li span {
-    color: #1f1f1f !important;
-    font-weight: 400 !important;
-}
-
-/* Dropdown label text */
-.stSelectbox > label,
-.stSelectbox > label > div,
-.stSelectbox > label > div > p {
-    color: #f0f0f0 !important;
-}
-
-/* Selected value in dropdown */
-.stSelectbox div[data-baseweb="select"] > div:first-child,
-.stSelectbox div[data-baseweb="select"] > div:first-child * {
+/* ONLY fix dropdown option text color */
+div[data-baseweb="select"] [role="option"] {
     color: #1f1f1f !important;
 }
 
-/* ===== MULTISELECT MENUS ===== */
-.stMultiSelect label,
-.stMultiSelect label *,
-.stMultiSelect div[data-baseweb="select"],
-.stMultiSelect div[data-baseweb="select"] *,
-.stMultiSelect div span,
-div[data-baseweb="tag"],
-div[data-baseweb="tag"] *,
-div[data-baseweb="tag"] span {
+/* ONLY fix multiselect option text */
+div[data-baseweb="select"] li[role="option"] {
     color: #1f1f1f !important;
 }
 
-/* Multiselect label */
-.stMultiSelect > label {
-    color: #f0f0f0 !important;
-}
-
-/* Selected tags in multiselect */
-div[data-baseweb="tag"] {
-    background-color: #667eea !important;
-}
-
-div[data-baseweb="tag"] span {
-    color: white !important;
-}
-
-/* ===== RADIO BUTTONS ===== */
-.stRadio label,
-.stRadio label *,
-.stRadio div[role="radiogroup"],
-.stRadio div[role="radiogroup"] *,
-.stRadio div[role="radiogroup"] label,
-.stRadio div[role="radiogroup"] label * {
-    color: #f0f0f0 !important;
-}
-
-/* ===== TEXT INPUTS ===== */
-.stTextInput label,
-.stTextInput label *,
-.stTextArea label,
-.stTextArea label *,
-.stNumberInput label,
-.stNumberInput label * {
-    color: #f0f0f0 !important;
-}
-
-.stTextInput input,
-.stTextArea textarea,
-.stNumberInput input {
+/* ONLY fix dropdown selected value text */
+div[data-baseweb="select"] > div:first-child {
     color: #1f1f1f !important;
-    background-color: white !important;
 }
 
-/* ===== CHECKBOXES ===== */
-.stCheckbox label,
-.stCheckbox label *,
-.stCheckbox span {
-    color: #f0f0f0 !important;
-}
-
-/* ===== TIME & DATE INPUTS ===== */
-.stTimeInput label,
-.stTimeInput label *,
-.stDateInput label,
-.stDateInput label * {
-    color: #f0f0f0 !important;
-}
-
-.stTimeInput input,
-.stDateInput input {
-    color: #1f1f1f !important;
-    background-color: white !important;
-}
-
-/* ===== SLIDER LABELS ===== */
-.stSlider label,
-.stSlider label * {
-    color: #f0f0f0 !important;
-}
-
-/* ===== BUTTONS ===== */
-button,
-button * {
-    color: #1f1f1f !important;
-    font-weight: 600 !important;
-}
-
+/* ONLY fix button text */
 button {
-    background-color: white !important;
-    border: 2px solid #667eea !important;
+    color: #1f1f1f !important;
 }
 
 button:hover {
-    background-color: #667eea !important;
-}
-
-button:hover,
-button:hover * {
     color: white !important;
-}
-
-button[kind="primary"] {
-    background-color: #667eea !important;
-    color: white !important;
-    border: none !important;
-}
-
-button[kind="primary"] * {
-    color: white !important;
-}
-
-button[kind="primary"]:hover {
-    background-color: #5568d3 !important;
-}
-
-/* ===== EXPANDERS ===== */
-.streamlit-expanderHeader,
-.streamlit-expanderHeader *,
-.streamlit-expanderContent,
-.streamlit-expanderContent * {
-    color: inherit !important;
-}
-
-/* ===== DATAFRAMES & TABLES ===== */
-.stDataFrame,
-.stDataFrame *,
-table,
-table *,
-thead,
-thead *,
-tbody,
-tbody *,
-th,
-td {
-    color: #1f1f1f !important;
-}
-
-/* ===== METRICS ===== */
-.stMetric label,
-.stMetric label *,
-div[data-testid="stMetricLabel"],
-div[data-testid="stMetricLabel"] * {
-    color: #f0f0f0 !important;
-}
-
-/* ===== INFO/WARNING/ERROR BOXES ===== */
-.stAlert,
-.stAlert * {
-    color: inherit !important;
-}
-
-/* ===== ENSURE VISIBILITY ===== */
-* {
-    visibility: visible !important;
-    opacity: 1 !important;
-}
-
-/* Don't hide any text */
-span,
-div,
-p,
-label {
-    display: block !important;
 }
 </style>
 """, unsafe_allow_html=True)
 # ==================================================================================
-# END GLOBAL CSS FIX
+# END MINIMAL CSS
 # ==================================================================================
 
 def main():
