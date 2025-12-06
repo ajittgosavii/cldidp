@@ -19,8 +19,22 @@ from datetime import datetime, timedelta
 from enum import Enum
 
 # ============================================================================
-# AI CLIENT
+# NEW ENGINE IMPORTS (ADDED FOR AI SIZING & COST ANALYSIS)
 # ============================================================================
+
+# Import new engines (with graceful fallback)
+try:
+    from workflow_engine import get_workflow_engine, AWSPricingCalculator, WorkflowPhase, ArchitectureDesign
+    WORKFLOW_ENGINE_AVAILABLE = True
+except ImportError:
+    WORKFLOW_ENGINE_AVAILABLE = False
+
+try:
+    from ai_sizing_engine import get_ai_sizing_analyzer
+    AI_SIZING_AVAILABLE = True
+except ImportError:
+    AI_SIZING_AVAILABLE = False
+
 
 @st.cache_resource
 def get_anthropic_client():
@@ -231,11 +245,13 @@ class DesignPlanningModule:
         else:
             st.info("💡 Enable AI features by configuring ANTHROPIC_API_KEY")
         
-        # Main tabs
+        # Main tabs - EXPANDED to 9 tabs
         tabs = st.tabs([
             "🏗️ Architecture Design",
             "📊 WAF Dashboard",
             "🔄 Design Workflow",
+            "🤖 AI Sizing",           # NEW TAB 4
+            "💰 Cost Analysis",       # NEW TAB 5
             "📚 Blueprint Library",
             "🤖 AI Assistant",
             "🔗 CI/CD Integration",
@@ -251,16 +267,33 @@ class DesignPlanningModule:
         with tabs[2]:
             DesignPlanningModule._render_workflow()
         
+        # NEW TAB 4: AI Sizing
         with tabs[3]:
+            if AI_SIZING_AVAILABLE and WORKFLOW_ENGINE_AVAILABLE:
+                DesignPlanningModule._render_ai_sizing()
+            else:
+                st.warning("⚠️ AI Sizing requires workflow_engine.py and ai_sizing_engine.py")
+                st.info("Download these files and place in project root")
+        
+        # NEW TAB 5: Cost Analysis
+        with tabs[4]:
+            if WORKFLOW_ENGINE_AVAILABLE:
+                DesignPlanningModule._render_cost_analysis()
+            else:
+                st.warning("⚠️ Cost Analysis requires workflow_engine.py")
+                st.info("Download this file and place in project root")
+        
+        # Existing tabs shifted by 2 positions
+        with tabs[5]:
             DesignPlanningModule._render_blueprint_library()
         
-        with tabs[4]:
+        with tabs[6]:
             DesignPlanningModule._render_ai_assistant(ai_available)
         
-        with tabs[5]:
+        with tabs[7]:
             DesignPlanningModule._render_cicd_integration()
         
-        with tabs[6]:
+        with tabs[8]:
             DesignPlanningModule._render_standards()
     
     # ========================================================================
@@ -1244,7 +1277,6 @@ module "application" {
             💰 Delete unused resources monthly  
             💰 Cost allocation tags enforced  
             """)
-
     # ========================================================================
     # NEW TAB 4: AI SIZING (INTEGRATION CODE)
     # ========================================================================
