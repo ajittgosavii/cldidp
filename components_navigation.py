@@ -1,5 +1,5 @@
 """
-Main Navigation Component
+Main Navigation Component - FIXED for Unified Security Module
 """
 
 import streamlit as st
@@ -12,7 +12,7 @@ class Navigation:
     def render():
         """Render main navigation tabs"""
         
-        # Main tabs - ALL MODULES
+        # Main tabs - ALL MODULES (Security & Policy merged into one)
         tabs = st.tabs([
             "🏠 Dashboard",
             "👥 Account Management",
@@ -21,12 +21,11 @@ class Navigation:
             "🏢 Organizations",
             "📐 Design & Planning",
             "🚀 Provisioning",
-            "🔄 CI/CD",  # ← Unified: All 3 phases in sub-tabs
+            "🔄 CI/CD",
             "⚙️ Operations",
             "⚡ Advanced Operations",
-            "📜 Policy & Guardrails",
+            "🤖 Security, Compliance & AI",  # ← MERGED: Policy + Security + AI
             "🔌 EKS Management",
-            "🔒 Security & Compliance",
             "💰 FinOps & Cost",
             "🔄 Account Lifecycle",
             "🤖 AI Assistant"
@@ -112,13 +111,13 @@ class Navigation:
             except Exception as e:
                 st.error(f"Error loading Advanced Operations: {str(e)}")
         
-        # Module 10: Policy & Guardrails
+        # Module 10: Security, Compliance & AI (UNIFIED - Policy + Security + AI)
         with tabs[10]:
             try:
-                from modules_policy_guardrails import PolicyGuardrailsModule
-                PolicyGuardrailsModule.render()
+                from modules_security_compliance import UnifiedSecurityComplianceModule
+                UnifiedSecurityComplianceModule.render()
             except Exception as e:
-                st.error(f"Error loading Policy & Guardrails: {str(e)}")
+                st.error(f"Error loading Security, Compliance & AI: {str(e)}")
         
         # Module 11: EKS Management
         with tabs[11]:
@@ -128,32 +127,24 @@ class Navigation:
             except Exception as e:
                 st.error(f"Error loading EKS Management: {str(e)}")
         
-        # Module 12: Security & Compliance
+        # Module 12: FinOps & Cost
         with tabs[12]:
-            try:
-                from modules_security_compliance import SecurityComplianceUI
-                SecurityComplianceUI.render()
-            except Exception as e:
-                st.error(f"Error loading Security & Compliance: {str(e)}")
-        
-        # Module 13: FinOps
-        with tabs[13]:
             try:
                 from modules_finops import FinOpsModule
                 FinOpsModule.render()
             except Exception as e:
                 st.error(f"Error loading FinOps: {str(e)}")
         
-        # Module 14: Account Lifecycle
-        with tabs[14]:
+        # Module 13: Account Lifecycle
+        with tabs[13]:
             try:
                 from modules_account_lifecycle import AccountLifecycleModule
                 AccountLifecycleModule.render()
             except Exception as e:
                 st.error(f"Error loading Account Lifecycle: {str(e)}")
         
-        # Module 15: AI Assistant
-        with tabs[15]:
+        # Module 14: AI Assistant
+        with tabs[14]:
             try:
                 from modules_ai_assistant import AIAssistantModule
                 AIAssistantModule.render()
