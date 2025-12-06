@@ -1244,7 +1244,403 @@ module "application" {
             💰 Delete unused resources monthly  
             💰 Cost allocation tags enforced  
             """)
+Copy everything from here down and paste it before the __all__ export.
 
+
+    # ========================================================================
+    # NEW TAB 4: AI SIZING (INTEGRATION CODE)
+    # ========================================================================
+    
+    @staticmethod
+    def _render_ai_sizing():
+        """Render AI Sizing Recommendations interface"""
+        st.subheader("🤖 AI-Powered Sizing Recommendations")
+        st.info("AI analyzes your architecture and generates 4 sizing tiers: Cost-Optimized, Balanced, Performance, and Enterprise")
+        
+        engine = get_workflow_engine()
+        analyzer = get_ai_sizing_analyzer()
+        calculator = AWSPricingCalculator()
+        
+        # Get designs without sizing
+        if 'designs' not in st.session_state:
+            st.session_state.designs = {}
+        
+        designs_list = list(st.session_state.designs.values())
+        drafts_no_sizing = [d for d in designs_list 
+                           if d.get('status') == 'DRAFT' and not d.get('sizing_details')]
+        
+        if not drafts_no_sizing:
+            st.success("✅ All draft designs have sizing applied!")
+            
+            # Show designs with sizing
+            drafts_with_sizing = [d for d in designs_list 
+                                if d.get('status') == 'DRAFT' and d.get('sizing_details')]
+            if drafts_with_sizing:
+                st.markdown("### Designs with AI Sizing")
+                for design in drafts_with_sizing:
+                    with st.expander(f"✅ {design['name']}"):
+                        sizing = design.get('sizing_details', {})
+                        st.write(f"**Sizing:** {sizing.get('ec2_instance_type', 'N/A')} x{sizing.get('ec2_count', 0)}")
+                        st.write(f"**RDS:** {sizing.get('rds_instance_type', 'N/A')}")
+                        st.info("💡 Ready to submit for WAF Review")
+        else:
+            st.markdown(f"### {len(drafts_no_sizing)} Designs Need AI Sizing")
+            
+            for design in drafts_no_sizing:
+                with st.expander(f"🤖 {design['name']} - Generate Sizing", expanded=False):
+                    col1, col2 = st.columns([2, 1])
+                    
+                    with col1:
+                        st.write(f"**Environment:** {design.get('environment', 'N/A')}")
+                        st.write(f"**Services:** {', '.join(design.get('services', []))}")
+                        if design.get('description'):
+                            desc = design['description']
+                            st.write(f"**Description:** {desc[:200]}{'...' if len(desc) > 200 else ''}")
+                    
+                    with col2:
+                        design_id = design.get('id', design['name'])
+                        if st.button(f"🧠 Analyze & Size", key=f"analyze_{design_id}", type="primary"):
+                            with st.spinner("AI analyzing architecture..."):
+                                try:
+                                    # Prepare data for analyzer
+                                    design_data = {
+                                        'name': design['name'],
+                                        'description': design.get('description', ''),
+                                        'business_requirements': design.get('business_requirements', ''),
+                                        'services': design.get('services', []),
+                                        'environment': design.get('environment', 'Production'),
+                                        'ha_required': design.get('ha_required', True),
+                                        'compliance_requirements': design.get('compliance_requirements', [])
+                                    }
+                                    
+                                    # AI Analysis
+                                    sizing = analyzer.analyze_architecture(design_data)
+                                    
+                                    # Store in session state
+                                    st.session_state[f'sizing_{design_id}'] = sizing
+                                    
+                                    st.success("✅ AI Analysis Complete!")
+                                    st.rerun()
+                                except Exception as e:
+                                    st.error(f"Error: {str(e)}")
+                    
+                    # Show results if analysis done
+                    if f'sizing_{design_id}' in st.session_state:
+                        sizing = st.session_state[f'sizing_{design_id}']
+                        
+                        st.markdown("---")
+                        st.markdown("#### 🧠 AI Workload Analysis")
+                        
+                        col1, col2, col3, col4 = st.columns(4)
+                        col1.metric("Workload", sizing.workload_type.upper())
+                        col2.metric("Traffic", sizing.traffic_pattern.capitalize())
+                        col3.metric("Data", sizing.data_intensity.capitalize())
+                        col4.metric("Compute", sizing.compute_intensity.capitalize())
+                        
+                        st.info(sizing.workload_analysis)
+                        
+                        st.markdown("#### 💰 4 AI-Generated Sizing Tiers")
+                        
+                        # Calculate costs for all tiers
+                        for rec in sizing.recommendations:
+                            # Create temporary design object for cost calculation
+                            from workflow_engine import ArchitectureDesign
+                            temp_design = ArchitectureDesign(
+                                id=design_id,
+                                name=design['name'],
+                                services=design.get('services', []),
+                                environment=design.get('environment', 'Production'),
+                                multi_az=design.get('ha_required', True),
+                                sizing_details={
+                                    'ec2_instance_type': rec.ec2_instance_type,
+                                    'ec2_count': rec.ec2_count,
+                                    'rds_instance_type': rec.rds_instance_type
+                                }
+                            )
+                            
+                            try:
+                                cost = calculator.calculate_architecture_cost(temp_design)
+                                rec.monthly_cost = cost.monthly_cost
+                                rec.three_year_cost = cost.total_3year_cost
+                            except:
+                                rec.monthly_cost = 0
+                                rec.three_year_cost = 0
+                        
+                        # Show comparison table
+                        import pandas as pd
+                        comparison_data = []
+                        for rec in sizing.recommendations:
+                            comparison_data.append({
+                                'Tier': rec.tier_name,
+                                'EC2': f"{rec.ec2_instance_type} x{rec.ec2_count}",
+                                'RDS': rec.rds_instance_type,
+                                'vCPUs': rec.vcpus,
+                                'Memory (GB)': rec.memory_gb,
+                                'Monthly $': f"${rec.monthly_cost:,.0f}",
+                                '3-Year $': f"${rec.three_year_cost:,.0f}",
+                                'Confidence': f"{rec.confidence_score}%"
+                            })
+                        
+                        df = pd.DataFrame(comparison_data)
+                        st.dataframe(df, use_container_width=True, hide_index=True)
+                        
+                        # Detailed tabs for each tier
+                        tier_tabs = st.tabs([rec.tier_name for rec in sizing.recommendations])
+                        
+                        for i, rec in enumerate(sizing.recommendations):
+                            with tier_tabs[i]:
+                                col1, col2 = st.columns([2, 1])
+                                
+                                with col1:
+                                    st.markdown("**Configuration:**")
+                                    st.write(f"• EC2: {rec.ec2_instance_type} x{rec.ec2_count}")
+                                    st.write(f"• RDS: {rec.rds_instance_type}")
+                                    st.write(f"• vCPUs: {rec.vcpus}, Memory: {rec.memory_gb} GB")
+                                    
+                                    st.markdown("**🤖 AI Reasoning:**")
+                                    st.info(rec.ai_reasoning)
+                                    
+                                    col_pros, col_cons = st.columns(2)
+                                    with col_pros:
+                                        st.markdown("**✅ Pros:**")
+                                        for pro in rec.pros[:3]:
+                                            st.success(f"• {pro}")
+                                    
+                                    with col_cons:
+                                        st.markdown("**❌ Cons:**")
+                                        for con in rec.cons[:2]:
+                                            st.warning(f"• {con}")
+                                
+                                with col2:
+                                    st.metric("Monthly", f"${rec.monthly_cost:,.0f}")
+                                    st.metric("3-Year", f"${rec.three_year_cost:,.0f}")
+                                    st.metric("Confidence", f"{rec.confidence_score}%")
+                                    
+                                    st.markdown("---")
+                                    
+                                    if st.button(f"✅ Select", key=f"sel_{design_id}_{rec.tier}", 
+                                               type="primary", use_container_width=True):
+                                        # Apply sizing to design
+                                        design['sizing_details'] = {
+                                            'ec2_instance_type': rec.ec2_instance_type,
+                                            'ec2_count': rec.ec2_count,
+                                            'rds_instance_type': rec.rds_instance_type,
+                                            'rds_storage_gb': rec.rds_storage_gb
+                                        }
+                                        
+                                        # Save to session state
+                                        st.session_state.designs[design_id] = design
+                                        
+                                        st.success(f"✅ Applied {rec.tier_name}!")
+                                        del st.session_state[f'sizing_{design_id}']
+                                        st.rerun()
+                        
+                        # AI Recommendation
+                        st.markdown("---")
+                        recommended = next((r for r in sizing.recommendations 
+                                          if r.tier == sizing.recommended_tier), 
+                                         sizing.recommendations[1])
+                        
+                        st.success(f"🎯 **AI Recommends:** {recommended.tier_name}")
+                        st.write(f"**Why:** {recommended.ai_reasoning[:200]}...")
+    
+    # ========================================================================
+    # NEW TAB 5: COST ANALYSIS (INTEGRATION CODE)
+    # ========================================================================
+    
+    @staticmethod
+    def _render_cost_analysis():
+        """Render AWS Cost Analysis interface"""
+        st.subheader("💰 AWS Cost Analysis & 3-Year TCO/ROI")
+        st.info("Calculate complete AWS costs with 3-year projections before deployment")
+        
+        calculator = AWSPricingCalculator()
+        
+        # Get designs from session state
+        if 'designs' not in st.session_state:
+            st.session_state.designs = {}
+        
+        designs_list = list(st.session_state.designs.values())
+        
+        # Filter designs ready for cost analysis (have sizing, approved)
+        cost_ready = [d for d in designs_list 
+                     if d.get('sizing_details') and d.get('status') in ['APPROVED', 'PENDING_APPROVAL']]
+        
+        cost_tabs = st.tabs(["💰 Calculate Costs", "✅ Approved", "📊 Comparison"])
+        
+        # TAB 1: Calculate Costs
+        with cost_tabs[0]:
+            if not cost_ready:
+                st.info("📝 No approved designs ready for cost analysis")
+            else:
+                st.markdown(f"### {len(cost_ready)} Designs Ready")
+                
+                for design in cost_ready:
+                    design_id = design.get('id', design['name'])
+                    
+                    with st.expander(f"💰 {design['name']}", expanded=not design.get('cost_analysis')):
+                        
+                        if not design.get('cost_analysis'):
+                            col1, col2 = st.columns([3, 1])
+                            
+                            with col1:
+                                st.write(f"**Environment:** {design.get('environment', 'N/A')}")
+                                sizing = design.get('sizing_details', {})
+                                st.write(f"**Sizing:** {sizing.get('ec2_instance_type', 'N/A')} x{sizing.get('ec2_count', 0)}")
+                            
+                            with col2:
+                                if st.button("📊 Calculate", key=f"calc_{design_id}", type="primary"):
+                                    with st.spinner("Calculating..."):
+                                        try:
+                                            # Create design object for cost calc
+                                            from workflow_engine import ArchitectureDesign
+                                            temp_design = ArchitectureDesign(
+                                                id=design_id,
+                                                name=design['name'],
+                                                services=design.get('services', []),
+                                                environment=design.get('environment', 'Production'),
+                                                multi_az=design.get('ha_required', True),
+                                                sizing_details=design.get('sizing_details', {})
+                                            )
+                                            
+                                            cost = calculator.calculate_architecture_cost(temp_design)
+                                            design['cost_analysis'] = cost.to_dict()
+                                            st.session_state.designs[design_id] = design
+                                            
+                                            st.success("✅ Complete!")
+                                            st.rerun()
+                                        except Exception as e:
+                                            st.error(f"Error: {str(e)}")
+                        else:
+                            # Show cost analysis
+                            DesignPlanningModule._display_cost_details_simple(design)
+        
+        # TAB 2: Approved Costs
+        with cost_tabs[1]:
+            approved = [d for d in designs_list if d.get('cost_analysis') and d.get('cost_approved')]
+            
+            if not approved:
+                st.info("No approved costs yet")
+            else:
+                for design in approved:
+                    with st.expander(f"✅ {design['name']}"):
+                        DesignPlanningModule._display_cost_summary_simple(design)
+        
+        # TAB 3: Cost Comparison
+        with cost_tabs[2]:
+            designs_with_cost = [d for d in designs_list if d.get('cost_analysis')]
+            
+            if not designs_with_cost:
+                st.info("No cost analyses yet")
+            else:
+                import pandas as pd
+                
+                comparison = []
+                for d in designs_with_cost:
+                    ca = d['cost_analysis']
+                    comparison.append({
+                        'Architecture': d['name'],
+                        'Environment': d.get('environment', 'N/A'),
+                        'Monthly $': f"${ca['monthly_cost']:,.0f}",
+                        '3-Year $': f"${ca['total_3year_cost']:,.0f}",
+                        'TCO $': f"${ca['total_tco']:,.0f}",
+                        'ROI %': f"{ca['roi_percentage']:.1f}%"
+                    })
+                
+                df = pd.DataFrame(comparison)
+                st.dataframe(df, use_container_width=True, hide_index=True)
+                
+                # Chart
+                chart_data = pd.DataFrame({
+                    'Architecture': [d['name'] for d in designs_with_cost],
+                    '3-Year Cost': [d['cost_analysis']['total_3year_cost'] for d in designs_with_cost]
+                })
+                st.bar_chart(chart_data.set_index('Architecture'))
+    
+    @staticmethod
+    def _display_cost_details_simple(design):
+        """Display cost analysis details"""
+        ca = design.get('cost_analysis', {})
+        if not ca:
+            return
+        
+        # Metrics
+        col1, col2, col3, col4 = st.columns(4)
+        col1.metric("Monthly", f"${ca['monthly_cost']:,.0f}")
+        col2.metric("3-Year", f"${ca['total_3year_cost']:,.0f}")
+        col3.metric("TCO", f"${ca['total_tco']:,.0f}")
+        col4.metric("ROI", f"{ca['roi_percentage']:.1f}%", 
+                   delta=f"{ca['payback_months']}mo payback")
+        
+        # Details in tabs
+        detail_tabs = st.tabs(["Services", "TCO", "Savings"])
+        
+        with detail_tabs[0]:
+            if ca.get('service_costs'):
+                import pandas as pd
+                services = []
+                for s in ca['service_costs']:
+                    services.append({
+                        'Service': s['service_name'],
+                        'Type': s.get('instance_type', 'N/A'),
+                        'Monthly': f"${s['total_monthly']:,.2f}",
+                        'Year 1': f"${s['year1_cost']:,.0f}"
+                    })
+                df = pd.DataFrame(services)
+                st.dataframe(df, use_container_width=True, hide_index=True)
+        
+        with detail_tabs[1]:
+            col1, col2 = st.columns(2)
+            col1.metric("Infrastructure", f"${ca['infrastructure_cost']:,.0f}")
+            col1.metric("Operations", f"${ca['operational_cost']:,.0f}")
+            col2.metric("Licensing", f"${ca['licensing_cost']:,.0f}")
+            col2.metric("Support", f"${ca['support_cost']:,.0f}")
+        
+        with detail_tabs[2]:
+            st.info(f"💰 Reserved Instances: Save ${ca.get('reserved_instance_savings', 0):,.0f}")
+            if ca.get('cost_optimization_recommendations'):
+                for rec in ca['cost_optimization_recommendations'][:5]:
+                    st.success(rec)
+        
+        # Actions
+        st.markdown("---")
+        col1, col2 = st.columns(2)
+        
+        design_id = design.get('id', design['name'])
+        
+        with col1:
+            if not design.get('cost_approved'):
+                if st.button("✅ Approve", key=f"approve_{design_id}", type="primary"):
+                    design['cost_approved'] = True
+                    design['status'] = 'APPROVED'
+                    st.session_state.designs[design_id] = design
+                    st.success("✅ Cost approved!")
+                    st.rerun()
+        
+        with col2:
+            if st.button("❌ Too Expensive", key=f"reject_{design_id}"):
+                design['status'] = 'DRAFT'
+                design['cost_analysis'] = None
+                st.session_state.designs[design_id] = design
+                st.warning("Returned to draft")
+                st.rerun()
+    
+    @staticmethod
+    def _display_cost_summary_simple(design):
+        """Display simple cost summary"""
+        ca = design.get('cost_analysis', {})
+        if not ca:
+            return
+        
+        col1, col2, col3 = st.columns(3)
+        col1.metric("Monthly", f"${ca['monthly_cost']:,.0f}")
+        col2.metric("3-Year", f"${ca['total_3year_cost']:,.0f}")
+        col3.metric("ROI", f"{ca['roi_percentage']:.1f}%")
+
+
+# ============================================================================
+# END OF NEW METHODS - Place above the __all__ export line
+# ============================================================================
 
 # Export
 __all__ = ['DesignPlanningModule']
