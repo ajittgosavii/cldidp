@@ -1,45 +1,45 @@
 """
-Light Sky Blue Theme Styling - Professional light blue UI
-Light sky blue and white theme with excellent readability
+Ultra-Light Pastel Sky Blue Theme - Soft, Airy, Professional
+Very light pastel blue with excellent readability
 """
 
 import streamlit as st
 
 class AWSTheme:
-    """Light Sky Blue themed styling for CloudIDP"""
+    """Ultra-light pastel sky blue themed styling for CloudIDP"""
     
-    # Light Sky Blue Theme Colors
-    SKY_BLUE = "#87CEEB"          # Primary - Light Sky Blue
-    LIGHT_BG = "#F0F8FF"           # Alice Blue - Main background
-    CARD_BG = "#E6F3FF"            # Light blue for cards
-    SIDEBAR_BG = "#D4E9F7"         # Slightly darker for sidebar
+    # Ultra-Light Pastel Sky Blue Theme Colors
+    PASTEL_SKY_BLUE = "#B3E5FC"    # Very light sky blue (primary)
+    SOFT_BLUE = "#81D4FA"          # Soft blue (hover/active)
+    LIGHTEST_BG = "#FAFCFF"        # Almost white with hint of blue
+    CARD_BG = "#F5FAFF"            # Very light blue for cards
+    SIDEBAR_BG = "#EBF5FB"         # Light blue sidebar
     TEXT_DARK = "#1a1a1a"          # Dark text for readability
-    TEXT_GRAY = "#4a4a4a"          # Gray text
-    BORDER_BLUE = "#87CEEB"        # Border color
-    HOVER_BLUE = "#6BB6E5"         # Darker blue for hover
-    SUCCESS = "#28a745"            # Green for success
-    WARNING = "#ffc107"            # Yellow for warning
-    ERROR = "#dc3545"              # Red for error
-    INFO_BLUE = "#0073BB"          # Info blue
+    TEXT_GRAY = "#5a5a5a"          # Gray text
+    BORDER_LIGHT = "#B3E5FC"       # Light blue border
+    SUCCESS = "#4caf50"            # Green
+    WARNING = "#ff9800"            # Orange
+    ERROR = "#f44336"              # Red
+    INFO_BLUE = "#29b6f6"          # Light info blue
     
     @staticmethod
     def apply_aws_theme():
-        """Apply light sky blue theme to Streamlit"""
+        """Apply ultra-light pastel sky blue theme to Streamlit"""
         
         st.markdown("""
         <style>
-            /* ===== LIGHT SKY BLUE GLOBAL THEME ===== */
+            /* ===== ULTRA-LIGHT PASTEL SKY BLUE THEME ===== */
             
-            /* Main app background */
+            /* Main app background - almost white */
             .stApp {
-                background-color: #F0F8FF;
+                background-color: #FAFCFF;
             }
             
             /* Main content area */
             .main .block-container {
                 padding-top: 2rem;
                 padding-bottom: 2rem;
-                background-color: #F0F8FF;
+                background-color: #FAFCFF;
                 max-width: 1400px;
             }
             
@@ -51,12 +51,8 @@ class AWSTheme:
                 font-family: 'Helvetica Neue', Roboto, Arial, sans-serif !important;
                 font-weight: 700 !important;
                 padding: 1rem 0;
-                border-bottom: 3px solid #87CEEB;
+                border-bottom: 3px solid #B3E5FC;
                 margin-bottom: 1.5rem;
-                background: linear-gradient(135deg, #87CEEB 0%, #6BB6E5 100%);
-                -webkit-background-clip: text;
-                -webkit-text-fill-color: transparent;
-                background-clip: text;
             }
             
             h2 {
@@ -74,10 +70,10 @@ class AWSTheme:
             
             /* ===== SIDEBAR ===== */
             
-            /* Sidebar styling */
+            /* Sidebar styling - very light blue */
             [data-testid="stSidebar"] {
-                background-color: #D4E9F7 !important;
-                border-right: 3px solid #87CEEB;
+                background-color: #EBF5FB !important;
+                border-right: 3px solid #B3E5FC;
             }
             
             [data-testid="stSidebar"] .block-container {
@@ -94,15 +90,15 @@ class AWSTheme:
             [data-testid="stSidebar"] h2,
             [data-testid="stSidebar"] h3 {
                 color: #1a1a1a !important;
-                border-bottom: 2px solid #87CEEB;
+                border-bottom: 2px solid #B3E5FC;
                 padding-bottom: 0.5rem;
             }
             
             /* Sidebar selectbox */
             [data-testid="stSidebar"] .stSelectbox,
             [data-testid="stSidebar"] .stRadio {
-                background-color: #E6F3FF;
-                border-radius: 4px;
+                background-color: #F5FAFF;
+                border-radius: 8px;
                 padding: 0.5rem;
             }
             
@@ -111,8 +107,8 @@ class AWSTheme:
             /* Tab list container */
             .stTabs [data-baseweb="tab-list"] {
                 gap: 0px;
-                background-color: #E6F3FF;
-                border-bottom: 3px solid #87CEEB;
+                background-color: #F5FAFF;
+                border-bottom: 3px solid #B3E5FC;
                 padding: 0;
             }
             
@@ -120,27 +116,27 @@ class AWSTheme:
             .stTabs [data-baseweb="tab"] {
                 height: 50px;
                 background-color: #FFFFFF;
-                border: 1px solid #B0D4F1;
+                border: 1px solid #D4E9F7;
                 border-bottom: none;
                 color: #1a1a1a;
                 font-weight: 600;
                 font-size: 14px;
                 padding: 0 1.5rem;
                 margin: 0;
-                border-radius: 4px 4px 0 0;
+                border-radius: 8px 8px 0 0;
             }
             
-            /* Active tab */
+            /* Active tab - pastel blue */
             .stTabs [data-baseweb="tab"][aria-selected="true"] {
-                background-color: #87CEEB !important;
+                background: linear-gradient(180deg, #B3E5FC 0%, #81D4FA 100%) !important;
                 color: #FFFFFF !important;
-                border-bottom: 3px solid #87CEEB;
+                border-bottom: 3px solid #81D4FA;
                 font-weight: 700;
             }
             
             /* Tab hover effect */
             .stTabs [data-baseweb="tab"]:hover {
-                background-color: #B0E0F6;
+                background-color: #E1F5FE;
                 color: #1a1a1a;
             }
             
@@ -148,47 +144,48 @@ class AWSTheme:
             .stTabs [data-baseweb="tab-panel"] {
                 background-color: #FFFFFF;
                 padding: 1.5rem;
-                border: 1px solid #B0D4F1;
+                border: 1px solid #D4E9F7;
                 border-top: none;
-                border-radius: 0 0 4px 4px;
+                border-radius: 0 0 8px 8px;
             }
             
             /* ===== BUTTONS ===== */
             
-            /* Primary button */
+            /* Primary button - pastel blue */
             .stButton > button {
-                background-color: #87CEEB !important;
-                color: #1a1a1a !important;
+                background: linear-gradient(135deg, #B3E5FC 0%, #81D4FA 100%) !important;
+                color: #FFFFFF !important;
                 border: none !important;
                 border-radius: 8px !important;
-                padding: 0.6rem 1.8rem !important;
+                padding: 0.7rem 2rem !important;
                 font-weight: 600 !important;
                 font-size: 14px !important;
                 transition: all 0.3s ease !important;
                 font-family: 'Helvetica Neue', Roboto, Arial, sans-serif !important;
-                box-shadow: 0 2px 4px rgba(135, 206, 235, 0.3) !important;
+                box-shadow: 0 2px 8px rgba(129, 212, 250, 0.3) !important;
+                text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1) !important;
             }
             
             .stButton > button:hover {
-                background-color: #6BB6E5 !important;
-                box-shadow: 0 4px 8px rgba(107, 182, 229, 0.4) !important;
+                background: linear-gradient(135deg, #81D4FA 0%, #4FC3F7 100%) !important;
+                box-shadow: 0 4px 12px rgba(79, 195, 247, 0.4) !important;
                 transform: translateY(-2px);
             }
             
             .stButton > button:active {
                 transform: translateY(0);
-                box-shadow: 0 2px 4px rgba(135, 206, 235, 0.3) !important;
+                box-shadow: 0 2px 6px rgba(129, 212, 250, 0.3) !important;
             }
             
             /* ===== METRICS/CARDS ===== */
             
             /* Metric container */
             [data-testid="stMetric"] {
-                background: linear-gradient(135deg, #FFFFFF 0%, #E6F3FF 100%);
+                background: linear-gradient(135deg, #FFFFFF 0%, #F5FAFF 100%);
                 padding: 1.5rem;
                 border-radius: 12px;
-                border: 2px solid #87CEEB;
-                box-shadow: 0 4px 8px rgba(135, 206, 235, 0.2);
+                border: 2px solid #B3E5FC;
+                box-shadow: 0 2px 8px rgba(179, 229, 252, 0.2);
             }
             
             /* Metric label */
@@ -207,7 +204,7 @@ class AWSTheme:
             
             /* Metric delta */
             [data-testid="stMetricDelta"] {
-                color: #28a745 !important;
+                color: #4caf50 !important;
             }
             
             /* ===== DATAFRAMES/TABLES ===== */
@@ -216,25 +213,26 @@ class AWSTheme:
             .dataframe {
                 background-color: #FFFFFF !important;
                 color: #1a1a1a !important;
-                border: 2px solid #87CEEB !important;
+                border: 2px solid #B3E5FC !important;
                 border-radius: 8px !important;
             }
             
             .dataframe thead tr th {
-                background: linear-gradient(135deg, #87CEEB 0%, #6BB6E5 100%) !important;
+                background: linear-gradient(135deg, #B3E5FC 0%, #81D4FA 100%) !important;
                 color: #FFFFFF !important;
                 font-weight: 700 !important;
                 padding: 12px !important;
                 border: none !important;
+                text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1) !important;
             }
             
             .dataframe tbody tr {
                 background-color: #FFFFFF !important;
-                border-bottom: 1px solid #E6F3FF !important;
+                border-bottom: 1px solid #F5FAFF !important;
             }
             
             .dataframe tbody tr:hover {
-                background-color: #F0F8FF !important;
+                background-color: #F5FAFF !important;
             }
             
             .dataframe tbody tr td {
@@ -244,7 +242,7 @@ class AWSTheme:
             
             /* Alternating row colors */
             .dataframe tbody tr:nth-child(even) {
-                background-color: #F8FCFF !important;
+                background-color: #FAFCFF !important;
             }
             
             /* ===== INPUT FIELDS ===== */
@@ -255,29 +253,29 @@ class AWSTheme:
             .stNumberInput > div > div > input {
                 background-color: #FFFFFF !important;
                 color: #1a1a1a !important;
-                border: 2px solid #B0D4F1 !important;
+                border: 2px solid #D4E9F7 !important;
                 border-radius: 8px !important;
             }
             
             .stTextInput > div > div > input:focus,
             .stTextArea > div > div > textarea:focus,
             .stNumberInput > div > div > input:focus {
-                border-color: #87CEEB !important;
-                box-shadow: 0 0 0 3px rgba(135, 206, 235, 0.2) !important;
+                border-color: #B3E5FC !important;
+                box-shadow: 0 0 0 3px rgba(179, 229, 252, 0.2) !important;
             }
             
             /* Select boxes */
             .stSelectbox > div > div {
                 background-color: #FFFFFF !important;
                 color: #1a1a1a !important;
-                border: 2px solid #B0D4F1 !important;
+                border: 2px solid #D4E9F7 !important;
                 border-radius: 8px !important;
             }
             
             /* Multiselect */
             .stMultiSelect > div > div {
                 background-color: #FFFFFF !important;
-                border: 2px solid #B0D4F1 !important;
+                border: 2px solid #D4E9F7 !important;
                 border-radius: 8px !important;
             }
             
@@ -285,36 +283,36 @@ class AWSTheme:
             
             /* Success message */
             .stSuccess {
-                background-color: #d4edda !important;
-                border-left: 4px solid #28a745 !important;
-                color: #155724 !important;
+                background-color: #e8f5e9 !important;
+                border-left: 4px solid #4caf50 !important;
+                color: #2e7d32 !important;
                 padding: 1rem !important;
                 border-radius: 8px !important;
             }
             
             /* Info message */
             .stInfo {
-                background-color: #d1ecf1 !important;
-                border-left: 4px solid #0073BB !important;
-                color: #0c5460 !important;
+                background-color: #e1f5fe !important;
+                border-left: 4px solid #29b6f6 !important;
+                color: #01579b !important;
                 padding: 1rem !important;
                 border-radius: 8px !important;
             }
             
             /* Warning message */
             .stWarning {
-                background-color: #fff3cd !important;
-                border-left: 4px solid #ffc107 !important;
-                color: #856404 !important;
+                background-color: #fff3e0 !important;
+                border-left: 4px solid #ff9800 !important;
+                color: #e65100 !important;
                 padding: 1rem !important;
                 border-radius: 8px !important;
             }
             
             /* Error message */
             .stError {
-                background-color: #f8d7da !important;
-                border-left: 4px solid #dc3545 !important;
-                color: #721c24 !important;
+                background-color: #ffebee !important;
+                border-left: 4px solid #f44336 !important;
+                color: #c62828 !important;
                 padding: 1rem !important;
                 border-radius: 8px !important;
             }
@@ -323,20 +321,20 @@ class AWSTheme:
             
             /* Expander */
             .streamlit-expanderHeader {
-                background-color: #E6F3FF !important;
+                background-color: #F5FAFF !important;
                 color: #1a1a1a !important;
-                border: 2px solid #87CEEB !important;
+                border: 2px solid #B3E5FC !important;
                 border-radius: 8px !important;
                 font-weight: 600 !important;
             }
             
             .streamlit-expanderHeader:hover {
-                background-color: #D4E9F7 !important;
+                background-color: #E1F5FE !important;
             }
             
             .streamlit-expanderContent {
                 background-color: #FFFFFF !important;
-                border: 2px solid #B0D4F1 !important;
+                border: 2px solid #D4E9F7 !important;
                 border-top: none !important;
                 color: #1a1a1a !important;
                 border-radius: 0 0 8px 8px !important;
@@ -345,7 +343,7 @@ class AWSTheme:
             /* ===== PROGRESS BARS ===== */
             
             .stProgress > div > div > div {
-                background: linear-gradient(90deg, #87CEEB 0%, #6BB6E5 100%) !important;
+                background: linear-gradient(90deg, #B3E5FC 0%, #81D4FA 100%) !important;
             }
             
             /* ===== CHARTS ===== */
@@ -353,7 +351,7 @@ class AWSTheme:
             /* Chart backgrounds */
             [data-testid="stPlotlyChart"] {
                 background-color: #FFFFFF !important;
-                border: 2px solid #B0D4F1 !important;
+                border: 2px solid #D4E9F7 !important;
                 border-radius: 12px !important;
                 padding: 1rem !important;
             }
@@ -361,20 +359,20 @@ class AWSTheme:
             /* ===== DIVIDERS ===== */
             
             hr {
-                border-color: #87CEEB !important;
+                border-color: #B3E5FC !important;
                 opacity: 0.6 !important;
             }
             
             /* ===== CUSTOM COMPONENTS ===== */
             
-            /* Sky Blue Header Banner */
+            /* Pastel Blue Header Banner */
             .aws-header {
-                background: linear-gradient(135deg, #87CEEB 0%, #6BB6E5 100%);
+                background: linear-gradient(135deg, #B3E5FC 0%, #81D4FA 100%);
                 padding: 2rem;
                 border-radius: 12px;
                 margin-bottom: 2rem;
-                box-shadow: 0 4px 12px rgba(135, 206, 235, 0.3);
-                border: 2px solid #87CEEB;
+                box-shadow: 0 4px 12px rgba(179, 229, 252, 0.3);
+                border: 2px solid #B3E5FC;
             }
             
             .aws-header h1 {
@@ -382,30 +380,31 @@ class AWSTheme:
                 margin: 0 !important;
                 padding: 0 !important;
                 border: none !important;
-                -webkit-text-fill-color: #FFFFFF !important;
+                text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
             }
             
             .aws-header p {
                 color: #FFFFFF !important;
                 margin: 0.5rem 0 0 0 !important;
                 font-size: 1.1rem !important;
+                text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1) !important;
             }
             
-            /* Sky Blue Service Card */
+            /* Pastel Service Card */
             .aws-service-card {
-                background: linear-gradient(135deg, #FFFFFF 0%, #F0F8FF 100%);
-                border: 2px solid #87CEEB;
+                background: linear-gradient(135deg, #FFFFFF 0%, #F5FAFF 100%);
+                border: 2px solid #B3E5FC;
                 border-radius: 12px;
                 padding: 1.5rem;
                 margin: 1rem 0;
-                box-shadow: 0 4px 8px rgba(135, 206, 235, 0.2);
+                box-shadow: 0 2px 8px rgba(179, 229, 252, 0.2);
                 transition: all 0.3s ease;
             }
             
             .aws-service-card:hover {
                 transform: translateY(-4px);
-                box-shadow: 0 8px 16px rgba(107, 182, 229, 0.3);
-                border-color: #6BB6E5;
+                box-shadow: 0 6px 16px rgba(129, 212, 250, 0.3);
+                border-color: #81D4FA;
             }
             
             /* Status Badge */
@@ -419,22 +418,22 @@ class AWSTheme:
             }
             
             .aws-badge-success {
-                background-color: #28a745;
+                background-color: #4caf50;
                 color: #FFFFFF;
             }
             
             .aws-badge-warning {
-                background-color: #ffc107;
-                color: #1a1a1a;
+                background-color: #ff9800;
+                color: #FFFFFF;
             }
             
             .aws-badge-error {
-                background-color: #dc3545;
+                background-color: #f44336;
                 color: #FFFFFF;
             }
             
             .aws-badge-info {
-                background-color: #87CEEB;
+                background-color: #29b6f6;
                 color: #FFFFFF;
             }
             
@@ -453,23 +452,23 @@ class AWSTheme:
             }
             
             ::-webkit-scrollbar-track {
-                background: #E6F3FF;
+                background: #F5FAFF;
                 border-radius: 6px;
             }
             
             ::-webkit-scrollbar-thumb {
-                background: #87CEEB;
+                background: #B3E5FC;
                 border-radius: 6px;
             }
             
             ::-webkit-scrollbar-thumb:hover {
-                background: #6BB6E5;
+                background: #81D4FA;
             }
             
             /* ===== RADIO BUTTONS ===== */
             
             .stRadio > div {
-                background-color: #F0F8FF;
+                background-color: #F5FAFF;
                 padding: 0.5rem;
                 border-radius: 8px;
             }
@@ -496,31 +495,31 @@ class AWSTheme:
             
             /* Caption text */
             .stCaption {
-                color: #4a4a4a !important;
+                color: #5a5a5a !important;
             }
             
             /* Code blocks */
             code {
-                background-color: #E6F3FF !important;
+                background-color: #F5FAFF !important;
                 color: #1a1a1a !important;
                 padding: 0.2rem 0.4rem !important;
                 border-radius: 4px !important;
-                border: 1px solid #B0D4F1 !important;
+                border: 1px solid #D4E9F7 !important;
             }
             
             /* ===== CHAT MESSAGES ===== */
             
             .stChatMessage {
                 background-color: #FFFFFF !important;
-                border: 2px solid #B0D4F1 !important;
+                border: 2px solid #D4E9F7 !important;
                 border-radius: 12px !important;
             }
             
             /* ===== FOOTER ===== */
             
             footer {
-                background-color: #E6F3FF !important;
-                border-top: 3px solid #87CEEB !important;
+                background-color: #F5FAFF !important;
+                border-top: 3px solid #B3E5FC !important;
             }
             
             footer p {
@@ -531,7 +530,7 @@ class AWSTheme:
             
             [data-testid="stFileUploader"] {
                 background-color: #FFFFFF !important;
-                border: 2px dashed #87CEEB !important;
+                border: 2px dashed #B3E5FC !important;
                 border-radius: 12px !important;
                 padding: 1rem !important;
             }
@@ -539,30 +538,30 @@ class AWSTheme:
             /* ===== DOWNLOAD BUTTON ===== */
             
             .stDownloadButton > button {
-                background-color: #87CEEB !important;
-                color: #1a1a1a !important;
+                background: linear-gradient(135deg, #B3E5FC 0%, #81D4FA 100%) !important;
+                color: #FFFFFF !important;
                 border: none !important;
                 border-radius: 8px !important;
             }
             
             .stDownloadButton > button:hover {
-                background-color: #6BB6E5 !important;
+                background: linear-gradient(135deg, #81D4FA 0%, #4FC3F7 100%) !important;
             }
             
             /* ===== SPINNER ===== */
             
             .stSpinner > div {
-                border-top-color: #87CEEB !important;
+                border-top-color: #B3E5FC !important;
             }
             
             /* ===== SLIDER ===== */
             
             .stSlider [data-baseweb="slider"] {
-                background-color: #E6F3FF !important;
+                background-color: #F5FAFF !important;
             }
             
             .stSlider [data-baseweb="slider"] [role="slider"] {
-                background-color: #87CEEB !important;
+                background-color: #B3E5FC !important;
             }
             
             /* ===== DATE INPUT ===== */
@@ -570,7 +569,7 @@ class AWSTheme:
             .stDateInput > div > div > input {
                 background-color: #FFFFFF !important;
                 color: #1a1a1a !important;
-                border: 2px solid #B0D4F1 !important;
+                border: 2px solid #D4E9F7 !important;
                 border-radius: 8px !important;
             }
             
@@ -579,7 +578,7 @@ class AWSTheme:
             .stTimeInput > div > div > input {
                 background-color: #FFFFFF !important;
                 color: #1a1a1a !important;
-                border: 2px solid #B0D4F1 !important;
+                border: 2px solid #D4E9F7 !important;
                 border-radius: 8px !important;
             }
         </style>
@@ -587,7 +586,7 @@ class AWSTheme:
     
     @staticmethod
     def aws_header(title: str, subtitle: str = None):
-        """Create sky blue styled header banner"""
+        """Create pastel blue styled header banner"""
         subtitle_html = f'<p>{subtitle}</p>' if subtitle else ''
         
         st.markdown(f"""
@@ -599,7 +598,7 @@ class AWSTheme:
     
     @staticmethod
     def aws_service_card(title: str, content: str, icon: str = "📦"):
-        """Create sky blue styled service card"""
+        """Create pastel blue styled service card"""
         st.markdown(f"""
         <div class="aws-service-card">
             <h3>{icon} {title}</h3>
@@ -609,18 +608,18 @@ class AWSTheme:
     
     @staticmethod
     def aws_badge(text: str, badge_type: str = "info"):
-        """Create sky blue styled status badge"""
+        """Create pastel blue styled status badge"""
         return f'<span class="aws-badge aws-badge-{badge_type}">{text}</span>'
     
     @staticmethod
     def aws_metric_card(label: str, value: str, delta: str = None, icon: str = "📊"):
-        """Create sky blue styled metric card with icon"""
-        delta_html = f'<div style="color: #28a745; margin-top: 0.5rem;">{delta}</div>' if delta else ''
+        """Create pastel blue styled metric card with icon"""
+        delta_html = f'<div style="color: #4caf50; margin-top: 0.5rem;">{delta}</div>' if delta else ''
         
         st.markdown(f"""
-        <div style="background: linear-gradient(135deg, #FFFFFF 0%, #E6F3FF 100%); 
+        <div style="background: linear-gradient(135deg, #FFFFFF 0%, #F5FAFF 100%); 
                     padding: 1.5rem; border-radius: 12px; 
-                    border: 2px solid #87CEEB; box-shadow: 0 4px 8px rgba(135, 206, 235, 0.2);">
+                    border: 2px solid #B3E5FC; box-shadow: 0 2px 8px rgba(179, 229, 252, 0.2);">
             <div style="color: #1a1a1a; font-weight: 600; font-size: 14px; margin-bottom: 0.5rem;">
                 {icon} {label}
             </div>

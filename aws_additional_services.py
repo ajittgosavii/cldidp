@@ -27,15 +27,8 @@ class S3Service:
                 # Get bucket region
                 try:
                     location = _self.client.get_bucket_location(Bucket=bucket_name)
-                    # LocationConstraint is None for us-east-1
                     region = location.get('LocationConstraint') or 'us-east-1'
-                except ClientError as e:
-                    error_code = e.response['Error']['Code']
-                    if error_code == 'AccessDenied':
-                        region = 'Access Denied'
-                    else:
-                        region = f'Error: {error_code}'
-                except Exception as e:
+                except:
                     region = 'unknown'
                 
                 # Get bucket size (simplified - would need CloudWatch in production)
