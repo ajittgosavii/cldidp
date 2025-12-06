@@ -915,25 +915,25 @@ Would you like me to generate specific policies for your use case?
             col1, col2, col3 = st.columns(3)
             
             with col1:
-                tag_key = st.text_input("Tag Key*", placeholder="Department", key="new_tag_key")
+                tag_key = st.text_input("Tag Key*", placeholder="Department", key="tag_policy_key_input")
             
             with col2:
                 allowed_values = st.text_input("Allowed Values", 
-                    placeholder="IT, Finance, HR", key="new_tag_values")
+                    placeholder="IT, Finance, HR", key="tag_policy_values_input")
             
             with col3:
-                case_sensitive = st.checkbox("Case Sensitive", key="new_tag_case")
+                case_sensitive = st.checkbox("Case Sensitive", key="tag_policy_case_input")
             
             resource_types = st.multiselect("Apply to Resource Types", [
                 "ec2:instance", "s3:bucket", "rds:db", "lambda:function",
                 "dynamodb:table", "eks:cluster"
-            ], key="new_tag_resources")
+            ], key="tag_policy_resources_input")
             
             enforcement_mode = st.radio(
                 "Enforcement Mode",
                 options=["Audit Only", "Enforce on Create", "Enforce on All Operations"],
                 horizontal=True,
-                key="tag_enforcement"
+                key="tag_policy_enforcement_input"
             )
             
             if st.form_submit_button("✅ Create Tag Policy", type="primary"):
