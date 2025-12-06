@@ -133,34 +133,9 @@ input, textarea {
 }
 
 /* ===== METRICS ===== */
-[data-testid="stMetricLabel"] {
-    color: white !important;  /* Changed from black to white */
-}
-
-[data-testid="stMetricValue"] {
-    color: white !important;  /* Changed from blue to white for visibility */
-    font-weight: 600 !important;
-}
-
-[data-testid="stMetricDelta"] {
-    color: #E0E0E0 !important;  /* Light gray for delta */
-}
-
-/* Metric containers with dark backgrounds */
+/* Let aws_theme.py handle metric styling - don't override! */
 .stMetric {
     background-color: transparent !important;
-}
-
-/* Fix for dark metric containers */
-div[data-testid="stMetric"] > div {
-    color: white !important;
-}
-
-/* Specific fix for metric labels in dark boxes */
-div[data-testid="metric-container"] label,
-div[data-testid="metric-container"] p,
-div[data-testid="metric-container"] span {
-    color: white !important;
 }
 
 /* ===== INFO/WARNING/ERROR BOXES ===== */
@@ -205,25 +180,6 @@ td {
 .stTextInput > div,
 .stNumberInput > div {
     border-radius: 4px !important;
-}
-
-/* ===== DARK CONTAINERS FIX ===== */
-/* Fix text in dark background containers */
-div[style*="background"] label,
-div[style*="background"] p,
-div[style*="background"] span,
-div[style*="background"] div {
-    color: white !important;
-}
-
-/* Fix for any container with dark background */
-.element-container div[style*="background-color: rgb"] {
-    color: white !important;
-}
-
-/* Ensure all text in dark boxes is visible */
-div[data-testid="stVerticalBlock"] > div[style*="background"] * {
-    color: white !important;
 }
 </style>
 """, unsafe_allow_html=True)
