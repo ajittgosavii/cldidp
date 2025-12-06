@@ -1244,8 +1244,6 @@ module "application" {
             💰 Delete unused resources monthly  
             💰 Cost allocation tags enforced  
             """)
-Copy everything from here down and paste it before the __all__ export.
-
 
     # ========================================================================
     # NEW TAB 4: AI SIZING (INTEGRATION CODE)
