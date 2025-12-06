@@ -21,6 +21,29 @@ from aws_cloudwatch import CloudWatchManager
 from aws_organizations import AWSOrganizationsManager
 import json
 import os
+import boto3
+
+# ============================================================================
+# HELPER FUNCTIONS
+# ============================================================================
+
+def get_regional_session(base_session, region: str):
+    """Create a new boto3 session with specified region using credentials from base session"""
+    try:
+        credentials = base_session.get_credentials()
+        
+        # Create new session with specified region
+        regional_session = boto3.Session(
+            aws_access_key_id=credentials.access_key,
+            aws_secret_access_key=credentials.secret_key,
+            aws_session_token=credentials.token,
+            region_name=region
+        )
+        
+        return regional_session
+    except Exception as e:
+        # If we can't get credentials, return original session
+        return base_session
 
 # ============================================================================
 # AI CLIENT INITIALIZATION
@@ -401,7 +424,9 @@ class UnifiedSecurityComplianceModule:
         
         # Generate security summary for AI analysis
         try:
-            security_mgr = SecurityManager(session)
+            # Create region-specific session
+            regional_session = get_regional_session(session, region)
+            security_mgr = SecurityManager(regional_session)
             score_data = security_mgr.get_security_score()
             
             findings_summary = {
@@ -544,7 +569,9 @@ class UnifiedSecurityComplianceModule:
             return
         
         try:
-            security_mgr = SecurityManager(session)
+            # Create region-specific session
+            regional_session = get_regional_session(session, region)
+            security_mgr = SecurityManager(regional_session)
             
             # Filter by severity
             severity_filter = st.selectbox(
@@ -743,7 +770,9 @@ class UnifiedSecurityComplianceModule:
             return
         
         try:
-            security_mgr = SecurityManager(session)
+            # Create region-specific session
+            regional_session = get_regional_session(session, region)
+            security_mgr = SecurityManager(regional_session)
             
             score_data = security_mgr.get_security_score()
             
@@ -784,7 +813,9 @@ class UnifiedSecurityComplianceModule:
             return
         
         try:
-            security_mgr = SecurityManager(session)
+            # Create region-specific session
+            regional_session = get_regional_session(session, region)
+            security_mgr = SecurityManager(regional_session)
             detector_id = security_mgr.get_guardduty_detector()
             
             if not detector_id:
@@ -833,7 +864,9 @@ class UnifiedSecurityComplianceModule:
             return
         
         try:
-            security_mgr = SecurityManager(session)
+            # Create region-specific session
+            regional_session = get_regional_session(session, region)
+            security_mgr = SecurityManager(regional_session)
             summary = security_mgr.get_compliance_summary()
             
             col1, col2, col3, col4 = st.columns(4)
@@ -876,7 +909,9 @@ class UnifiedSecurityComplianceModule:
             return
         
         try:
-            cw_mgr = CloudWatchManager(session)
+            # Create region-specific session
+            regional_session = get_regional_session(session, region)
+            cw_mgr = CloudWatchManager(regional_session)
             
             state_filter = st.selectbox(
                 "Filter by State",
@@ -931,7 +966,9 @@ class UnifiedSecurityComplianceModule:
             return
         
         try:
-            cw_mgr = CloudWatchManager(session)
+            # Create region-specific session
+            regional_session = get_regional_session(session, region)
+            cw_mgr = CloudWatchManager(regional_session)
             log_groups = cw_mgr.list_log_groups()
             
             if not log_groups:
