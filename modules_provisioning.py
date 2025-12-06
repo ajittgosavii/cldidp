@@ -40,10 +40,22 @@ class ProvisioningModule:
         if not selected_account:
             return
         
-        session = account_mgr.get_session(selected_account)
-        if not session:
-            st.error("Failed to get session")
+        # Check if a specific region is selected
+        selected_region = st.session_state.get('selected_regions', 'all')
+        
+        if selected_region == 'all':
+            st.error("❌ Error loading Provisioning: You must specify a region.")
+            st.info("📍 CloudFormation stacks are region-specific. Please select a specific region from the sidebar to view and deploy stacks.")
             return
+        
+        # Get region-specific session
+        session = account_mgr.get_session_with_region(selected_account, selected_region)
+        if not session:
+            st.error(f"Failed to get session for {selected_account} in region {selected_region}")
+            return
+        
+        # Show selected region
+        st.info(f"📍 Managing stacks in **{selected_region}**")
         
         cfn_mgr = CloudFormationManager(session)
         

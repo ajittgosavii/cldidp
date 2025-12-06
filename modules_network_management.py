@@ -44,14 +44,25 @@ class NetworkManagementUI:
             st.info("Please select an account")
             return
         
-        # Get session for selected account
-        session = account_mgr.get_session(selected_account)
-        if not session:
-            st.error(f"Failed to get session for {selected_account}")
+        # Check if a specific region is selected
+        selected_region = st.session_state.get('selected_regions', 'all')
+        
+        if selected_region == 'all':
+            st.error("❌ Error loading Network Management: You must specify a region.")
+            st.info("📍 Network resources (VPCs, Subnets, Security Groups) are region-specific. Please select a specific region from the sidebar to view network infrastructure.")
             return
         
-        # Initialize VPC Manager
+        # Get region-specific session for selected account
+        session = account_mgr.get_session_with_region(selected_account, selected_region)
+        if not session:
+            st.error(f"Failed to get session for {selected_account} in region {selected_region}")
+            return
+        
+        # Initialize VPC Manager with region-specific session
         vpc_mgr = VPCManager(session)
+        
+        # Show selected region
+        st.info(f"📍 Viewing network resources in **{selected_region}**")
         
         # Main tabs
         tabs = st.tabs([
@@ -148,7 +159,10 @@ class NetworkManagementUI:
                     # Tags
                     if vpc_details.get('tags'):
                         st.write("**Tags:**")
-                        st.json(vpc_details['tags'])
+                        # Display tags as a nice table instead of JSON
+                        tags_data = [{"Key": k, "Value": v} for k, v in vpc_details['tags'].items()]
+                        tags_df = pd.DataFrame(tags_data)
+                        st.dataframe(tags_df, hide_index=True, use_container_width=True)
     
     @staticmethod
     def _render_create_vpc(vpc_mgr: VPCManager):

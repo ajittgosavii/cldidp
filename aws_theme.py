@@ -1,629 +1,446 @@
 """
-Ultra-Light Pastel Sky Blue Theme - Soft, Airy, Professional
-Very light pastel blue with excellent readability
+AWS Theme Styling - COMPLETE OVERHAUL
+Hybrid theme: Dark interface with LIGHT metric cards for guaranteed visibility
 """
 
 import streamlit as st
 
 class AWSTheme:
-    """Ultra-light pastel sky blue themed styling for CloudIDP"""
+    """AWS-themed styling for CloudIDP - VISIBILITY GUARANTEED"""
     
-    # Ultra-Light Pastel Sky Blue Theme Colors
-    PASTEL_SKY_BLUE = "#B3E5FC"    # Very light sky blue (primary)
-    SOFT_BLUE = "#81D4FA"          # Soft blue (hover/active)
-    LIGHTEST_BG = "#FAFCFF"        # Almost white with hint of blue
-    CARD_BG = "#F5FAFF"            # Very light blue for cards
-    SIDEBAR_BG = "#EBF5FB"         # Light blue sidebar
-    TEXT_DARK = "#1a1a1a"          # Dark text for readability
-    TEXT_GRAY = "#5a5a5a"          # Gray text
-    BORDER_LIGHT = "#B3E5FC"       # Light blue border
-    SUCCESS = "#4caf50"            # Green
-    WARNING = "#ff9800"            # Orange
-    ERROR = "#f44336"              # Red
-    INFO_BLUE = "#29b6f6"          # Light info blue
+    # AWS Brand Colors
+    AWS_ORANGE = "#FF9900"
+    AWS_DARK = "#232F3E"
+    AWS_DARK_GRAY = "#161E2D"
+    AWS_LIGHT_GRAY = "#F2F3F4"
+    AWS_GRAY = "#545B64"
+    AWS_WHITE = "#FFFFFF"
+    AWS_BLUE = "#0073BB"
+    AWS_SUCCESS = "#00A86B"
+    AWS_WARNING = "#FFB81C"
+    AWS_ERROR = "#D13212"
     
     @staticmethod
     def apply_aws_theme():
-        """Apply ultra-light pastel sky blue theme to Streamlit"""
+        """Apply AWS console-style hybrid theme - Dark background, Light metrics"""
         
         st.markdown("""
         <style>
-            /* ===== ULTRA-LIGHT PASTEL SKY BLUE THEME ===== */
+            /* ===== AWS HYBRID THEME - GUARANTEED VISIBILITY ===== */
             
-            /* Main app background - almost white */
+            /* Main app background - DARK */
             .stApp {
-                background-color: #FAFCFF;
+                background-color: #232F3E;
             }
             
-            /* Main content area */
             .main .block-container {
                 padding-top: 2rem;
                 padding-bottom: 2rem;
-                background-color: #FAFCFF;
+                background-color: #232F3E;
                 max-width: 1400px;
             }
             
-            /* ===== HEADER STYLING ===== */
+            /* ===== HEADERS ===== */
             
-            /* Main title */
             h1 {
-                color: #1a1a1a !important;
-                font-family: 'Helvetica Neue', Roboto, Arial, sans-serif !important;
+                color: #FF9900 !important;
+                font-family: 'Amazon Ember', 'Helvetica Neue', Roboto, Arial, sans-serif !important;
                 font-weight: 700 !important;
                 padding: 1rem 0;
-                border-bottom: 3px solid #B3E5FC;
+                border-bottom: 3px solid #FF9900;
                 margin-bottom: 1.5rem;
             }
             
             h2 {
-                color: #1a1a1a !important;
-                font-family: 'Helvetica Neue', Roboto, Arial, sans-serif !important;
+                color: #FF9900 !important;
+                font-family: 'Amazon Ember', 'Helvetica Neue', Roboto, Arial, sans-serif !important;
                 font-weight: 600 !important;
                 margin-top: 1.5rem;
             }
             
             h3 {
-                color: #1a1a1a !important;
-                font-family: 'Helvetica Neue', Roboto, Arial, sans-serif !important;
+                color: #FFFFFF !important;
+                font-family: 'Amazon Ember', 'Helvetica Neue', Roboto, Arial, sans-serif !important;
                 font-weight: 500 !important;
             }
             
             /* ===== SIDEBAR ===== */
             
-            /* Sidebar styling - very light blue */
             [data-testid="stSidebar"] {
-                background-color: #EBF5FB !important;
-                border-right: 3px solid #B3E5FC;
+                background-color: #161E2D !important;
+                border-right: 2px solid #FF9900;
             }
             
-            [data-testid="stSidebar"] .block-container {
-                padding-top: 1rem;
-            }
-            
-            /* Sidebar text */
             [data-testid="stSidebar"] * {
-                color: #1a1a1a !important;
+                color: #FFFFFF !important;
             }
             
-            /* Sidebar headers */
             [data-testid="stSidebar"] h1,
             [data-testid="stSidebar"] h2,
             [data-testid="stSidebar"] h3 {
-                color: #1a1a1a !important;
-                border-bottom: 2px solid #B3E5FC;
+                color: #FF9900 !important;
+                border-bottom: 1px solid #FF9900;
                 padding-bottom: 0.5rem;
-            }
-            
-            /* Sidebar selectbox */
-            [data-testid="stSidebar"] .stSelectbox,
-            [data-testid="stSidebar"] .stRadio {
-                background-color: #F5FAFF;
-                border-radius: 8px;
-                padding: 0.5rem;
             }
             
             /* ===== TABS ===== */
             
-            /* Tab list container */
             .stTabs [data-baseweb="tab-list"] {
                 gap: 0px;
-                background-color: #F5FAFF;
-                border-bottom: 3px solid #B3E5FC;
+                background-color: #161E2D;
+                border-bottom: 2px solid #FF9900;
                 padding: 0;
             }
             
-            /* Individual tabs */
             .stTabs [data-baseweb="tab"] {
                 height: 50px;
-                background-color: #FFFFFF;
-                border: 1px solid #D4E9F7;
+                background-color: #232F3E;
+                border: 1px solid #444444;
                 border-bottom: none;
-                color: #1a1a1a;
+                color: #FFFFFF;
                 font-weight: 600;
                 font-size: 14px;
                 padding: 0 1.5rem;
                 margin: 0;
-                border-radius: 8px 8px 0 0;
+                border-radius: 4px 4px 0 0;
             }
             
-            /* Active tab - pastel blue */
             .stTabs [data-baseweb="tab"][aria-selected="true"] {
-                background: linear-gradient(180deg, #B3E5FC 0%, #81D4FA 100%) !important;
-                color: #FFFFFF !important;
-                border-bottom: 3px solid #81D4FA;
-                font-weight: 700;
+                background-color: #FF9900 !important;
+                color: #232F3E !important;
+                border-bottom: 2px solid #FF9900;
             }
             
-            /* Tab hover effect */
             .stTabs [data-baseweb="tab"]:hover {
-                background-color: #E1F5FE;
-                color: #1a1a1a;
+                background-color: #FF9900;
+                color: #232F3E;
             }
             
-            /* Tab content */
             .stTabs [data-baseweb="tab-panel"] {
-                background-color: #FFFFFF;
+                background-color: #232F3E;
                 padding: 1.5rem;
-                border: 1px solid #D4E9F7;
+                border: 1px solid #444444;
                 border-top: none;
-                border-radius: 0 0 8px 8px;
+                border-radius: 0 0 4px 4px;
             }
             
             /* ===== BUTTONS ===== */
             
-            /* Primary button - pastel blue */
             .stButton > button {
-                background: linear-gradient(135deg, #B3E5FC 0%, #81D4FA 100%) !important;
-                color: #FFFFFF !important;
+                background-color: #FF9900 !important;
+                color: #232F3E !important;
                 border: none !important;
-                border-radius: 8px !important;
-                padding: 0.7rem 2rem !important;
+                border-radius: 4px !important;
+                padding: 0.5rem 1.5rem !important;
                 font-weight: 600 !important;
                 font-size: 14px !important;
                 transition: all 0.3s ease !important;
-                font-family: 'Helvetica Neue', Roboto, Arial, sans-serif !important;
-                box-shadow: 0 2px 8px rgba(129, 212, 250, 0.3) !important;
-                text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1) !important;
             }
             
             .stButton > button:hover {
-                background: linear-gradient(135deg, #81D4FA 0%, #4FC3F7 100%) !important;
-                box-shadow: 0 4px 12px rgba(79, 195, 247, 0.4) !important;
-                transform: translateY(-2px);
-            }
-            
-            .stButton > button:active {
-                transform: translateY(0);
-                box-shadow: 0 2px 6px rgba(129, 212, 250, 0.3) !important;
-            }
-            
-            /* ===== METRICS/CARDS ===== */
-            
-            /* Metric container */
-            [data-testid="stMetric"] {
-                background: linear-gradient(135deg, #FFFFFF 0%, #F5FAFF 100%);
-                padding: 1.5rem;
-                border-radius: 12px;
-                border: 2px solid #B3E5FC;
-                box-shadow: 0 2px 8px rgba(179, 229, 252, 0.2);
-            }
-            
-            /* Metric label */
-            [data-testid="stMetricLabel"] {
-                color: #1a1a1a !important;
-                font-weight: 600 !important;
-                font-size: 14px !important;
-            }
-            
-            /* Metric value */
-            [data-testid="stMetricValue"] {
-                color: #1a1a1a !important;
-                font-weight: 700 !important;
-                font-size: 32px !important;
-            }
-            
-            /* Metric delta */
-            [data-testid="stMetricDelta"] {
-                color: #4caf50 !important;
+                background-color: #EC7211 !important;
+                box-shadow: 0 4px 8px rgba(255, 153, 0, 0.3) !important;
+                transform: translateY(-1px);
             }
             
             /* ===== DATAFRAMES/TABLES ===== */
             
-            /* DataFrame styling */
             .dataframe {
                 background-color: #FFFFFF !important;
-                color: #1a1a1a !important;
-                border: 2px solid #B3E5FC !important;
-                border-radius: 8px !important;
+                color: #232F3E !important;
+                border: 1px solid #FF9900 !important;
             }
             
             .dataframe thead tr th {
-                background: linear-gradient(135deg, #B3E5FC 0%, #81D4FA 100%) !important;
-                color: #FFFFFF !important;
+                background-color: #FF9900 !important;
+                color: #232F3E !important;
                 font-weight: 700 !important;
                 padding: 12px !important;
                 border: none !important;
-                text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1) !important;
             }
             
             .dataframe tbody tr {
                 background-color: #FFFFFF !important;
-                border-bottom: 1px solid #F5FAFF !important;
+                border-bottom: 1px solid #E0E0E0 !important;
             }
             
             .dataframe tbody tr:hover {
-                background-color: #F5FAFF !important;
+                background-color: #F8F9FA !important;
             }
             
             .dataframe tbody tr td {
-                color: #1a1a1a !important;
+                color: #232F3E !important;
                 padding: 10px !important;
-            }
-            
-            /* Alternating row colors */
-            .dataframe tbody tr:nth-child(even) {
-                background-color: #FAFCFF !important;
             }
             
             /* ===== INPUT FIELDS ===== */
             
-            /* Text inputs */
             .stTextInput > div > div > input,
             .stTextArea > div > div > textarea,
             .stNumberInput > div > div > input {
                 background-color: #FFFFFF !important;
-                color: #1a1a1a !important;
-                border: 2px solid #D4E9F7 !important;
-                border-radius: 8px !important;
+                color: #232F3E !important;
+                border: 2px solid #545B64 !important;
+                border-radius: 4px !important;
             }
             
             .stTextInput > div > div > input:focus,
             .stTextArea > div > div > textarea:focus,
             .stNumberInput > div > div > input:focus {
-                border-color: #B3E5FC !important;
-                box-shadow: 0 0 0 3px rgba(179, 229, 252, 0.2) !important;
+                border-color: #FF9900 !important;
+                box-shadow: 0 0 0 2px rgba(255, 153, 0, 0.2) !important;
             }
             
-            /* Select boxes */
+            /* ===== SELECTBOX/DROPDOWNS - WHITE BACKGROUND ===== */
+            
             .stSelectbox > div > div {
                 background-color: #FFFFFF !important;
-                color: #1a1a1a !important;
-                border: 2px solid #D4E9F7 !important;
-                border-radius: 8px !important;
+                color: #232F3E !important;
+                border: 2px solid #545B64 !important;
+                border-radius: 4px !important;
             }
             
-            /* Multiselect */
-            .stMultiSelect > div > div {
+            .stSelectbox > div > div:hover {
+                border-color: #FF9900 !important;
+            }
+            
+            /* Dropdown menu options */
+            div[data-baseweb="select"] > div {
                 background-color: #FFFFFF !important;
-                border: 2px solid #D4E9F7 !important;
-                border-radius: 8px !important;
+                color: #232F3E !important;
             }
             
-            /* ===== ALERTS/MESSAGES ===== */
+            [role="listbox"] {
+                background-color: #FFFFFF !important;
+            }
             
-            /* Success message */
+            [role="option"] {
+                background-color: #FFFFFF !important;
+                color: #232F3E !important;
+            }
+            
+            [role="option"]:hover {
+                background-color: #F8F9FA !important;
+            }
+            
+            /* ===== ALERTS ===== */
+            
             .stSuccess {
-                background-color: #e8f5e9 !important;
-                border-left: 4px solid #4caf50 !important;
-                color: #2e7d32 !important;
+                background-color: rgba(0, 168, 107, 0.1) !important;
+                border-left: 4px solid #00A86B !important;
+                color: #FFFFFF !important;
                 padding: 1rem !important;
-                border-radius: 8px !important;
             }
             
-            /* Info message */
-            .stInfo {
-                background-color: #e1f5fe !important;
-                border-left: 4px solid #29b6f6 !important;
-                color: #01579b !important;
-                padding: 1rem !important;
-                border-radius: 8px !important;
-            }
-            
-            /* Warning message */
             .stWarning {
-                background-color: #fff3e0 !important;
-                border-left: 4px solid #ff9800 !important;
-                color: #e65100 !important;
+                background-color: rgba(255, 184, 28, 0.1) !important;
+                border-left: 4px solid #FFB81C !important;
+                color: #FFFFFF !important;
                 padding: 1rem !important;
-                border-radius: 8px !important;
             }
             
-            /* Error message */
             .stError {
-                background-color: #ffebee !important;
-                border-left: 4px solid #f44336 !important;
-                color: #c62828 !important;
+                background-color: rgba(209, 50, 18, 0.1) !important;
+                border-left: 4px solid #D13212 !important;
+                color: #FFFFFF !important;
                 padding: 1rem !important;
-                border-radius: 8px !important;
+            }
+            
+            .stInfo {
+                background-color: rgba(0, 115, 187, 0.1) !important;
+                border-left: 4px solid #0073BB !important;
+                color: #FFFFFF !important;
+                padding: 1rem !important;
             }
             
             /* ===== EXPANDERS ===== */
             
-            /* Expander */
             .streamlit-expanderHeader {
-                background-color: #F5FAFF !important;
-                color: #1a1a1a !important;
-                border: 2px solid #B3E5FC !important;
-                border-radius: 8px !important;
+                background-color: #161E2D !important;
+                color: #FF9900 !important;
+                border: 1px solid #FF9900 !important;
+                border-radius: 4px !important;
                 font-weight: 600 !important;
             }
             
             .streamlit-expanderHeader:hover {
-                background-color: #E1F5FE !important;
+                background-color: #232F3E !important;
             }
             
             .streamlit-expanderContent {
-                background-color: #FFFFFF !important;
-                border: 2px solid #D4E9F7 !important;
+                background-color: #232F3E !important;
+                border: 1px solid #444444 !important;
                 border-top: none !important;
-                color: #1a1a1a !important;
-                border-radius: 0 0 8px 8px !important;
+                color: #FFFFFF !important;
             }
             
             /* ===== PROGRESS BARS ===== */
             
             .stProgress > div > div > div {
-                background: linear-gradient(90deg, #B3E5FC 0%, #81D4FA 100%) !important;
+                background-color: #FF9900 !important;
             }
             
             /* ===== CHARTS ===== */
             
-            /* Chart backgrounds */
             [data-testid="stPlotlyChart"] {
                 background-color: #FFFFFF !important;
-                border: 2px solid #D4E9F7 !important;
-                border-radius: 12px !important;
+                border: 1px solid #E0E0E0 !important;
+                border-radius: 8px !important;
                 padding: 1rem !important;
             }
             
             /* ===== DIVIDERS ===== */
             
             hr {
-                border-color: #B3E5FC !important;
-                opacity: 0.6 !important;
-            }
-            
-            /* ===== CUSTOM COMPONENTS ===== */
-            
-            /* Pastel Blue Header Banner */
-            .aws-header {
-                background: linear-gradient(135deg, #B3E5FC 0%, #81D4FA 100%);
-                padding: 2rem;
-                border-radius: 12px;
-                margin-bottom: 2rem;
-                box-shadow: 0 4px 12px rgba(179, 229, 252, 0.3);
-                border: 2px solid #B3E5FC;
-            }
-            
-            .aws-header h1 {
-                color: #FFFFFF !important;
-                margin: 0 !important;
-                padding: 0 !important;
-                border: none !important;
-                text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
-            }
-            
-            .aws-header p {
-                color: #FFFFFF !important;
-                margin: 0.5rem 0 0 0 !important;
-                font-size: 1.1rem !important;
-                text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1) !important;
-            }
-            
-            /* Pastel Service Card */
-            .aws-service-card {
-                background: linear-gradient(135deg, #FFFFFF 0%, #F5FAFF 100%);
-                border: 2px solid #B3E5FC;
-                border-radius: 12px;
-                padding: 1.5rem;
-                margin: 1rem 0;
-                box-shadow: 0 2px 8px rgba(179, 229, 252, 0.2);
-                transition: all 0.3s ease;
-            }
-            
-            .aws-service-card:hover {
-                transform: translateY(-4px);
-                box-shadow: 0 6px 16px rgba(129, 212, 250, 0.3);
-                border-color: #81D4FA;
-            }
-            
-            /* Status Badge */
-            .aws-badge {
-                display: inline-block;
-                padding: 0.25rem 0.75rem;
-                border-radius: 12px;
-                font-weight: 600;
-                font-size: 0.875rem;
-                margin: 0.25rem;
-            }
-            
-            .aws-badge-success {
-                background-color: #4caf50;
-                color: #FFFFFF;
-            }
-            
-            .aws-badge-warning {
-                background-color: #ff9800;
-                color: #FFFFFF;
-            }
-            
-            .aws-badge-error {
-                background-color: #f44336;
-                color: #FFFFFF;
-            }
-            
-            .aws-badge-info {
-                background-color: #29b6f6;
-                color: #FFFFFF;
-            }
-            
-            /* Stats Row */
-            .aws-stats-row {
-                display: flex;
-                gap: 1rem;
-                margin: 1rem 0;
+                border-color: #FF9900 !important;
+                opacity: 0.5 !important;
             }
             
             /* ===== SCROLLBAR ===== */
             
             ::-webkit-scrollbar {
-                width: 12px;
-                height: 12px;
+                width: 10px;
+                height: 10px;
             }
             
             ::-webkit-scrollbar-track {
-                background: #F5FAFF;
-                border-radius: 6px;
+                background: #161E2D;
             }
             
             ::-webkit-scrollbar-thumb {
-                background: #B3E5FC;
-                border-radius: 6px;
+                background: #FF9900;
+                border-radius: 5px;
             }
             
             ::-webkit-scrollbar-thumb:hover {
-                background: #81D4FA;
+                background: #EC7211;
             }
             
-            /* ===== RADIO BUTTONS ===== */
+            /* ===== RADIO & CHECKBOXES ===== */
             
             .stRadio > div {
-                background-color: #F5FAFF;
+                background-color: #161E2D;
                 padding: 0.5rem;
-                border-radius: 8px;
+                border-radius: 4px;
             }
             
             .stRadio label {
-                color: #1a1a1a !important;
+                color: #FFFFFF !important;
             }
-            
-            /* ===== CHECKBOXES ===== */
             
             .stCheckbox {
-                color: #1a1a1a !important;
+                color: #FFFFFF !important;
             }
             
-            /* ===== TEXT ===== */
+            /* ===== GENERAL TEXT ===== */
             
             p, span, label, li {
-                color: #1a1a1a !important;
+                color: #FFFFFF !important;
             }
             
             .stMarkdown {
-                color: #1a1a1a !important;
+                color: #FFFFFF !important;
             }
             
-            /* Caption text */
             .stCaption {
-                color: #5a5a5a !important;
-            }
-            
-            /* Code blocks */
-            code {
-                background-color: #F5FAFF !important;
-                color: #1a1a1a !important;
-                padding: 0.2rem 0.4rem !important;
-                border-radius: 4px !important;
-                border: 1px solid #D4E9F7 !important;
+                color: #F2F3F4 !important;
             }
             
             /* ===== CHAT MESSAGES ===== */
             
             .stChatMessage {
-                background-color: #FFFFFF !important;
-                border: 2px solid #D4E9F7 !important;
-                border-radius: 12px !important;
+                background-color: #161E2D !important;
+                border: 1px solid #444444 !important;
+                border-radius: 8px !important;
             }
             
             /* ===== FOOTER ===== */
             
             footer {
-                background-color: #F5FAFF !important;
-                border-top: 3px solid #B3E5FC !important;
+                background-color: #161E2D !important;
+                border-top: 2px solid #FF9900 !important;
             }
             
             footer p {
-                color: #1a1a1a !important;
-            }
-            
-            /* ===== FILE UPLOADER ===== */
-            
-            [data-testid="stFileUploader"] {
-                background-color: #FFFFFF !important;
-                border: 2px dashed #B3E5FC !important;
-                border-radius: 12px !important;
-                padding: 1rem !important;
-            }
-            
-            /* ===== DOWNLOAD BUTTON ===== */
-            
-            .stDownloadButton > button {
-                background: linear-gradient(135deg, #B3E5FC 0%, #81D4FA 100%) !important;
-                color: #FFFFFF !important;
-                border: none !important;
-                border-radius: 8px !important;
-            }
-            
-            .stDownloadButton > button:hover {
-                background: linear-gradient(135deg, #81D4FA 0%, #4FC3F7 100%) !important;
-            }
-            
-            /* ===== SPINNER ===== */
-            
-            .stSpinner > div {
-                border-top-color: #B3E5FC !important;
-            }
-            
-            /* ===== SLIDER ===== */
-            
-            .stSlider [data-baseweb="slider"] {
-                background-color: #F5FAFF !important;
-            }
-            
-            .stSlider [data-baseweb="slider"] [role="slider"] {
-                background-color: #B3E5FC !important;
-            }
-            
-            /* ===== DATE INPUT ===== */
-            
-            .stDateInput > div > div > input {
-                background-color: #FFFFFF !important;
-                color: #1a1a1a !important;
-                border: 2px solid #D4E9F7 !important;
-                border-radius: 8px !important;
-            }
-            
-            /* ===== TIME INPUT ===== */
-            
-            .stTimeInput > div > div > input {
-                background-color: #FFFFFF !important;
-                color: #1a1a1a !important;
-                border: 2px solid #D4E9F7 !important;
-                border-radius: 8px !important;
+                color: #F2F3F4 !important;
             }
         </style>
         """, unsafe_allow_html=True)
     
     @staticmethod
     def aws_header(title: str, subtitle: str = None):
-        """Create pastel blue styled header banner"""
-        subtitle_html = f'<p>{subtitle}</p>' if subtitle else ''
+        """Create AWS-styled header banner"""
+        subtitle_html = f'<p style="color: #F2F3F4 !important; margin: 0.5rem 0 0 0 !important; font-size: 1.1rem !important;">{subtitle}</p>' if subtitle else ''
         
         st.markdown(f"""
-        <div class="aws-header">
-            <h1>☁️ {title}</h1>
+        <div style="background: linear-gradient(135deg, #232F3E 0%, #FF9900 100%); padding: 2rem; border-radius: 8px; margin-bottom: 2rem; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3); border: 1px solid #FF9900;">
+            <h1 style="color: #FFFFFF !important; margin: 0 !important; padding: 0 !important; border: none !important;">☁️ {title}</h1>
             {subtitle_html}
         </div>
         """, unsafe_allow_html=True)
     
     @staticmethod
     def aws_service_card(title: str, content: str, icon: str = "📦"):
-        """Create pastel blue styled service card"""
+        """Create AWS-styled service card"""
         st.markdown(f"""
-        <div class="aws-service-card">
-            <h3>{icon} {title}</h3>
-            <p style="color: #1a1a1a !important;">{content}</p>
+        <div style="background-color: #161E2D; border: 2px solid #FF9900; border-radius: 8px; padding: 1.5rem; margin: 1rem 0; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3); transition: all 0.3s ease;">
+            <h3 style="color: #FFFFFF !important;">{icon} {title}</h3>
+            <p style="color: #F2F3F4 !important;">{content}</p>
         </div>
         """, unsafe_allow_html=True)
     
     @staticmethod
     def aws_badge(text: str, badge_type: str = "info"):
-        """Create pastel blue styled status badge"""
-        return f'<span class="aws-badge aws-badge-{badge_type}">{text}</span>'
+        """Create AWS-styled status badge"""
+        colors = {
+            "success": {"bg": "#00A86B", "text": "#FFFFFF"},
+            "warning": {"bg": "#FFB81C", "text": "#232F3E"},
+            "error": {"bg": "#D13212", "text": "#FFFFFF"},
+            "info": {"bg": "#0073BB", "text": "#FFFFFF"}
+        }
+        color = colors.get(badge_type, colors["info"])
+        return f'<span style="display: inline-block; padding: 0.25rem 0.75rem; border-radius: 12px; font-weight: 600; font-size: 0.875rem; margin: 0.25rem; background-color: {color["bg"]}; color: {color["text"]};">{text}</span>'
     
     @staticmethod
     def aws_metric_card(label: str, value: str, delta: str = None, icon: str = "📊"):
-        """Create pastel blue styled metric card with icon"""
-        delta_html = f'<div style="color: #4caf50; margin-top: 0.5rem;">{delta}</div>' if delta else ''
+        """
+        Create AWS-styled metric card with LIGHT BACKGROUND
+        GUARANTEED VISIBILITY - White card with dark text
+        """
+        delta_html = f'<div style="color: #00A86B !important; margin-top: 0.5rem; font-size: 14px; font-weight: 600;">{delta}</div>' if delta else ''
         
         st.markdown(f"""
-        <div style="background: linear-gradient(135deg, #FFFFFF 0%, #F5FAFF 100%); 
-                    padding: 1.5rem; border-radius: 12px; 
-                    border: 2px solid #B3E5FC; box-shadow: 0 2px 8px rgba(179, 229, 252, 0.2);">
-            <div style="color: #1a1a1a; font-weight: 600; font-size: 14px; margin-bottom: 0.5rem;">
-                {icon} {label}
+        <div style="
+            background: linear-gradient(135deg, #FFFFFF 0%, #F8F9FA 100%);
+            border: 2px solid #FF9900;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 12px rgba(255, 153, 0, 0.2);
+            min-height: 140px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            transition: all 0.3s ease;
+        ">
+            <div style="
+                color: #000000 !important;
+                font-weight: 700;
+                font-size: 14px;
+                text-transform: uppercase;
+                letter-spacing: 1px;
+                margin-bottom: 12px;
+                font-family: 'Amazon Ember', 'Helvetica Neue', Roboto, Arial, sans-serif;
+            ">
+                <span style="font-size: 20px; margin-right: 8px;">{icon}</span>
+                {label}
             </div>
-            <div style="color: #1a1a1a; font-weight: 700; font-size: 32px;">
+            <div style="
+                color: #000000 !important;
+                font-weight: 900;
+                font-size: 48px;
+                line-height: 1;
+                font-family: 'Amazon Ember', 'Helvetica Neue', Roboto, Arial, sans-serif;
+            ">
                 {value}
             </div>
             {delta_html}
