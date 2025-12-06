@@ -23,7 +23,7 @@ class AppConfig:
     """Global application configuration"""
     
     # Application metadata
-    APP_NAME = "CloudIDP v2.0"
+    APP_NAME = "Multi Cloud Intelligence Platform"
     APP_VERSION = "2.0.0"
     
     # AWS Configuration

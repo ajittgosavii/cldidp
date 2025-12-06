@@ -1,6 +1,6 @@
 """
 Anthropic AI Integration - Claude API Helper
-Provides AI-powered features for CloudIDP Enhanced
+Provides AI-powered features for Multi Cloud Intelligence Platform
 """
 
 import os
