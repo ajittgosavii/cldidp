@@ -133,10 +133,10 @@ class OperationsModule:
         col1, col2, col3 = st.columns([1, 1, 4])
         
         with col1:
-            ask_button = st.button("🤖 Ask Claude", type="primary", use_container_width=True)
+            ask_button = st.button("🤖 Ask Claude", type="primary", key="ops_ask_claude", use_container_width=True)
         
         with col2:
-            if st.button("🗑️ Clear Chat", use_container_width=True):
+            if st.button("🗑️ Clear Chat", key="ops_clear_chat", use_container_width=True):
                 st.session_state.ops_chat_history = []
                 st.session_state.ops_query = ''
                 st.rerun()
@@ -192,7 +192,7 @@ class OperationsModule:
             col1, col2, col3 = st.columns(3)
             
             with col1:
-                if st.button("📋 Export Chat", use_container_width=True):
+                if st.button("📋 Export Chat", key="ops_export_chat", use_container_width=True):
                     chat_export = json.dumps(st.session_state.ops_chat_history, default=str, indent=2)
                     st.download_button(
                         label="⬇️ Download JSON",
@@ -202,11 +202,11 @@ class OperationsModule:
                     )
             
             with col2:
-                if st.button("📧 Email Summary", use_container_width=True):
+                if st.button("📧 Email Summary", key="ops_email_summary", use_container_width=True):
                     st.success("✅ Chat summary emailed to your team!")
             
             with col3:
-                if st.button("🔖 Save as Runbook", use_container_width=True):
+                if st.button("🔖 Save as Runbook", key="ops_save_runbook", use_container_width=True):
                     st.info("Saving conversation as automated runbook...")
     
     @staticmethod
@@ -551,16 +551,16 @@ What would you like me to help with?
         with col2:
             st.markdown("**Quick Actions:**")
             
-            if st.button("📊 Check Metrics", use_container_width=True):
+            if st.button("📊 Check Metrics", key="ops_check_metrics", use_container_width=True):
                 st.info("Fetching CloudWatch metrics...")
             
-            if st.button("📜 View Logs", use_container_width=True):
+            if st.button("📜 View Logs", key="ops_view_logs", use_container_width=True):
                 st.info("Fetching CloudWatch logs...")
             
-            if st.button("🔍 Analyze Traffic", use_container_width=True):
+            if st.button("🔍 Analyze Traffic", key="ops_analyze_traffic", use_container_width=True):
                 st.info("Analyzing VPC Flow Logs...")
         
-        if st.button("🤖 Analyze with Claude", type="primary", use_container_width=True):
+        if st.button("🤖 Analyze with Claude", type="primary", key="ops_analyze_claude", use_container_width=True):
             if issue_description:
                 with st.spinner("🤖 Claude is analyzing the issue..."):
                     import time
@@ -649,7 +649,7 @@ I can execute these fixes automatically. What would you like me to do?
                     col1, col2, col3 = st.columns(3)
                     
                     with col1:
-                        if st.button("⚡ Apply Immediate Fix", type="primary", use_container_width=True):
+                        if st.button("⚡ Apply Immediate Fix", type="primary", key="ops_apply_fix", use_container_width=True):
                             with st.spinner("Applying fixes..."):
                                 time.sleep(2)
                                 st.success("""
@@ -668,11 +668,11 @@ Monitoring for 5 minutes to confirm stability...
 """)
                     
                     with col2:
-                        if st.button("📋 Create Runbook", use_container_width=True):
+                        if st.button("📋 Create Runbook", key="ops_create_runbook", use_container_width=True):
                             st.info("Automated runbook created and saved to documentation")
                     
                     with col3:
-                        if st.button("📧 Alert Team", use_container_width=True):
+                        if st.button("📧 Alert Team", key="ops_alert_team", use_container_width=True):
                             st.success("Team notified with incident report")
             else:
                 st.warning("Please describe the issue first!")
@@ -859,7 +859,7 @@ Monitoring for 5 minutes to confirm stability...
             st.checkbox("✅ A/B Testing", value=False)
             st.checkbox("✅ Multi-Model Endpoint", value=False)
         
-        if st.button("🚀 Deploy Model", type="primary", use_container_width=True):
+        if st.button("🚀 Deploy Model", type="primary", key="ops_deploy_model", use_container_width=True):
             with st.spinner("Deploying ML model..."):
                 import time
                 time.sleep(3)
@@ -1038,7 +1038,7 @@ Monitoring for 5 minutes to confirm stability...
             key="runbook_description"
         )
         
-        if st.button("🤖 Generate Runbook", type="primary"):
+        if st.button("🤖 Generate Runbook", type="primary", key="ops_gen_runbook"):
             if runbook_description:
                 with st.spinner("Claude is creating your runbook..."):
                     import time
@@ -1091,15 +1091,15 @@ steps:
                     col1, col2, col3 = st.columns(3)
                     
                     with col1:
-                        if st.button("💾 Save Runbook", use_container_width=True):
+                        if st.button("💾 Save Runbook", key="ops_save_rb", use_container_width=True):
                             st.success("Runbook saved to automation library")
                     
                     with col2:
-                        if st.button("▶️ Test Run", use_container_width=True):
+                        if st.button("▶️ Test Run", key="ops_test_run", use_container_width=True):
                             st.info("Executing test run in dry-run mode...")
                     
                     with col3:
-                        if st.button("🚀 Deploy", use_container_width=True):
+                        if st.button("🚀 Deploy", key="ops_deploy_rb", use_container_width=True):
                             st.success("Runbook deployed and scheduled!")
         
         # Existing runbooks
