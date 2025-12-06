@@ -367,7 +367,7 @@ class AWSTheme:
             
             /* Pastel Blue Header Banner */
             .aws-header {
-                background: linear-gradient(135deg, #E1F5FE 0%, #B3E5FC 100%);
+                background: linear-gradient(135deg, #B3E5FC 0%, #81D4FA 100%);
                 padding: 2rem;
                 border-radius: 12px;
                 margin-bottom: 2rem;
@@ -376,18 +376,18 @@ class AWSTheme:
             }
             
             .aws-header h1 {
-                color: #000000 !important;
+                color: #FFFFFF !important;
                 margin: 0 !important;
                 padding: 0 !important;
                 border: none !important;
-                text-shadow: none !important;
+                text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
             }
             
             .aws-header p {
-                color: #1a1a1a !important;
+                color: #FFFFFF !important;
                 margin: 0.5rem 0 0 0 !important;
                 font-size: 1.1rem !important;
-                text-shadow: none !important;
+                text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1) !important;
             }
             
             /* Pastel Service Card */

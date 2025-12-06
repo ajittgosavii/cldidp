@@ -1,6 +1,6 @@
 """
-Multi Cloud Intelligence Platform - Enterprise Multi-Account Cloud Infrastructure Development Platform
-Multi-Account | Multi-Region | Real-Time Cloud Integration | Modern UI
+CloudIDP Enhanced v2.0 - Enterprise Multi-Account Cloud Infrastructure Development Platform
+Multi-Account | Multi-Region | Real-Time AWS Integration | AWS-Themed UI
 """
 
 import streamlit as st
@@ -19,7 +19,7 @@ from aws_theme import AWSTheme
 
 # Page configuration
 st.set_page_config(
-    page_title="Multi Cloud Intelligence Platform",
+    page_title="CloudIDP Enhanced v2.0 - AWS Cloud Platform",
     page_icon="☁️",
     layout="wide",
     initial_sidebar_state="expanded"
@@ -34,10 +34,10 @@ def main():
     # Initialize session
     SessionManager.initialize()
     
-    # Render header
+    # Render AWS-themed header
     AWSTheme.aws_header(
-        "Multi Cloud Intelligence Platform",
-        "Enterprise Multi-Account Cloud Infrastructure Development Platform"
+        "CloudIDP Enhanced v2.0",
+        "Enterprise Multi-Account Cloud Infrastructure Development Platform | Powered by AWS"
     )
     
     # Render global sidebar
@@ -46,7 +46,7 @@ def main():
     # Render main navigation
     Navigation.render()
     
-    # Footer
+    # AWS-themed footer
     st.markdown("---")
     col1, col2, col3 = st.columns(3)
     with col1:
@@ -54,7 +54,7 @@ def main():
     with col2:
         st.caption(f"🔗 Connected Accounts: {SessionManager.get_active_account_count()}")
     with col3:
-        st.caption("☁️ Multi Cloud Intelligence Platform")
+        st.caption("🚀 CloudIDP Enhanced v2.0 - AWS Edition")
 
 if __name__ == "__main__":
     main()
