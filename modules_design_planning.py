@@ -35,6 +35,17 @@ try:
 except ImportError:
     AI_SIZING_AVAILABLE = False
 
+# ============================================================================
+# STORAGE ADAPTER IMPORT (FOR FIREBASE INTEGRATION)
+# ============================================================================
+
+# Import storage adapter for Firebase + session state unified storage
+try:
+    from storage_adapter import get_storage_adapter
+    STORAGE_ADAPTER_AVAILABLE = True
+except ImportError:
+    STORAGE_ADAPTER_AVAILABLE = False
+
 
 @st.cache_resource
 def get_anthropic_client():
@@ -1281,30 +1292,49 @@ module "application" {
     # NEW TAB 4: AI SIZING (INTEGRATION CODE)
     # ========================================================================
     
+    
+    # ========================================================================
+    # TAB 4: AI SIZING - WITH FIREBASE SUPPORT
+    # ========================================================================
+    
     @staticmethod
     def _render_ai_sizing():
-        """Render AI Sizing Recommendations interface"""
+        """Render AI Sizing Recommendations interface (Firebase-enabled)"""
         st.subheader("🤖 AI-Powered Sizing Recommendations")
         st.info("AI analyzes your architecture and generates 4 sizing tiers: Cost-Optimized, Balanced, Performance, and Enterprise")
         
-        engine = get_workflow_engine()
+        # Import storage adapter
+        if STORAGE_ADAPTER_AVAILABLE:
+            storage = get_storage_adapter()
+            use_firebase = storage.is_firebase_available
+        else:
+            storage = None
+            use_firebase = False
+            # Fallback to session state
+            if 'designs' not in st.session_state:
+                st.session_state.designs = {}
+        
+        if not AI_SIZING_AVAILABLE or not WORKFLOW_ENGINE_AVAILABLE:
+            st.error("⚠️ AI Sizing requires workflow_engine.py and ai_sizing_engine.py")
+            return
+        
         analyzer = get_ai_sizing_analyzer()
         calculator = AWSPricingCalculator()
         
-        # Get designs without sizing
-        if 'designs' not in st.session_state:
-            st.session_state.designs = {}
+        # Get designs without sizing using storage adapter or session state
+        if use_firebase and storage:
+            all_designs = storage.list_designs(status='DRAFT', limit=100)
+        else:
+            all_designs = list(st.session_state.designs.values())
+            all_designs = [d for d in all_designs if d.get('status') == 'DRAFT']
         
-        designs_list = list(st.session_state.designs.values())
-        drafts_no_sizing = [d for d in designs_list 
-                           if d.get('status') == 'DRAFT' and not d.get('sizing_details')]
+        drafts_no_sizing = [d for d in all_designs if not d.get('sizing_details')]
         
         if not drafts_no_sizing:
             st.success("✅ All draft designs have sizing applied!")
             
             # Show designs with sizing
-            drafts_with_sizing = [d for d in designs_list 
-                                if d.get('status') == 'DRAFT' and d.get('sizing_details')]
+            drafts_with_sizing = [d for d in all_designs if d.get('sizing_details')]
             if drafts_with_sizing:
                 st.markdown("### Designs with AI Sizing")
                 for design in drafts_with_sizing:
@@ -1317,6 +1347,8 @@ module "application" {
             st.markdown(f"### {len(drafts_no_sizing)} Designs Need AI Sizing")
             
             for design in drafts_no_sizing:
+                design_id = design.get('id', design['name'])
+                
                 with st.expander(f"🤖 {design['name']} - Generate Sizing", expanded=False):
                     col1, col2 = st.columns([2, 1])
                     
@@ -1328,7 +1360,6 @@ module "application" {
                             st.write(f"**Description:** {desc[:200]}{'...' if len(desc) > 200 else ''}")
                     
                     with col2:
-                        design_id = design.get('id', design['name'])
                         if st.button(f"🧠 Analyze & Size", key=f"analyze_{design_id}", type="primary"):
                             with st.spinner("AI analyzing architecture..."):
                                 try:
@@ -1346,7 +1377,7 @@ module "application" {
                                     # AI Analysis
                                     sizing = analyzer.analyze_architecture(design_data)
                                     
-                                    # Store in session state
+                                    # Store in session state for UI (temporary)
                                     st.session_state[f'sizing_{design_id}'] = sizing
                                     
                                     st.success("✅ AI Analysis Complete!")
@@ -1373,8 +1404,6 @@ module "application" {
                         
                         # Calculate costs for all tiers
                         for rec in sizing.recommendations:
-                            # Create temporary design object for cost calculation
-                            from workflow_engine import ArchitectureDesign
                             temp_design = ArchitectureDesign(
                                 id=design_id,
                                 name=design['name'],
@@ -1397,7 +1426,6 @@ module "application" {
                                 rec.three_year_cost = 0
                         
                         # Show comparison table
-                        import pandas as pd
                         comparison_data = []
                         for rec in sizing.recommendations:
                             comparison_data.append({
@@ -1451,15 +1479,21 @@ module "application" {
                                     if st.button(f"✅ Select", key=f"sel_{design_id}_{rec.tier}", 
                                                type="primary", use_container_width=True):
                                         # Apply sizing to design
-                                        design['sizing_details'] = {
+                                        sizing_details = {
                                             'ec2_instance_type': rec.ec2_instance_type,
                                             'ec2_count': rec.ec2_count,
                                             'rds_instance_type': rec.rds_instance_type,
-                                            'rds_storage_gb': rec.rds_storage_gb
+                                            'rds_storage_gb': rec.rds_storage_gb,
+                                            'selected_tier': rec.tier,
+                                            'ai_confidence': rec.confidence_score
                                         }
                                         
-                                        # Save to session state
-                                        st.session_state.designs[design_id] = design
+                                        # Save to storage (Firebase or session state)
+                                        if use_firebase and storage:
+                                            storage.update_design(design_id, {'sizing_details': sizing_details})
+                                        else:
+                                            design['sizing_details'] = sizing_details
+                                            st.session_state.designs[design_id] = design
                                         
                                         st.success(f"✅ Applied {rec.tier_name}!")
                                         del st.session_state[f'sizing_{design_id}']
@@ -1475,31 +1509,46 @@ module "application" {
                         st.write(f"**Why:** {recommended.ai_reasoning[:200]}...")
     
     # ========================================================================
-    # NEW TAB 5: COST ANALYSIS (INTEGRATION CODE)
+    # TAB 5: COST ANALYSIS - WITH FIREBASE SUPPORT
     # ========================================================================
     
     @staticmethod
     def _render_cost_analysis():
-        """Render AWS Cost Analysis interface"""
+        """Render AWS Cost Analysis interface (Firebase-enabled)"""
         st.subheader("💰 AWS Cost Analysis & 3-Year TCO/ROI")
         st.info("Calculate complete AWS costs with 3-year projections before deployment")
         
+        # Import storage adapter
+        if STORAGE_ADAPTER_AVAILABLE:
+            storage = get_storage_adapter()
+            use_firebase = storage.is_firebase_available
+        else:
+            storage = None
+            use_firebase = False
+            # Fallback to session state
+            if 'designs' not in st.session_state:
+                st.session_state.designs = {}
+        
+        if not WORKFLOW_ENGINE_AVAILABLE:
+            st.error("⚠️ Cost Analysis requires workflow_engine.py")
+            return
+        
         calculator = AWSPricingCalculator()
-        
-        # Get designs from session state
-        if 'designs' not in st.session_state:
-            st.session_state.designs = {}
-        
-        designs_list = list(st.session_state.designs.values())
-        
-        # Filter designs ready for cost analysis (have sizing, approved)
-        cost_ready = [d for d in designs_list 
-                     if d.get('sizing_details') and d.get('status') in ['APPROVED', 'PENDING_APPROVAL']]
         
         cost_tabs = st.tabs(["💰 Calculate Costs", "✅ Approved", "📊 Comparison"])
         
         # TAB 1: Calculate Costs
         with cost_tabs[0]:
+            # Get designs ready for cost analysis
+            if use_firebase and storage:
+                approved_designs = storage.list_designs(status='APPROVED', limit=50)
+                pending_designs = storage.list_designs(status='PENDING_APPROVAL', limit=50)
+                cost_ready = [d for d in (approved_designs + pending_designs) if d.get('sizing_details')]
+            else:
+                all_designs = list(st.session_state.designs.values())
+                cost_ready = [d for d in all_designs 
+                             if d.get('sizing_details') and d.get('status') in ['APPROVED', 'PENDING_APPROVAL']]
+            
             if not cost_ready:
                 st.info("📝 No approved designs ready for cost analysis")
             else:
@@ -1522,8 +1571,6 @@ module "application" {
                                 if st.button("📊 Calculate", key=f"calc_{design_id}", type="primary"):
                                     with st.spinner("Calculating..."):
                                         try:
-                                            # Create design object for cost calc
-                                            from workflow_engine import ArchitectureDesign
                                             temp_design = ArchitectureDesign(
                                                 id=design_id,
                                                 name=design['name'],
@@ -1534,8 +1581,13 @@ module "application" {
                                             )
                                             
                                             cost = calculator.calculate_architecture_cost(temp_design)
-                                            design['cost_analysis'] = cost.to_dict()
-                                            st.session_state.designs[design_id] = design
+                                            
+                                            # Save to storage
+                                            if use_firebase and storage:
+                                                storage.update_design(design_id, {'cost_analysis': cost.to_dict()})
+                                            else:
+                                                design['cost_analysis'] = cost.to_dict()
+                                                st.session_state.designs[design_id] = design
                                             
                                             st.success("✅ Complete!")
                                             st.rerun()
@@ -1543,34 +1595,44 @@ module "application" {
                                             st.error(f"Error: {str(e)}")
                         else:
                             # Show cost analysis
-                            DesignPlanningModule._display_cost_details_simple(design)
+                            DesignPlanningModule._display_cost_details_fb(design, storage, use_firebase)
         
         # TAB 2: Approved Costs
         with cost_tabs[1]:
-            approved = [d for d in designs_list if d.get('cost_analysis') and d.get('cost_approved')]
+            # Get designs with approved costs
+            if use_firebase and storage:
+                all_designs = storage.list_designs(limit=100)
+            else:
+                all_designs = list(st.session_state.designs.values())
+            
+            approved = [d for d in all_designs if d.get('cost_analysis') and d.get('cost_approved')]
             
             if not approved:
                 st.info("No approved costs yet")
             else:
                 for design in approved:
                     with st.expander(f"✅ {design['name']}"):
-                        DesignPlanningModule._display_cost_summary_simple(design)
+                        DesignPlanningModule._display_cost_summary_fb(design)
         
         # TAB 3: Cost Comparison
         with cost_tabs[2]:
-            designs_with_cost = [d for d in designs_list if d.get('cost_analysis')]
+            if use_firebase and storage:
+                all_designs = storage.list_designs(limit=100)
+            else:
+                all_designs = list(st.session_state.designs.values())
+            
+            designs_with_cost = [d for d in all_designs if d.get('cost_analysis')]
             
             if not designs_with_cost:
                 st.info("No cost analyses yet")
             else:
-                import pandas as pd
-                
                 comparison = []
                 for d in designs_with_cost:
                     ca = d['cost_analysis']
                     comparison.append({
                         'Architecture': d['name'],
                         'Environment': d.get('environment', 'N/A'),
+                        'Status': d.get('status', 'N/A'),
                         'Monthly $': f"${ca['monthly_cost']:,.0f}",
                         '3-Year $': f"${ca['total_3year_cost']:,.0f}",
                         'TCO $': f"${ca['total_tco']:,.0f}",
@@ -1588,11 +1650,13 @@ module "application" {
                 st.bar_chart(chart_data.set_index('Architecture'))
     
     @staticmethod
-    def _display_cost_details_simple(design):
-        """Display cost analysis details"""
+    def _display_cost_details_fb(design: Dict, storage, use_firebase: bool):
+        """Display cost analysis details (Firebase-enabled version)"""
         ca = design.get('cost_analysis', {})
         if not ca:
             return
+        
+        design_id = design.get('id', design['name'])
         
         # Metrics
         col1, col2, col3, col4 = st.columns(4)
@@ -1607,7 +1671,6 @@ module "application" {
         
         with detail_tabs[0]:
             if ca.get('service_costs'):
-                import pandas as pd
                 services = []
                 for s in ca['service_costs']:
                     services.append({
@@ -1636,28 +1699,40 @@ module "application" {
         st.markdown("---")
         col1, col2 = st.columns(2)
         
-        design_id = design.get('id', design['name'])
-        
         with col1:
             if not design.get('cost_approved'):
                 if st.button("✅ Approve", key=f"approve_{design_id}", type="primary"):
-                    design['cost_approved'] = True
-                    design['status'] = 'APPROVED'
-                    st.session_state.designs[design_id] = design
+                    if use_firebase and storage:
+                        storage.update_design(design_id, {
+                            'cost_approved': True,
+                            'status': 'APPROVED'
+                        })
+                    else:
+                        design['cost_approved'] = True
+                        design['status'] = 'APPROVED'
+                        st.session_state.designs[design_id] = design
+                    
                     st.success("✅ Cost approved!")
                     st.rerun()
         
         with col2:
             if st.button("❌ Too Expensive", key=f"reject_{design_id}"):
-                design['status'] = 'DRAFT'
-                design['cost_analysis'] = None
-                st.session_state.designs[design_id] = design
+                if use_firebase and storage:
+                    storage.update_design(design_id, {
+                        'status': 'DRAFT',
+                        'cost_analysis': None
+                    })
+                else:
+                    design['status'] = 'DRAFT'
+                    design['cost_analysis'] = None
+                    st.session_state.designs[design_id] = design
+                
                 st.warning("Returned to draft")
                 st.rerun()
     
     @staticmethod
-    def _display_cost_summary_simple(design):
-        """Display simple cost summary"""
+    def _display_cost_summary_fb(design: Dict):
+        """Display simple cost summary (Firebase-enabled version)"""
         ca = design.get('cost_analysis', {})
         if not ca:
             return
@@ -1669,7 +1744,7 @@ module "application" {
 
 
 # ============================================================================
-# END OF NEW METHODS - Place above the __all__ export line
+# END OF FIREBASE-ENABLED METHODS
 # ============================================================================
 
 # Export

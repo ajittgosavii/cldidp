@@ -39,3 +39,6 @@ moto>=4.2.0  # AWS mocking for tests
 # Documentation (optional)
 mkdocs>=1.5.0
 mkdocs-material>=9.5.0
+
+firebase-admin>=6.2.0
+google-cloud-firestore>=2.11.0
