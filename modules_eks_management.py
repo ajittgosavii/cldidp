@@ -14,7 +14,7 @@ from core_session_manager import SessionManager
 from utils_helpers import Helpers
 import json
 
-class EKSOperationsModule:
+class EKSManagementModule:
     """AI-Enhanced EKS Operations Intelligence Center"""
     
     @staticmethod
@@ -41,25 +41,25 @@ class EKSOperationsModule:
         ])
         
         with tabs[0]:
-            EKSOperationsModule._render_operations_dashboard(account_mgr)
+            EKSManagementModule._render_operations_dashboard(account_mgr)
         
         with tabs[1]:
-            EKSOperationsModule._render_ai_troubleshooting(account_mgr)
+            EKSManagementModule._render_ai_troubleshooting(account_mgr)
         
         with tabs[2]:
-            EKSOperationsModule._render_security_compliance(account_mgr)
+            EKSManagementModule._render_security_compliance(account_mgr)
         
         with tabs[3]:
-            EKSOperationsModule._render_cost_optimization(account_mgr)
+            EKSManagementModule._render_cost_optimization(account_mgr)
         
         with tabs[4]:
-            EKSOperationsModule._render_performance_analytics(account_mgr)
+            EKSManagementModule._render_performance_analytics(account_mgr)
         
         with tabs[5]:
-            EKSOperationsModule._render_cicd_integration(account_mgr)
+            EKSManagementModule._render_cicd_integration(account_mgr)
         
         with tabs[6]:
-            EKSOperationsModule._render_quick_actions(account_mgr)
+            EKSManagementModule._render_quick_actions(account_mgr)
     
     @staticmethod
     def _render_operations_dashboard(account_mgr):
@@ -318,7 +318,7 @@ class EKSOperationsModule:
                         import time
                         time.sleep(1.5)
                         
-                        response = EKSOperationsModule._generate_troubleshooting_response(query)
+                        response = EKSManagementModule._generate_troubleshooting_response(query)
                         
                         st.markdown("---")
                         st.markdown("### 🤖 Claude's Analysis & Solution:")
@@ -1998,4 +1998,4 @@ kubectl scale deployment/<name> --replicas=0
                 """, language="bash")
 
 # Export the module
-__all__ = ['EKSOperationsModule']
+__all__ = ['EKSManagementModule']
