@@ -1,6 +1,6 @@
 """
-Unified CI/CD Module - All Phases Combined
-Combines Pipeline Builder, Triggering, and Approvals into one module
+Unified CI/CD Module - All 5 Phases Combined
+Complete CI/CD Platform with Pipeline Building, Triggering, Approvals, Multi-Account, and AI Analytics
 """
 
 import streamlit as st
@@ -8,13 +8,13 @@ import boto3
 from core_account_manager import get_account_manager, get_account_names
 
 class UnifiedCICDModule:
-    """Unified CI/CD Module with all phases"""
+    """Unified CI/CD Module with all 5 phases"""
     
     @staticmethod
     def render():
         """Main render method"""
         st.title("🔄 CI/CD Pipeline Management")
-        st.markdown("**Complete CI/CD Platform** - Build, Trigger, and Approve Pipelines")
+        st.markdown("**Complete CI/CD Platform** - Build, Trigger, Approve, Deploy Multi-Account, and AI-Powered Analytics")
         
         # Get account manager
         account_mgr = get_account_manager()
@@ -58,11 +58,13 @@ class UnifiedCICDModule:
             st.error(f"Error getting AWS session: {str(e)}")
             return
         
-        # Main phase tabs
+        # Main phase tabs - ALL 5 PHASES
         phase_tabs = st.tabs([
             "🏗️ Pipeline Builder",
             "⚡ Triggering & Parameters", 
-            "⚠️ Approvals & Notifications"
+            "⚠️ Approvals & Notifications",
+            "🌐 Multi-Account",
+            "🤖 AI Analytics"
         ])
         
         # Phase 1: Pipeline Builder
@@ -72,6 +74,7 @@ class UnifiedCICDModule:
                 CICDOrchestrationModule.render()
             except Exception as e:
                 st.error(f"Error loading Pipeline Builder: {str(e)}")
+                st.info("💡 Make sure modules_cicd_orchestration.py is in your src folder")
         
         # Phase 2: Triggering & Parameters
         with phase_tabs[1]:
@@ -90,6 +93,24 @@ class UnifiedCICDModule:
             except Exception as e:
                 st.error(f"Error loading Approvals module: {str(e)}")
                 st.info("💡 Make sure modules_cicd_phase3_approvals.py is in your src folder")
+        
+        # Phase 4: Multi-Account Management
+        with phase_tabs[3]:
+            try:
+                from modules_cicd_phase4_multiaccount import render_cicd_phase4_module
+                render_cicd_phase4_module(session, account_id, selected_region)
+            except Exception as e:
+                st.error(f"Error loading Multi-Account module: {str(e)}")
+                st.info("💡 Make sure modules_cicd_phase4_multiaccount.py is in your src folder")
+        
+        # Phase 5: AI Analytics
+        with phase_tabs[4]:
+            try:
+                from modules_cicd_phase5_ai_analytics import render_cicd_phase5_module
+                render_cicd_phase5_module(session, account_id, selected_region)
+            except Exception as e:
+                st.error(f"Error loading AI Analytics module: {str(e)}")
+                st.info("💡 Make sure modules_cicd_phase5_ai_analytics.py is in your src folder")
 
 
 # For backward compatibility
