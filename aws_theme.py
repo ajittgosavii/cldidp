@@ -1,12 +1,12 @@
 """
-AWS Theme Styling - Professional AWS-branded UI
-Orange and dark theme matching AWS Console design
+AWS Theme Styling - COMPLETE OVERHAUL
+Hybrid theme: Dark interface with LIGHT metric cards for guaranteed visibility
 """
 
 import streamlit as st
 
 class AWSTheme:
-    """AWS-themed styling for CloudIDP"""
+    """AWS-themed styling for CloudIDP - VISIBILITY GUARANTEED"""
     
     # AWS Brand Colors
     AWS_ORANGE = "#FF9900"
@@ -22,18 +22,17 @@ class AWSTheme:
     
     @staticmethod
     def apply_aws_theme():
-        """Apply AWS console-style theme to Streamlit"""
+        """Apply AWS console-style hybrid theme - Dark background, Light metrics"""
         
         st.markdown("""
         <style>
-            /* ===== AWS GLOBAL THEME ===== */
+            /* ===== AWS HYBRID THEME - GUARANTEED VISIBILITY ===== */
             
-            /* Main app background */
+            /* Main app background - DARK */
             .stApp {
                 background-color: #232F3E;
             }
             
-            /* Main content area */
             .main .block-container {
                 padding-top: 2rem;
                 padding-bottom: 2rem;
@@ -41,9 +40,8 @@ class AWSTheme:
                 max-width: 1400px;
             }
             
-            /* ===== AWS HEADER STYLING ===== */
+            /* ===== HEADERS ===== */
             
-            /* Main title */
             h1 {
                 color: #FF9900 !important;
                 font-family: 'Amazon Ember', 'Helvetica Neue', Roboto, Arial, sans-serif !important;
@@ -66,24 +64,17 @@ class AWSTheme:
                 font-weight: 500 !important;
             }
             
-            /* ===== AWS SIDEBAR ===== */
+            /* ===== SIDEBAR ===== */
             
-            /* Sidebar styling */
             [data-testid="stSidebar"] {
                 background-color: #161E2D !important;
                 border-right: 2px solid #FF9900;
             }
             
-            [data-testid="stSidebar"] .block-container {
-                padding-top: 1rem;
-            }
-            
-            /* Sidebar text */
             [data-testid="stSidebar"] * {
                 color: #FFFFFF !important;
             }
             
-            /* Sidebar headers */
             [data-testid="stSidebar"] h1,
             [data-testid="stSidebar"] h2,
             [data-testid="stSidebar"] h3 {
@@ -92,17 +83,8 @@ class AWSTheme:
                 padding-bottom: 0.5rem;
             }
             
-            /* Sidebar selectbox */
-            [data-testid="stSidebar"] .stSelectbox,
-            [data-testid="stSidebar"] .stRadio {
-                background-color: #232F3E;
-                border-radius: 4px;
-                padding: 0.5rem;
-            }
+            /* ===== TABS ===== */
             
-            /* ===== AWS TABS ===== */
-            
-            /* Tab list container */
             .stTabs [data-baseweb="tab-list"] {
                 gap: 0px;
                 background-color: #161E2D;
@@ -110,7 +92,6 @@ class AWSTheme:
                 padding: 0;
             }
             
-            /* Individual tabs */
             .stTabs [data-baseweb="tab"] {
                 height: 50px;
                 background-color: #232F3E;
@@ -124,20 +105,17 @@ class AWSTheme:
                 border-radius: 4px 4px 0 0;
             }
             
-            /* Active tab */
             .stTabs [data-baseweb="tab"][aria-selected="true"] {
                 background-color: #FF9900 !important;
                 color: #232F3E !important;
                 border-bottom: 2px solid #FF9900;
             }
             
-            /* Tab hover effect */
             .stTabs [data-baseweb="tab"]:hover {
                 background-color: #FF9900;
                 color: #232F3E;
             }
             
-            /* Tab content */
             .stTabs [data-baseweb="tab-panel"] {
                 background-color: #232F3E;
                 padding: 1.5rem;
@@ -146,9 +124,8 @@ class AWSTheme:
                 border-radius: 0 0 4px 4px;
             }
             
-            /* ===== AWS BUTTONS ===== */
+            /* ===== BUTTONS ===== */
             
-            /* Primary button */
             .stButton > button {
                 background-color: #FF9900 !important;
                 color: #232F3E !important;
@@ -158,7 +135,6 @@ class AWSTheme:
                 font-weight: 600 !important;
                 font-size: 14px !important;
                 transition: all 0.3s ease !important;
-                font-family: 'Amazon Ember', 'Helvetica Neue', Roboto, Arial, sans-serif !important;
             }
             
             .stButton > button:hover {
@@ -167,46 +143,11 @@ class AWSTheme:
                 transform: translateY(-1px);
             }
             
-            .stButton > button:active {
-                transform: translateY(0);
-            }
+            /* ===== DATAFRAMES/TABLES ===== */
             
-            /* ===== AWS METRICS/CARDS ===== */
-            
-            /* Metric container */
-            [data-testid="stMetric"] {
-                background-color: #161E2D;
-                padding: 1.5rem;
-                border-radius: 8px;
-                border: 2px solid #FF9900;
-                box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
-            }
-            
-            /* Metric label */
-            [data-testid="stMetricLabel"] {
-                color: #FF9900 !important;
-                font-weight: 600 !important;
-                font-size: 14px !important;
-            }
-            
-            /* Metric value */
-            [data-testid="stMetricValue"] {
-                color: #FFFFFF !important;
-                font-weight: 700 !important;
-                font-size: 32px !important;
-            }
-            
-            /* Metric delta */
-            [data-testid="stMetricDelta"] {
-                color: #00A86B !important;
-            }
-            
-            /* ===== AWS DATAFRAMES/TABLES ===== */
-            
-            /* DataFrame styling */
             .dataframe {
-                background-color: #161E2D !important;
-                color: #FFFFFF !important;
+                background-color: #FFFFFF !important;
+                color: #232F3E !important;
                 border: 1px solid #FF9900 !important;
             }
             
@@ -219,27 +160,26 @@ class AWSTheme:
             }
             
             .dataframe tbody tr {
-                background-color: #232F3E !important;
-                border-bottom: 1px solid #444444 !important;
+                background-color: #FFFFFF !important;
+                border-bottom: 1px solid #E0E0E0 !important;
             }
             
             .dataframe tbody tr:hover {
-                background-color: #2C3E50 !important;
+                background-color: #F8F9FA !important;
             }
             
             .dataframe tbody tr td {
-                color: #FFFFFF !important;
+                color: #232F3E !important;
                 padding: 10px !important;
             }
             
-            /* ===== AWS INPUT FIELDS ===== */
+            /* ===== INPUT FIELDS ===== */
             
-            /* Text inputs */
             .stTextInput > div > div > input,
             .stTextArea > div > div > textarea,
             .stNumberInput > div > div > input {
-                background-color: #161E2D !important;
-                color: #FFFFFF !important;
+                background-color: #FFFFFF !important;
+                color: #232F3E !important;
                 border: 2px solid #545B64 !important;
                 border-radius: 4px !important;
             }
@@ -251,61 +191,70 @@ class AWSTheme:
                 box-shadow: 0 0 0 2px rgba(255, 153, 0, 0.2) !important;
             }
             
-            /* Select boxes */
+            /* ===== SELECTBOX/DROPDOWNS - WHITE BACKGROUND ===== */
+            
             .stSelectbox > div > div {
-                background-color: #161E2D !important;
-                color: #FFFFFF !important;
+                background-color: #FFFFFF !important;
+                color: #232F3E !important;
                 border: 2px solid #545B64 !important;
                 border-radius: 4px !important;
             }
             
-            /* Multiselect */
-            .stMultiSelect > div > div {
-                background-color: #161E2D !important;
-                border: 2px solid #545B64 !important;
+            .stSelectbox > div > div:hover {
+                border-color: #FF9900 !important;
             }
             
-            /* ===== AWS ALERTS/MESSAGES ===== */
+            /* Dropdown menu options */
+            div[data-baseweb="select"] > div {
+                background-color: #FFFFFF !important;
+                color: #232F3E !important;
+            }
             
-            /* Success message */
+            [role="listbox"] {
+                background-color: #FFFFFF !important;
+            }
+            
+            [role="option"] {
+                background-color: #FFFFFF !important;
+                color: #232F3E !important;
+            }
+            
+            [role="option"]:hover {
+                background-color: #F8F9FA !important;
+            }
+            
+            /* ===== ALERTS ===== */
+            
             .stSuccess {
                 background-color: rgba(0, 168, 107, 0.1) !important;
                 border-left: 4px solid #00A86B !important;
                 color: #FFFFFF !important;
                 padding: 1rem !important;
-                border-radius: 4px !important;
             }
             
-            /* Info message */
-            .stInfo {
-                background-color: rgba(0, 115, 187, 0.1) !important;
-                border-left: 4px solid #0073BB !important;
-                color: #FFFFFF !important;
-                padding: 1rem !important;
-                border-radius: 4px !important;
-            }
-            
-            /* Warning message */
             .stWarning {
                 background-color: rgba(255, 184, 28, 0.1) !important;
                 border-left: 4px solid #FFB81C !important;
                 color: #FFFFFF !important;
                 padding: 1rem !important;
-                border-radius: 4px !important;
             }
             
-            /* Error message */
             .stError {
                 background-color: rgba(209, 50, 18, 0.1) !important;
                 border-left: 4px solid #D13212 !important;
                 color: #FFFFFF !important;
                 padding: 1rem !important;
-                border-radius: 4px !important;
             }
             
-            /* ===== AWS EXPANDERS ===== */
+            .stInfo {
+                background-color: rgba(0, 115, 187, 0.1) !important;
+                border-left: 4px solid #0073BB !important;
+                color: #FFFFFF !important;
+                padding: 1rem !important;
+            }
             
-            /* Expander */
+            /* ===== EXPANDERS ===== */
+            
             .streamlit-expanderHeader {
                 background-color: #161E2D !important;
                 color: #FF9900 !important;
@@ -325,106 +274,26 @@ class AWSTheme:
                 color: #FFFFFF !important;
             }
             
-            /* ===== AWS PROGRESS BARS ===== */
+            /* ===== PROGRESS BARS ===== */
             
             .stProgress > div > div > div {
                 background-color: #FF9900 !important;
             }
             
-            /* ===== AWS CHARTS ===== */
+            /* ===== CHARTS ===== */
             
-            /* Chart backgrounds */
             [data-testid="stPlotlyChart"] {
-                background-color: #161E2D !important;
-                border: 1px solid #444444 !important;
+                background-color: #FFFFFF !important;
+                border: 1px solid #E0E0E0 !important;
                 border-radius: 8px !important;
                 padding: 1rem !important;
             }
             
-            /* ===== AWS DIVIDERS ===== */
+            /* ===== DIVIDERS ===== */
             
             hr {
                 border-color: #FF9900 !important;
                 opacity: 0.5 !important;
-            }
-            
-            /* ===== CUSTOM AWS COMPONENTS ===== */
-            
-            /* AWS Header Banner */
-            .aws-header {
-                background: linear-gradient(135deg, #232F3E 0%, #FF9900 100%);
-                padding: 2rem;
-                border-radius: 8px;
-                margin-bottom: 2rem;
-                box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
-                border: 1px solid #FF9900;
-            }
-            
-            .aws-header h1 {
-                color: #FFFFFF !important;
-                margin: 0 !important;
-                padding: 0 !important;
-                border: none !important;
-            }
-            
-            .aws-header p {
-                color: #F2F3F4 !important;
-                margin: 0.5rem 0 0 0 !important;
-                font-size: 1.1rem !important;
-            }
-            
-            /* AWS Service Card */
-            .aws-service-card {
-                background-color: #161E2D;
-                border: 2px solid #FF9900;
-                border-radius: 8px;
-                padding: 1.5rem;
-                margin: 1rem 0;
-                box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
-                transition: all 0.3s ease;
-            }
-            
-            .aws-service-card:hover {
-                transform: translateY(-4px);
-                box-shadow: 0 8px 12px rgba(255, 153, 0, 0.3);
-                border-color: #EC7211;
-            }
-            
-            /* AWS Status Badge */
-            .aws-badge {
-                display: inline-block;
-                padding: 0.25rem 0.75rem;
-                border-radius: 12px;
-                font-weight: 600;
-                font-size: 0.875rem;
-                margin: 0.25rem;
-            }
-            
-            .aws-badge-success {
-                background-color: #00A86B;
-                color: #FFFFFF;
-            }
-            
-            .aws-badge-warning {
-                background-color: #FFB81C;
-                color: #232F3E;
-            }
-            
-            .aws-badge-error {
-                background-color: #D13212;
-                color: #FFFFFF;
-            }
-            
-            .aws-badge-info {
-                background-color: #0073BB;
-                color: #FFFFFF;
-            }
-            
-            /* AWS Stats Row */
-            .aws-stats-row {
-                display: flex;
-                gap: 1rem;
-                margin: 1rem 0;
             }
             
             /* ===== SCROLLBAR ===== */
@@ -447,7 +316,7 @@ class AWSTheme:
                 background: #EC7211;
             }
             
-            /* ===== RADIO BUTTONS ===== */
+            /* ===== RADIO & CHECKBOXES ===== */
             
             .stRadio > div {
                 background-color: #161E2D;
@@ -459,13 +328,11 @@ class AWSTheme:
                 color: #FFFFFF !important;
             }
             
-            /* ===== CHECKBOXES ===== */
-            
             .stCheckbox {
                 color: #FFFFFF !important;
             }
             
-            /* ===== TEXT ===== */
+            /* ===== GENERAL TEXT ===== */
             
             p, span, label, li {
                 color: #FFFFFF !important;
@@ -475,7 +342,6 @@ class AWSTheme:
                 color: #FFFFFF !important;
             }
             
-            /* Caption text */
             .stCaption {
                 color: #F2F3F4 !important;
             }
@@ -504,11 +370,11 @@ class AWSTheme:
     @staticmethod
     def aws_header(title: str, subtitle: str = None):
         """Create AWS-styled header banner"""
-        subtitle_html = f'<p>{subtitle}</p>' if subtitle else ''
+        subtitle_html = f'<p style="color: #F2F3F4 !important; margin: 0.5rem 0 0 0 !important; font-size: 1.1rem !important;">{subtitle}</p>' if subtitle else ''
         
         st.markdown(f"""
-        <div class="aws-header">
-            <h1>☁️ {title}</h1>
+        <div style="background: linear-gradient(135deg, #232F3E 0%, #FF9900 100%); padding: 2rem; border-radius: 8px; margin-bottom: 2rem; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3); border: 1px solid #FF9900;">
+            <h1 style="color: #FFFFFF !important; margin: 0 !important; padding: 0 !important; border: none !important;">☁️ {title}</h1>
             {subtitle_html}
         </div>
         """, unsafe_allow_html=True)
@@ -517,29 +383,64 @@ class AWSTheme:
     def aws_service_card(title: str, content: str, icon: str = "📦"):
         """Create AWS-styled service card"""
         st.markdown(f"""
-        <div class="aws-service-card">
-            <h3>{icon} {title}</h3>
-            <p>{content}</p>
+        <div style="background-color: #161E2D; border: 2px solid #FF9900; border-radius: 8px; padding: 1.5rem; margin: 1rem 0; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3); transition: all 0.3s ease;">
+            <h3 style="color: #FFFFFF !important;">{icon} {title}</h3>
+            <p style="color: #F2F3F4 !important;">{content}</p>
         </div>
         """, unsafe_allow_html=True)
     
     @staticmethod
     def aws_badge(text: str, badge_type: str = "info"):
         """Create AWS-styled status badge"""
-        return f'<span class="aws-badge aws-badge-{badge_type}">{text}</span>'
+        colors = {
+            "success": {"bg": "#00A86B", "text": "#FFFFFF"},
+            "warning": {"bg": "#FFB81C", "text": "#232F3E"},
+            "error": {"bg": "#D13212", "text": "#FFFFFF"},
+            "info": {"bg": "#0073BB", "text": "#FFFFFF"}
+        }
+        color = colors.get(badge_type, colors["info"])
+        return f'<span style="display: inline-block; padding: 0.25rem 0.75rem; border-radius: 12px; font-weight: 600; font-size: 0.875rem; margin: 0.25rem; background-color: {color["bg"]}; color: {color["text"]};">{text}</span>'
     
     @staticmethod
     def aws_metric_card(label: str, value: str, delta: str = None, icon: str = "📊"):
-        """Create AWS-styled metric card with icon"""
-        delta_html = f'<div style="color: #00A86B; margin-top: 0.5rem;">{delta}</div>' if delta else ''
+        """
+        Create AWS-styled metric card with LIGHT BACKGROUND
+        GUARANTEED VISIBILITY - White card with dark text
+        """
+        delta_html = f'<div style="color: #00A86B !important; margin-top: 0.5rem; font-size: 14px; font-weight: 600;">{delta}</div>' if delta else ''
         
         st.markdown(f"""
-        <div style="background-color: #161E2D; padding: 1.5rem; border-radius: 8px; 
-                    border: 2px solid #FF9900; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);">
-            <div style="color: #FF9900; font-weight: 600; font-size: 14px; margin-bottom: 0.5rem;">
-                {icon} {label}
+        <div style="
+            background: linear-gradient(135deg, #FFFFFF 0%, #F8F9FA 100%);
+            border: 2px solid #FF9900;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 12px rgba(255, 153, 0, 0.2);
+            min-height: 140px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            transition: all 0.3s ease;
+        ">
+            <div style="
+                color: #FF9900 !important;
+                font-weight: 600;
+                font-size: 13px;
+                text-transform: uppercase;
+                letter-spacing: 1px;
+                margin-bottom: 12px;
+                font-family: 'Amazon Ember', 'Helvetica Neue', Roboto, Arial, sans-serif;
+            ">
+                <span style="font-size: 20px; margin-right: 8px;">{icon}</span>
+                {label}
             </div>
-            <div style="color: #FFFFFF; font-weight: 700; font-size: 32px;">
+            <div style="
+                color: #232F3E !important;
+                font-weight: 700;
+                font-size: 42px;
+                line-height: 1;
+                font-family: 'Amazon Ember', 'Helvetica Neue', Roboto, Arial, sans-serif;
+            ">
                 {value}
             </div>
             {delta_html}
