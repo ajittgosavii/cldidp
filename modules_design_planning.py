@@ -214,7 +214,7 @@ Respond with ONLY the Terraform code, no explanations."""
 # MAIN MODULE
 # ============================================================================
 
-class DesignPlanningWAFModule:
+class DesignPlanningModule:
     """Well-Architected Framework Aligned Design & Planning"""
     
     @staticmethod
@@ -243,25 +243,25 @@ class DesignPlanningWAFModule:
         ])
         
         with tabs[0]:
-            DesignPlanningWAFModule._render_architecture_design(ai_available)
+            DesignPlanningModule._render_architecture_design(ai_available)
         
         with tabs[1]:
-            DesignPlanningWAFModule._render_waf_dashboard(ai_available)
+            DesignPlanningModule._render_waf_dashboard(ai_available)
         
         with tabs[2]:
-            DesignPlanningWAFModule._render_workflow()
+            DesignPlanningModule._render_workflow()
         
         with tabs[3]:
-            DesignPlanningWAFModule._render_blueprint_library()
+            DesignPlanningModule._render_blueprint_library()
         
         with tabs[4]:
-            DesignPlanningWAFModule._render_ai_assistant(ai_available)
+            DesignPlanningModule._render_ai_assistant(ai_available)
         
         with tabs[5]:
-            DesignPlanningWAFModule._render_cicd_integration()
+            DesignPlanningModule._render_cicd_integration()
         
         with tabs[6]:
-            DesignPlanningWAFModule._render_standards()
+            DesignPlanningModule._render_standards()
     
     # ========================================================================
     # TAB 1: ARCHITECTURE DESIGN
@@ -1247,4 +1247,4 @@ module "application" {
 
 
 # Export
-__all__ = ['DesignPlanningWAFModule']
+__all__ = ['DesignPlanningModule']
