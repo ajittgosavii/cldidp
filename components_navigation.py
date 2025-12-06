@@ -21,9 +21,7 @@ class Navigation:
             "🏢 Organizations",
             "📐 Design & Planning",
             "🚀 Provisioning",
-            "🔄 CI/CD Pipelines",  # ← Phase 1: Pipeline Builder
-            "⚡ CI/CD Triggering",  # ← Phase 2: Advanced Triggering
-            "⚠️ CI/CD Approvals",  # ← Phase 3: Approval Workflows (NEW!)
+            "🔄 CI/CD",  # ← Unified: All 3 phases in sub-tabs
             "⚙️ Operations",
             "⚡ Advanced Operations",
             "📜 Policy & Guardrails",
@@ -90,100 +88,72 @@ class Navigation:
             except Exception as e:
                 st.error(f"Error loading Provisioning: {str(e)}")
         
-        # Module 7: CI/CD Pipelines (Phase 1)
+        # Module 7: CI/CD (Unified - All 3 Phases)
         with tabs[7]:
             try:
-                from modules_cicd_orchestration import CICDOrchestrationModule
-                CICDOrchestrationModule.render()
+                from modules_cicd_unified import UnifiedCICDModule
+                UnifiedCICDModule.render()
             except Exception as e:
-                st.error(f"Error loading CI/CD Pipelines: {str(e)}")
+                st.error(f"Error loading CI/CD: {str(e)}")
         
-        # Module 8: CI/CD Triggering (Phase 2)
+        # Module 8: Operations
         with tabs[8]:
-            try:
-                from modules_cicd_phase2_triggering import render_cicd_phase2_module
-                
-                # Get session and account info from SessionManager
-                session = SessionManager.get_session()
-                selected_account = SessionManager.get_selected_account()
-                selected_region = SessionManager.get_selected_region()
-                
-                render_cicd_phase2_module(session, selected_account, selected_region)
-            except Exception as e:
-                st.error(f"Error loading CI/CD Triggering: {str(e)}")
-        
-        # Module 9: CI/CD Approvals (Phase 3 - NEW!)
-        with tabs[9]:
-            try:
-                from modules_cicd_phase3_approvals import render_cicd_phase3_module
-                
-                # Get session and account info from SessionManager
-                session = SessionManager.get_session()
-                selected_account = SessionManager.get_selected_account()
-                selected_region = SessionManager.get_selected_region()
-                
-                render_cicd_phase3_module(session, selected_account, selected_region)
-            except Exception as e:
-                st.error(f"Error loading CI/CD Approvals: {str(e)}")
-        
-        # Module 10: Operations
-        with tabs[10]:
             try:
                 from modules_operations import OperationsModule
                 OperationsModule.render()
             except Exception as e:
                 st.error(f"Error loading Operations: {str(e)}")
         
-        # Module 11: Advanced Operations
-        with tabs[11]:
+        # Module 9: Advanced Operations
+        with tabs[9]:
             try:
                 from modules_advanced_operations import AdvancedOperationsModule
                 AdvancedOperationsModule.render()
             except Exception as e:
                 st.error(f"Error loading Advanced Operations: {str(e)}")
         
-        # Module 12: Policy & Guardrails
-        with tabs[12]:
+        # Module 10: Policy & Guardrails
+        with tabs[10]:
             try:
                 from modules_policy_guardrails import PolicyGuardrailsModule
                 PolicyGuardrailsModule.render()
             except Exception as e:
                 st.error(f"Error loading Policy & Guardrails: {str(e)}")
         
-        # Module 13: EKS Management
-        with tabs[13]:
+        # Module 11: EKS Management
+        with tabs[11]:
             try:
                 from modules_eks_management import EKSManagementModule
                 EKSManagementModule.render()
             except Exception as e:
                 st.error(f"Error loading EKS Management: {str(e)}")
         
-        # Module 14: Security & Compliance
-        with tabs[14]:
+        # Module 12: Security & Compliance
+        with tabs[12]:
             try:
                 from modules_security_compliance import SecurityComplianceUI
                 SecurityComplianceUI.render()
             except Exception as e:
                 st.error(f"Error loading Security & Compliance: {str(e)}")
         
-        # Module 15: FinOps
-        with tabs[15]:
+        # Module 13: FinOps
+        with tabs[13]:
             try:
                 from modules_finops import FinOpsModule
                 FinOpsModule.render()
             except Exception as e:
                 st.error(f"Error loading FinOps: {str(e)}")
         
-        # Module 16: Account Lifecycle
-        with tabs[16]:
+        # Module 14: Account Lifecycle
+        with tabs[14]:
             try:
                 from modules_account_lifecycle import AccountLifecycleModule
                 AccountLifecycleModule.render()
             except Exception as e:
                 st.error(f"Error loading Account Lifecycle: {str(e)}")
         
-        # Module 17: AI Assistant
-        with tabs[17]:
+        # Module 15: AI Assistant
+        with tabs[15]:
             try:
                 from modules_ai_assistant import AIAssistantModule
                 AIAssistantModule.render()

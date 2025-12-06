@@ -1,6 +1,6 @@
 """
-Cloud Infrastructure Development Platform
-COMPATIBLE WITH NEW AWS THEME - No CSS conflicts
+Cloud Infrastructure Development Platform - Enterprise Multi-Account Cloud Management
+Simple Blue Theme - Clean & Professional
 """
 
 import streamlit as st
@@ -25,30 +25,217 @@ st.set_page_config(
 )
 
 # ==================================================================================
-# MINIMAL CSS - COMPATIBLE WITH AWS THEME
-# No CSS that interferes with metric cards!
+# SIMPLE BLUE THEME - CLEAN & PROFESSIONAL
 # ==================================================================================
 st.markdown("""
 <style>
-/* Minimal CSS that doesn't conflict with aws_theme.py */
+/* ===== GLOBAL THEME ===== */
+:root {
+    --primary-color: #2E86DE;
+    --secondary-color: #0652DD;
+    --background-color: #FFFFFF;
+    --text-color: #000000;
+    --border-color: #E0E0E0;
+}
 
-/* Ensure main background doesn't override */
+/* Main app background - WHITE */
 .main {
+    background-color: white !important;
+}
+
+/* All text - BLACK */
+body, p, span, div, label, h1, h2, h3, h4, h5, h6 {
+    color: black !important;
+}
+
+/* ===== SIDEBAR ===== */
+[data-testid="stSidebar"] {
+    background-color: #F5F7FA !important;
+}
+
+[data-testid="stSidebar"] * {
+    color: black !important;
+}
+
+/* ===== HEADERS ===== */
+h1, h2, h3 {
+    color: #2E86DE !important;
+}
+
+/* ===== BUTTONS ===== */
+button {
+    background-color: #2E86DE !important;
+    color: white !important;
+    border: none !important;
+    border-radius: 4px !important;
+    padding: 8px 16px !important;
+    font-weight: 500 !important;
+}
+
+button:hover {
+    background-color: #0652DD !important;
+    color: white !important;
+}
+
+/* ===== DROPDOWNS & SELECTS ===== */
+/* Dropdown labels */
+.stSelectbox label,
+.stMultiSelect label,
+.stTextInput label,
+.stNumberInput label,
+.stTextArea label {
+    color: black !important;
+    font-weight: 500 !important;
+}
+
+/* Dropdown options text - BLACK */
+div[data-baseweb="select"] [role="option"],
+div[data-baseweb="select"] li,
+[role="option"] {
+    color: black !important;
+    background-color: white !important;
+}
+
+/* Dropdown selected value - BLACK */
+div[data-baseweb="select"] > div {
+    color: black !important;
+    background-color: white !important;
+}
+
+/* Multiselect tags */
+div[data-baseweb="tag"] {
+    background-color: #2E86DE !important;
+}
+
+div[data-baseweb="tag"] span {
+    color: white !important;
+}
+
+/* ===== INPUT FIELDS ===== */
+input, textarea {
+    background-color: white !important;
+    color: black !important;
+    border: 1px solid #E0E0E0 !important;
+}
+
+/* ===== TABS ===== */
+.stTabs [data-baseweb="tab-list"] {
+    background-color: white !important;
+}
+
+.stTabs [data-baseweb="tab"] {
+    color: black !important;
+}
+
+.stTabs [aria-selected="true"] {
+    color: #2E86DE !important;
+    border-bottom: 2px solid #2E86DE !important;
+}
+
+/* ===== METRICS ===== */
+[data-testid="stMetricLabel"] {
+    color: white !important;  /* Changed from black to white */
+}
+
+[data-testid="stMetricValue"] {
+    color: white !important;  /* Changed from blue to white for visibility */
+    font-weight: 600 !important;
+}
+
+[data-testid="stMetricDelta"] {
+    color: #E0E0E0 !important;  /* Light gray for delta */
+}
+
+/* Metric containers with dark backgrounds */
+.stMetric {
     background-color: transparent !important;
 }
 
-/* Let aws_theme.py handle all styling */
+/* Fix for dark metric containers */
+div[data-testid="stMetric"] > div {
+    color: white !important;
+}
+
+/* Specific fix for metric labels in dark boxes */
+div[data-testid="metric-container"] label,
+div[data-testid="metric-container"] p,
+div[data-testid="metric-container"] span {
+    color: white !important;
+}
+
+/* ===== INFO/WARNING/ERROR BOXES ===== */
+.stAlert {
+    background-color: white !important;
+    border-left: 4px solid #2E86DE !important;
+}
+
+/* ===== DATAFRAMES ===== */
+.stDataFrame {
+    background-color: white !important;
+}
+
+table {
+    background-color: white !important;
+}
+
+th {
+    background-color: #2E86DE !important;
+    color: white !important;
+}
+
+td {
+    color: black !important;
+}
+
+/* ===== EXPANDERS ===== */
+.streamlit-expanderHeader {
+    background-color: #F5F7FA !important;
+    color: black !important;
+}
+
+/* ===== RADIO & CHECKBOX ===== */
+.stRadio label,
+.stCheckbox label {
+    color: black !important;
+}
+
+/* ===== CLEAN BORDERS ===== */
+.stSelectbox > div,
+.stMultiSelect > div,
+.stTextInput > div,
+.stNumberInput > div {
+    border-radius: 4px !important;
+}
+
+/* ===== DARK CONTAINERS FIX ===== */
+/* Fix text in dark background containers */
+div[style*="background"] label,
+div[style*="background"] p,
+div[style*="background"] span,
+div[style*="background"] div {
+    color: white !important;
+}
+
+/* Fix for any container with dark background */
+.element-container div[style*="background-color: rgb"] {
+    color: white !important;
+}
+
+/* Ensure all text in dark boxes is visible */
+div[data-testid="stVerticalBlock"] > div[style*="background"] * {
+    color: white !important;
+}
 </style>
 """, unsafe_allow_html=True)
 # ==================================================================================
-# END MINIMAL CSS
+# END SIMPLE BLUE THEME
 # ==================================================================================
 
-# Header
+# Simple header - centered
 st.markdown("""
-<div style="background: linear-gradient(135deg, #FF9900 0%, #EC7211 100%); padding: 20px; border-radius: 10px; margin-bottom: 20px; text-align: center; box-shadow: 0 4px 8px rgba(255, 153, 0, 0.3);">
-    <h1 style="color: #232F3E !important; margin: 0; font-weight: 700;">☁️ Cloud Infrastructure Development Platform</h1>
-    <p style="color: #232F3E !important; margin: 5px 0 0 0; font-size: 16px; font-weight: 600;">Enterprise Multi-Account Cloud Management</p>
+<div style="background: linear-gradient(135deg, #2E86DE 0%, #0652DD 100%); padding: 20px; border-radius: 10px; margin-bottom: 20px; text-align: center;">
+    <h1 style="color: white !important; margin: 0; font-weight: 600;">☁️ Cloud Infrastructure Development Platform</h1>
+    <p style="color: white !important; margin: 5px 0 0 0; font-size: 16px;">Enterprise Multi-Account Cloud Management</p>
 </div>
 """, unsafe_allow_html=True)
 
@@ -64,7 +251,7 @@ def main():
     # Render main navigation
     Navigation.render()
     
-    # Footer
+    # Simple footer
     st.markdown("---")
     col1, col2, col3 = st.columns(3)
     with col1:
