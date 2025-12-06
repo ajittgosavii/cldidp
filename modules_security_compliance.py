@@ -401,7 +401,7 @@ class UnifiedSecurityComplianceModule:
         
         # Generate security summary for AI analysis
         try:
-            security_mgr = SecurityManager(session, region=region)
+            security_mgr = SecurityManager(session)
             score_data = security_mgr.get_security_score()
             
             findings_summary = {
@@ -544,7 +544,7 @@ class UnifiedSecurityComplianceModule:
             return
         
         try:
-            security_mgr = SecurityManager(session, region=region)
+            security_mgr = SecurityManager(session)
             
             # Filter by severity
             severity_filter = st.selectbox(
@@ -743,7 +743,7 @@ class UnifiedSecurityComplianceModule:
             return
         
         try:
-            security_mgr = SecurityManager(session, region=region)
+            security_mgr = SecurityManager(session)
             
             score_data = security_mgr.get_security_score()
             
@@ -784,7 +784,7 @@ class UnifiedSecurityComplianceModule:
             return
         
         try:
-            security_mgr = SecurityManager(session, region=region)
+            security_mgr = SecurityManager(session)
             detector_id = security_mgr.get_guardduty_detector()
             
             if not detector_id:
@@ -833,7 +833,7 @@ class UnifiedSecurityComplianceModule:
             return
         
         try:
-            security_mgr = SecurityManager(session, region=region)
+            security_mgr = SecurityManager(session)
             summary = security_mgr.get_compliance_summary()
             
             col1, col2, col3, col4 = st.columns(4)
@@ -876,7 +876,7 @@ class UnifiedSecurityComplianceModule:
             return
         
         try:
-            cw_mgr = CloudWatchManager(session, region=region)
+            cw_mgr = CloudWatchManager(session)
             
             state_filter = st.selectbox(
                 "Filter by State",
@@ -931,7 +931,7 @@ class UnifiedSecurityComplianceModule:
             return
         
         try:
-            cw_mgr = CloudWatchManager(session, region=region)
+            cw_mgr = CloudWatchManager(session)
             log_groups = cw_mgr.list_log_groups()
             
             if not log_groups:
