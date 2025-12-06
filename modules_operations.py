@@ -16,7 +16,7 @@ class OperationsModule:
     def render():
         """Main render method"""
         st.title("⚙️ AI-Enhanced Operations")
-        st.markdown("**Intelligent Operations powered by Anthropic Claude** - AI assistant, predictive maintenance, and smart automation")
+        st.markdown("**Intelligent Operations powered by Anthropic Claude** - AI assistant, predictive maintenance, smart automation, and comprehensive vulnerability management")
         
         account_mgr = get_account_manager()
         if not account_mgr:
@@ -53,10 +53,11 @@ class OperationsModule:
             st.error(f"Failed to get session for {selected_account} in {selected_region}")
             return
         
-        # Create tabs with AI features
+        # Create tabs with AI features + Vulnerability Management
         tabs = st.tabs([
             "🤖 AI Operations Assistant",
             "🔍 AI Troubleshooting",
+            "🛡️ Vulnerability Management",
             "💻 Instance Management",
             "📊 ML Model Deployment",
             "🔮 Predictive Maintenance",
@@ -70,15 +71,24 @@ class OperationsModule:
             OperationsModule._render_ai_troubleshooting(session, selected_region)
         
         with tabs[2]:
-            OperationsModule._render_instance_management(session, selected_region)
+            # Vulnerability Management
+            try:
+                from modules_vulnerability_management import VulnerabilityManagementModule
+                VulnerabilityManagementModule.render(session, selected_region)
+            except ImportError as e:
+                st.error(f"❌ Vulnerability Management module not found: {e}")
+                st.info("Please ensure modules_vulnerability_management.py is in the src folder.")
         
         with tabs[3]:
-            OperationsModule._render_ml_deployment(session, selected_region)
+            OperationsModule._render_instance_management(session, selected_region)
         
         with tabs[4]:
-            OperationsModule._render_predictive_maintenance(session, selected_region)
+            OperationsModule._render_ml_deployment(session, selected_region)
         
         with tabs[5]:
+            OperationsModule._render_predictive_maintenance(session, selected_region)
+        
+        with tabs[6]:
             OperationsModule._render_smart_runbooks(session, selected_region)
     
     @staticmethod
