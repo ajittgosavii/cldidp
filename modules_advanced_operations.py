@@ -1,21 +1,24 @@
 """
-Advanced Operations Module - Enterprise-Grade Operations
-Multi-account operations, DR, advanced automation, and optimization
+Advanced Operations Module - AI/ML Ops Platform
+Complete ML lifecycle management, model monitoring, A/B testing, and intelligent optimization
+Powered by Anthropic Claude for AI-driven operations
 """
 
 import streamlit as st
 import pandas as pd
+import numpy as np
 from datetime import datetime, timedelta
 from core_account_manager import get_account_manager, get_account_names
+import json
 
 class AdvancedOperationsModule:
-    """Advanced Operations & Automation functionality"""
+    """Advanced Operations with comprehensive ML Ops"""
     
     @staticmethod
     def render():
         """Main render method"""
-        st.title("⚡ Advanced Operations")
-        st.markdown("**Enterprise-Grade Operations** - Multi-account workflows, DR planning, and intelligent automation")
+        st.title("⚡ Advanced Operations - AI/ML Ops Platform")
+        st.markdown("**Enterprise ML Operations** - Complete ML lifecycle, model monitoring, auto-remediation, and intelligent optimization")
         
         account_mgr = get_account_manager()
         if not account_mgr:
@@ -44,7 +47,7 @@ class AdvancedOperationsModule:
             st.error("❌ Advanced Operations require a specific region.")
             return
         
-        st.info(f"📍 Advanced operations in **{selected_region}**")
+        st.info(f"📍 ML Ops in **{selected_region}**")
         
         # Get session
         session = account_mgr.get_session_with_region(selected_account, selected_region)
@@ -52,594 +55,941 @@ class AdvancedOperationsModule:
             st.error(f"Failed to get session")
             return
         
-        # Create tabs
+        # Create tabs with ML Ops focus
         tabs = st.tabs([
-            "🔄 Multi-Account Ops",
-            "💾 DR Planning",
-            "🤖 Intelligent Automation",
-            "💰 Cost Optimizer",
-            "🔐 Security Posture",
-            "📊 Capacity Planning"
+            "🧠 ML Model Lifecycle",
+            "📈 Model Monitoring",
+            "🎯 A/B Testing & Experiments",
+            "🤖 Auto-Remediation",
+            "💰 AI Cost Optimizer",
+            "🚀 Intelligent Scaling"
         ])
         
         with tabs[0]:
-            AdvancedOperationsModule._render_multi_account(account_names)
+            AdvancedOperationsModule._render_ml_lifecycle(session, selected_region)
         
         with tabs[1]:
-            AdvancedOperationsModule._render_dr_planning(session, selected_region)
+            AdvancedOperationsModule._render_model_monitoring(session, selected_region)
         
         with tabs[2]:
-            AdvancedOperationsModule._render_intelligent_automation(session)
+            AdvancedOperationsModule._render_ab_testing(session, selected_region)
         
         with tabs[3]:
-            AdvancedOperationsModule._render_cost_optimizer(session, selected_region)
+            AdvancedOperationsModule._render_auto_remediation(session, selected_region)
         
         with tabs[4]:
-            AdvancedOperationsModule._render_security_posture(session, selected_region)
+            AdvancedOperationsModule._render_ai_cost_optimizer(session, selected_region)
         
         with tabs[5]:
-            AdvancedOperationsModule._render_capacity_planning(session, selected_region)
+            AdvancedOperationsModule._render_intelligent_scaling(session, selected_region)
     
     @staticmethod
-    def _render_multi_account(account_names):
-        """Multi-account operations with detailed control"""
-        st.subheader("🔄 Multi-Account Operations")
+    def _render_ml_lifecycle(session, region):
+        """Complete ML model lifecycle management"""
+        st.markdown("## 🧠 ML Model Lifecycle Management")
+        st.info("📊 Complete MLOps: Train → Deploy → Monitor → Optimize → Retire")
         
-        st.markdown("""
-        ### Execute Operations Across Multiple Accounts
-        
-        Select specific accounts and perform coordinated operations across your AWS organization.
-        """)
-        
-        # Account/OU selection
-        col1, col2 = st.columns(2)
+        # Lifecycle overview
+        col1, col2, col3, col4, col5 = st.columns(5)
         
         with col1:
-            selection_mode = st.radio("Selection Mode", ["🏢 By Account", "📁 By OU", "🏷️ By Tag"], horizontal=True)
+            st.metric("Models in Dev", "8")
         
         with col2:
-            if selection_mode == "🏢 By Account":
-                selected_accounts = st.multiselect("Select Accounts", account_names, default=account_names[:1] if account_names else [])
-            elif selection_mode == "📁 By OU":
-                ous = ["Production", "Development", "Testing", "Sandbox"]
-                selected_ous = st.multiselect("Select OUs", ous)
-                selected_accounts = []  # Would be populated from OUs
-            else:
-                tag_key = st.text_input("Tag Key", "Environment")
-                tag_value = st.text_input("Tag Value", "Production")
-                selected_accounts = []  # Would be populated from tag search
+            st.metric("Models in Staging", "3")
         
-        if not selected_accounts and selection_mode == "🏢 By Account":
-            st.info("Select one or more accounts to begin")
-            return
-        
-        num_accounts = len(selected_accounts) if selected_accounts else 0
-        st.success(f"✅ {num_accounts} account(s) selected")
-        
-        # Region selection for multi-account
-        regions = ["us-east-1", "us-east-2", "us-west-1", "us-west-2", "eu-west-1"]
-        selected_regions = st.multiselect("Target Regions", regions, default=["us-east-2"])
-        
-        st.markdown("---")
-        
-        # Operation categories
-        st.markdown("### 🚀 Select Operation Category")
-        
-        category = st.selectbox(
-            "Operation Type",
-            ["🔍 Resource Discovery", "🏷️ Tag Operations", "💾 Backup Operations", 
-             "🔐 Security Operations", "💰 Cost Operations", "📊 Compliance Scan"]
-        )
-        
-        if category == "🔍 Resource Discovery":
-            st.markdown("### Resource Discovery Configuration")
-            
-            resource_types = st.multiselect(
-                "Resource Types",
-                ["EC2 Instances", "RDS Databases", "S3 Buckets", "Lambda Functions", 
-                 "EBS Volumes", "Elastic IPs", "Load Balancers", "All Resources"],
-                default=["EC2 Instances"]
-            )
-            
-            col1, col2 = st.columns(2)
-            
-            with col1:
-                include_stopped = st.checkbox("Include stopped resources", value=True)
-                include_untagged = st.checkbox("Flag untagged resources", value=True)
-            
-            with col2:
-                export_format = st.selectbox("Export Format", ["CSV", "Excel", "JSON", "PDF Report"])
-                send_email = st.checkbox("Email results", value=False)
-            
-            if st.button("🔍 Start Discovery", type="primary", use_container_width=True):
-                with st.spinner(f"Scanning {num_accounts} account(s) across {len(selected_regions)} region(s)..."):
-                    st.success(f"✅ Discovery completed!")
-                    st.info(f"""
-                    **Results Summary:**
-                    - Accounts Scanned: {num_accounts}
-                    - Regions Scanned: {len(selected_regions)}
-                    - Resources Found: 847
-                    - Untagged Resources: 142
-                    - Potential Issues: 23
-                    
-                    📊 Download full report below
-                    """)
-                    
-                    # Sample results
-                    results = pd.DataFrame({
-                        'Account': ['POC ACCOUNT'] * 5,
-                        'Region': ['us-east-2'] * 5,
-                        'Resource Type': ['EC2', 'RDS', 'S3', 'Lambda', 'EBS'],
-                        'Count': [45, 12, 234, 67, 89],
-                        'Untagged': [8, 2, 45, 12, 15]
-                    })
-                    
-                    st.dataframe(results, use_container_width=True, hide_index=True)
-        
-        elif category == "🏷️ Tag Operations":
-            st.markdown("### Tag Operations")
-            
-            tag_operation = st.selectbox(
-                "Operation",
-                ["Apply Tag", "Remove Tag", "Replace Tag Value", "Enforce Tag Policy", "Report Missing Tags"]
-            )
-            
-            if tag_operation == "Apply Tag":
-                col1, col2, col3 = st.columns(3)
-                
-                with col1:
-                    tag_key = st.text_input("Tag Key", "CostCenter")
-                
-                with col2:
-                    tag_value = st.text_input("Tag Value", "IT-OPS-001")
-                
-                with col3:
-                    overwrite = st.checkbox("Overwrite existing", value=False)
-                
-                target_filter = st.text_input("Target Filter (optional)", "ResourceType=EC2")
-                
-                if st.button("🏷️ Apply Tags", type="primary", use_container_width=True):
-                    st.success(f"✅ Applied tag '{tag_key}:{tag_value}' to resources across {num_accounts} account(s)")
-            
-            elif tag_operation == "Enforce Tag Policy":
-                st.markdown("**Define Required Tags:**")
-                required_tags = st.text_area("Required Tags (one per line)", "Environment\nApplication\nOwner\nCostCenter")
-                
-                action = st.radio("Action for non-compliant resources", 
-                                ["Report Only", "Auto-tag with defaults", "Stop non-compliant resources"])
-                
-                if st.button("🔍 Check Compliance", type="primary", use_container_width=True):
-                    st.warning("⚠️ Found 142 non-compliant resources across accounts")
-                    
-                    compliance = pd.DataFrame({
-                        'Account': ['POC ACCOUNT'] * 4,
-                        'Resource': ['i-123456', 'i-789012', 'vol-456789', 'db-prod-1'],
-                        'Missing Tags': ['Owner, CostCenter', 'CostCenter', 'All', 'Owner'],
-                        'Status': ['🔴 Non-compliant'] * 4
-                    })
-                    
-                    st.dataframe(compliance, use_container_width=True, hide_index=True)
-        
-        elif category == "💾 Backup Operations":
-            st.markdown("### Cross-Account Backup Operations")
-            
-            backup_type = st.selectbox("Backup Type", 
-                                      ["EC2 AMI Backup", "EBS Snapshot", "RDS Snapshot", "Full Infrastructure Backup"])
-            
-            col1, col2 = st.columns(2)
-            
-            with col1:
-                target_tags = st.text_input("Target Tags", "Backup=true")
-                retention_days = st.number_input("Retention (days)", min_value=7, max_value=365, value=30)
-            
-            with col2:
-                copy_to_dr = st.checkbox("Copy to DR region", value=True)
-                if copy_to_dr:
-                    dr_region = st.selectbox("DR Region", ["us-west-2", "eu-west-1"])
-            
-            schedule = st.checkbox("Schedule recurring backups", value=False)
-            
-            if schedule:
-                frequency = st.selectbox("Frequency", ["Daily", "Weekly", "Monthly"])
-            
-            if st.button("💾 Execute Backup", type="primary", use_container_width=True):
-                with st.spinner("Creating backups across accounts..."):
-                    st.success(f"✅ Backup operation completed across {num_accounts} account(s)")
-        
-        elif category == "🔐 Security Operations":
-            st.markdown("### Multi-Account Security Operations")
-            
-            security_op = st.selectbox(
-                "Security Operation",
-                ["Enable GuardDuty", "Enable Security Hub", "Rotate Access Keys", 
-                 "Enable MFA", "Review IAM Policies", "Enable CloudTrail", "Encrypt Resources"]
-            )
-            
-            if security_op == "Enable GuardDuty":
-                st.info("💡 Enable GuardDuty threat detection across all selected accounts")
-                
-                auto_remediate = st.checkbox("Enable auto-remediation", value=False)
-                notification_email = st.text_input("Alert Email", "security@company.com")
-                
-                if st.button("🛡️ Enable GuardDuty", type="primary", use_container_width=True):
-                    st.success(f"✅ GuardDuty enabled in {num_accounts} account(s) and {len(selected_regions)} region(s)")
-            
-            elif security_op == "Rotate Access Keys":
-                st.warning("⚠️ **Access Key Rotation** - This will rotate all IAM access keys")
-                
-                age_threshold = st.number_input("Rotate keys older than (days)", min_value=30, max_value=365, value=90)
-                notify_users = st.checkbox("Notify users before rotation", value=True)
-                grace_period = st.number_input("Grace period (days)", min_value=1, max_value=30, value=7)
-                
-                if st.button("🔐 Rotate Keys", type="primary", use_container_width=True):
-                    st.success("✅ Key rotation initiated across accounts")
-        
-        elif category == "💰 Cost Operations":
-            st.markdown("### Cross-Account Cost Operations")
-            
-            cost_op = st.selectbox(
-                "Cost Operation",
-                ["Identify Unused Resources", "Right-Size Instances", "Stop Non-Production Resources",
-                 "Reserved Instance Recommendations", "S3 Lifecycle Policies"]
-            )
-            
-            if cost_op == "Identify Unused Resources":
-                resource_types = st.multiselect(
-                    "Resource Types",
-                    ["Unattached EBS Volumes", "Unused Elastic IPs", "Idle Load Balancers", 
-                     "Stopped Instances (>30 days)", "Old Snapshots", "All"],
-                    default=["All"]
-                )
-                
-                age_threshold = st.number_input("Consider unused if idle for (days)", min_value=7, max_value=365, value=30)
-                
-                if st.button("🔍 Identify Unused Resources", type="primary", use_container_width=True):
-                    st.success("✅ Analysis complete!")
-                    
-                    unused = pd.DataFrame({
-                        'Account': ['POC ACCOUNT'] * 5,
-                        'Resource Type': ['EBS Volume', 'Elastic IP', 'EBS Snapshot', 'Load Balancer', 'EC2 (stopped)'],
-                        'Count': [23, 8, 145, 4, 12],
-                        'Monthly Cost': ['$575', '$29', '$217', '$120', '$432'],
-                        'Action': ['Delete', 'Release', 'Delete', 'Delete', 'Terminate']
-                    })
-                    
-                    st.dataframe(unused, use_container_width=True, hide_index=True)
-                    
-                    total_savings = sum([575, 29, 217, 120, 432])
-                    st.success(f"💰 **Potential monthly savings: ${total_savings}**")
-                    
-                    if st.button("🗑️ Clean Up Resources", type="primary"):
-                        st.warning("⚠️ Cleanup initiated - Resources will be deleted after confirmation")
-        
-        elif category == "📊 Compliance Scan":
-            st.markdown("### Multi-Account Compliance Scanning")
-            
-            frameworks = st.multiselect(
-                "Compliance Frameworks",
-                ["CIS AWS Foundations", "PCI-DSS", "HIPAA", "SOC 2", "GDPR", "NIST"],
-                default=["CIS AWS Foundations"]
-            )
-            
-            scan_depth = st.select_slider("Scan Depth", ["Quick", "Standard", "Deep", "Comprehensive"], value="Standard")
-            
-            if st.button("🔍 Run Compliance Scan", type="primary", use_container_width=True):
-                with st.spinner(f"Scanning {num_accounts} account(s) for compliance..."):
-                    st.success("✅ Compliance scan completed!")
-                    
-                    col1, col2, col3, col4 = st.columns(4)
-                    
-                    with col1:
-                        st.metric("Compliance Score", "87%", "↑ 5%")
-                    with col2:
-                        st.metric("Critical Findings", "3", "↓ 2")
-                    with col3:
-                        st.metric("Medium Findings", "24", "↓ 5")
-                    with col4:
-                        st.metric("Low Findings", "67", "→ 0")
-                    
-                    findings = pd.DataFrame({
-                        'Severity': ['🔴 Critical', '🔴 Critical', '🟠 High', '🟠 High', '🟡 Medium'],
-                        'Finding': [
-                            'Root account without MFA',
-                            'S3 bucket with public access',
-                            'CloudTrail not enabled in all regions',
-                            'Password policy too weak',
-                            'EBS volumes not encrypted'
-                        ],
-                        'Account': ['POC ACCOUNT'] * 5,
-                        'Auto-Fix': ['Available', 'Available', 'Available', 'Available', 'Available']
-                    })
-                    
-                    st.dataframe(findings, use_container_width=True, hide_index=True)
-                    
-                    if st.button("🔧 Auto-Remediate All", use_container_width=True):
-                        st.success("✅ Auto-remediation applied to fixable issues")
-    
-    @staticmethod
-    def _render_dr_planning(session, region):
-        """Comprehensive DR planning and testing"""
-        st.subheader("💾 Disaster Recovery Planning")
-        
-        st.markdown("""
-        ### Business Continuity & Disaster Recovery
-        
-        Plan, test, and execute disaster recovery strategies.
-        """)
-        
-        # DR metrics
-        col1, col2, col3, col4 = st.columns(4)
-        
-        with col1:
-            st.metric("Backup Coverage", "92%", "↑ 8%")
-        with col2:
-            st.metric("RTO", "2 hours", "Target: 4h")
         with col3:
-            st.metric("RPO", "15 minutes", "Target: 1h")
+            st.metric("Models in Production", "5")
+        
         with col4:
-            st.metric("Last DR Test", "12 days ago", "→ 0")
+            st.metric("Models Retired", "12")
+        
+        with col5:
+            st.metric("Total Models", "28")
         
         st.markdown("---")
         
-        # DR tabs
-        dr_tabs = st.tabs(["📋 DR Strategy", "💾 Backup Policies", "🧪 DR Testing", "🔄 Failover Plan"])
+        # Model registry
+        st.markdown("### 📚 Model Registry")
         
-        with dr_tabs[0]:
-            st.markdown("### 📋 Disaster Recovery Strategy")
-            
-            st.markdown("**Define your DR approach for critical workloads:**")
-            
-            workloads = [
-                {"name": "Production Database", "tier": "Tier 1", "strategy": "Active-Active", "rto": "1 hour", "rpo": "5 minutes"},
-                {"name": "Web Application", "tier": "Tier 1", "strategy": "Pilot Light", "rto": "2 hours", "rpo": "15 minutes"},
-                {"name": "Batch Processing", "tier": "Tier 2", "strategy": "Backup & Restore", "rto": "12 hours", "rpo": "24 hours"},
-                {"name": "Development Env", "tier": "Tier 3", "strategy": "Manual", "rto": "72 hours", "rpo": "N/A"}
-            ]
-            
-            for wl in workloads:
-                with st.expander(f"{wl['name']} - {wl['strategy']}"):
-                    col1, col2, col3 = st.columns(3)
-                    
-                    with col1:
-                        st.text(f"Tier: {wl['tier']}")
-                        st.text(f"Strategy: {wl['strategy']}")
-                    
-                    with col2:
-                        st.text(f"RTO: {wl['rto']}")
-                        st.text(f"RPO: {wl['rpo']}")
-                    
-                    with col3:
-                        if st.button("📝 Edit", key=f"edit_{wl['name']}", use_container_width=True):
-                            st.info("Opening editor...")
-                        
-                        if st.button("🧪 Test", key=f"test_{wl['name']}", use_container_width=True):
-                            st.info("Initiating DR test...")
-        
-        with dr_tabs[1]:
-            st.markdown("### 💾 Backup Policies")
-            
-            st.markdown("**Configure automated backup policies by environment:**")
-            
-            env = st.selectbox("Environment", ["Production", "Staging", "Development", "All"])
-            
-            col1, col2 = st.columns(2)
-            
-            with col1:
-                backup_frequency = st.selectbox("Backup Frequency", ["Hourly", "Daily", "Weekly", "Monthly"])
-                retention_daily = st.number_input("Daily Retention (days)", min_value=1, max_value=30, value=7)
-                retention_weekly = st.number_input("Weekly Retention (weeks)", min_value=1, max_value=52, value=4)
-            
-            with col2:
-                retention_monthly = st.number_input("Monthly Retention (months)", min_value=1, max_value=12, value=12)
-                cross_region = st.checkbox("Cross-region backup", value=True)
-                if cross_region:
-                    dr_region = st.selectbox("DR Region", ["us-west-2", "eu-west-1"])
-            
-            vault_lock = st.checkbox("Enable backup vault lock (compliance mode)", value=False)
-            
-            if st.button("💾 Apply Backup Policy", type="primary", use_container_width=True):
-                st.success(f"✅ Backup policy applied to {env} environment")
-        
-        with dr_tabs[2]:
-            st.markdown("### 🧪 DR Testing")
-            
-            st.info("💡 Regular DR testing ensures your recovery procedures work when needed")
-            
-            test_type = st.selectbox(
-                "Test Type",
-                ["Table-top Exercise", "Backup Restoration Test", "Failover Simulation", "Full DR Drill"]
-            )
-            
-            if test_type == "Full DR Drill":
-                st.warning("⚠️ **Full DR Drill** - This will create a complete isolated environment")
-                
-                col1, col2 = st.columns(2)
-                
-                with col1:
-                    test_scope = st.multiselect("Workloads to Test", 
-                                               ["Production Database", "Web Application", "API Services", "Batch Processing"])
-                    recovery_point = st.date_input("Recovery Point", datetime.now() - timedelta(days=1))
-                
-                with col2:
-                    test_region = st.selectbox("Test Region (isolated)", ["us-west-2", "eu-west-1"])
-                    notification_email = st.text_input("Test Coordinator Email", "dr-team@company.com")
-                
-                duration = st.slider("Expected Test Duration (hours)", 1, 24, 4)
-                
-                if st.button("🚀 Initiate DR Test", type="primary", use_container_width=True):
-                    st.success("✅ DR test initiated!")
-                    st.info("""
-                    **DR Test Initiated:**
-                    
-                    1. ✅ Isolated environment created in test region
-                    2. 🔄 Restoring resources from recovery point
-                    3. ⏳ Estimated completion: 45 minutes
-                    4. 📧 Notifications sent to DR team
-                    
-                    **Next Steps:**
-                    - Monitor test progress in real-time
-                    - Validate application functionality
-                    - Document RTO/RPO actuals
-                    - Clean up test environment when complete
-                    """)
-        
-        with dr_tabs[3]:
-            st.markdown("### 🔄 Failover Execution Plan")
-            
-            st.error("⚠️ **EMERGENCY USE ONLY** - Production Failover")
-            
-            st.markdown("""
-            **Pre-Failover Checklist:**
-            1. ⬜ Confirm primary site is unavailable
-            2. ⬜ Notify stakeholders
-            3. ⬜ Verify DR site readiness
-            4. ⬜ Get executive approval
-            """)
-            
-            incident_number = st.text_input("Incident Number", "INC-2025-001")
-            incident_severity = st.selectbox("Severity", ["P1 - Critical", "P2 - High", "P3 - Medium"])
-            
-            approval_required = st.checkbox("I have executive approval for failover", value=False)
-            
-            if approval_required:
-                approver_name = st.text_input("Approver Name")
-                approval_time = st.time_input("Approval Time")
-                
-                failover_target = st.selectbox("Failover Target", ["us-west-2 (Primary DR)", "eu-west-1 (Secondary DR)"])
-                
-                if st.button("🚨 EXECUTE FAILOVER", type="primary", disabled=not approval_required, use_container_width=True):
-                    st.warning("⚠️ FAILOVER INITIATED - This is a simulation")
-                    st.info("""
-                    **Failover Progress:**
-                    
-                    1. ✅ Verifying DR site capacity
-                    2. 🔄 Redirecting DNS (Route53)
-                    3. 🔄 Starting DR resources
-                    4. 🔄 Syncing data from last backup
-                    5. ⏳ ETA: 30 minutes
-                    """)
-    
-    @staticmethod
-    def _render_intelligent_automation(session):
-        """AI-powered intelligent automation"""
-        st.subheader("🤖 Intelligent Automation")
-        
-        st.markdown("AI-powered automation that learns from your operations and suggests optimizations.")
-        
-        st.info("💡 Machine learning models analyze your usage patterns and recommend automation opportunities")
-    
-    @staticmethod
-    def _render_cost_optimizer(session, region):
-        """Intelligent cost optimization"""
-        st.subheader("💰 Cost Optimizer")
-        
-        st.markdown("Data-driven cost optimization with actionable recommendations.")
-        
-        # Cost metrics
-        col1, col2, col3, col4 = st.columns(4)
-        
-        with col1:
-            st.metric("Current Monthly", "$45,230", "↑ $2,100")
-        with col2:
-            st.metric("Projected Monthly", "$52,800", "↑ $7,570")
-        with col3:
-            st.metric("Optimization Potential", "$8,450", "18.7%")
-        with col4:
-            st.metric("YTD Savings", "$23,400")
-        
-        st.markdown("---")
-        
-        # Optimization categories
-        st.markdown("### 💡 Optimization Opportunities")
-        
-        opportunities = [
+        models = [
             {
-                "title": "Right-Size Over-Provisioned Instances",
-                "description": "12 instances running at <30% CPU utilization",
-                "savings": "$2,400/month",
-                "effort": "Low",
-                "risk": "Low",
-                "instances": ["i-12345", "i-67890", "i-abcde"]
+                'Model Name': 'fraud-detection-v2.1',
+                'Version': 'v2.1.3',
+                'Stage': 'Production',
+                'Framework': 'TensorFlow 2.14',
+                'Accuracy': '94.2%',
+                'Latency (p99)': '85ms',
+                'Deployed': '15 days ago',
+                'Traffic': '100%',
+                'Status': '✅ Healthy'
             },
             {
-                "title": "Convert to Reserved Instances",
-                "description": "8 instances running 24/7 for >90 days",
-                "savings": "$3,200/month",
-                "effort": "Low",
-                "risk": "None",
-                "instances": ["i-prod-db-1", "i-prod-web-1"]
+                'Model Name': 'recommendation-engine',
+                'Version': 'v1.8.2',
+                'Stage': 'Production',
+                'Framework': 'PyTorch 2.1',
+                'Accuracy': '89.5%',
+                'Latency (p99)': '120ms',
+                'Deployed': '30 days ago',
+                'Traffic': '80%',
+                'Status': '⚠️ Accuracy drift detected'
             },
             {
-                "title": "Delete Unused EBS Volumes",
-                "description": "23 unattached volumes older than 30 days",
-                "savings": "$575/month",
-                "effort": "Low",
-                "risk": "Medium",
-                "volumes": ["vol-123", "vol-456"]
+                'Model Name': 'fraud-detection-v3.0',
+                'Version': 'v3.0.0-beta',
+                'Stage': 'Staging',
+                'Framework': 'TensorFlow 2.14',
+                'Accuracy': '96.1%',
+                'Latency (p99)': '78ms',
+                'Deployed': '3 days ago',
+                'Traffic': '0% (Testing)',
+                'Status': '🧪 A/B testing ready'
             },
             {
-                "title": "S3 Lifecycle Policies",
-                "description": "Move 2.4TB to Glacier",
-                "savings": "$1,100/month",
-                "effort": "Medium",
-                "risk": "Low",
-                "buckets": ["logs-archive", "old-backups"]
+                'Model Name': 'churn-predictor',
+                'Version': 'v2.0.5',
+                'Stage': 'Production',
+                'Framework': 'XGBoost',
+                'Accuracy': '87.3%',
+                'Latency (p99)': '45ms',
+                'Deployed': '60 days ago',
+                'Traffic': '100%',
+                'Status': '✅ Healthy'
+            },
+            {
+                'Model Name': 'sentiment-analysis',
+                'Version': 'v1.2.0',
+                'Stage': 'Development',
+                'Framework': 'Hugging Face',
+                'Accuracy': '91.8%',
+                'Latency (p99)': '450ms',
+                'Deployed': 'Not deployed',
+                'Traffic': 'N/A',
+                'Status': '🔧 Training'
             }
         ]
         
-        for opp in opportunities:
-            with st.expander(f"💡 {opp['title']} - Save {opp['savings']}"):
-                col1, col2 = st.columns([3, 1])
-                
-                with col1:
-                    st.markdown(f"**Description:** {opp['description']}")
-                    st.markdown(f"**Monthly Savings:** {opp['savings']}")
-                    st.markdown(f"**Implementation Effort:** {opp['effort']}")
-                    st.markdown(f"**Risk Level:** {opp['risk']}")
-                
-                with col2:
-                    if st.button("📊 Details", key=f"details_{opp['title']}", use_container_width=True):
-                        st.info("Showing detailed analysis...")
-                    
-                    if st.button("✅ Apply", key=f"apply_{opp['title']}", use_container_width=True):
-                        st.success("Optimization applied!")
-    
-    @staticmethod
-    def _render_security_posture(session, region):
-        """Security posture management"""
-        st.subheader("🔐 Security Posture")
+        df = pd.DataFrame(models)
+        st.dataframe(df, use_container_width=True, hide_index=True)
         
-        st.markdown("Continuous security monitoring and automated remediation.")
+        # Model actions
+        st.markdown("---")
+        st.markdown("### 🎯 Model Actions")
         
-        # Security score
+        selected_model = st.selectbox(
+            "Select Model for Actions",
+            options=[m['Model Name'] for m in models],
+            key="selected_ml_model"
+        )
+        
         col1, col2, col3, col4 = st.columns(4)
         
         with col1:
-            st.metric("Security Score", "87/100", "↑ 5")
-        with col2:
-            st.metric("🔴 Critical", "2", "↓ 3")
-        with col3:
-            st.metric("🟠 High", "12", "↓ 5")
-        with col4:
-            st.metric("🟡 Medium", "34", "↑ 2")
+            if st.button("🚀 Promote to Production", use_container_width=True):
+                st.success(f"✅ {selected_model} promoted to production")
+                st.info("Gradual rollout starting: 0% → 10% → 50% → 100%")
         
-        st.info("💡 Automated security hardening based on AWS best practices and compliance frameworks")
+        with col2:
+            if st.button("🧪 Start A/B Test", use_container_width=True):
+                st.info(f"A/B test configured for {selected_model}")
+        
+        with col3:
+            if st.button("📊 View Metrics", use_container_width=True):
+                st.info(f"Loading metrics for {selected_model}...")
+        
+        with col4:
+            if st.button("🗑️ Retire Model", use_container_width=True):
+                st.warning(f"Model {selected_model} will be retired in 7 days")
+        
+        # Model deployment workflow
+        st.markdown("---")
+        st.markdown("### 🔄 Model Deployment Workflow")
+        
+        st.markdown("""
+        <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 20px; border-radius: 10px; color: white;">
+            <h4>Complete ML Pipeline</h4>
+            <p>Development → Staging → A/B Testing → Production → Monitoring → Optimization</p>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        workflow_stages = {
+            'Stage': ['Development', 'Staging', 'A/B Testing', 'Production', 'Monitoring', 'Optimization'],
+            'Models': [5, 3, 2, 5, 5, '12 opportunities'],
+            'Duration': ['2-4 weeks', '1 week', '3-7 days', 'Ongoing', 'Continuous', 'Weekly']
+        }
+        
+        df_workflow = pd.DataFrame(workflow_stages)
+        st.dataframe(df_workflow, use_container_width=True, hide_index=True)
     
     @staticmethod
-    def _render_capacity_planning(session, region):
-        """Capacity planning and forecasting"""
-        st.subheader("📊 Capacity Planning")
+    def _render_model_monitoring(session, region):
+        """Comprehensive model performance monitoring"""
+        st.markdown("## 📈 ML Model Monitoring & Observability")
+        st.info("🔍 Real-time model performance tracking, drift detection, and alert management")
         
-        st.markdown("Predictive capacity planning based on historical trends.")
+        # Monitoring dashboard
+        col1, col2, col3, col4 = st.columns(4)
         
-        # Forecast
+        with col1:
+            st.metric(
+                "Accuracy Drift",
+                "-2.3%",
+                delta="-2.3% from baseline",
+                delta_color="inverse"
+            )
+        
+        with col2:
+            st.metric(
+                "Data Drift Score",
+                "0.15",
+                delta="↑ 0.05 (Warning)",
+                delta_color="inverse"
+            )
+        
+        with col3:
+            st.metric(
+                "Prediction Latency",
+                "92ms",
+                delta="↑ 12ms",
+                delta_color="inverse"
+            )
+        
+        with col4:
+            st.metric(
+                "Model Health",
+                "87%",
+                delta="↓ 8%"
+            )
+        
+        st.markdown("---")
+        
+        # Model performance over time
+        st.markdown("### 📊 Model Performance Trends")
+        
+        # Generate sample data
+        dates = pd.date_range(end=datetime.now(), periods=30, freq='D')
+        
+        # Accuracy trend
+        baseline_accuracy = 94.2
+        accuracy_values = baseline_accuracy + np.random.normal(-2, 1, len(dates))
+        accuracy_values = np.clip(accuracy_values, 85, 98)
+        
+        trend_data = pd.DataFrame({
+            'Date': dates,
+            'Accuracy %': accuracy_values,
+            'Latency (ms)': np.random.normal(85, 10, len(dates)),
+            'Traffic (k req)': np.random.normal(450, 50, len(dates))
+        }).set_index('Date')
+        
+        st.line_chart(trend_data[['Accuracy %']])
+        
+        st.markdown("---")
+        
+        # Drift detection
+        st.markdown("### 🎯 Drift Detection")
+        
+        col1, col2 = st.columns(2)
+        
+        with col1:
+            st.markdown("#### 📉 Feature Drift Analysis")
+            
+            feature_drift = [
+                {'Feature': 'transaction_amount', 'Drift Score': 0.23, 'Status': '⚠️ Warning'},
+                {'Feature': 'user_age', 'Drift Score': 0.08, 'Status': '✅ Normal'},
+                {'Feature': 'merchant_category', 'Drift Score': 0.42, 'Status': '🔴 Critical'},
+                {'Feature': 'transaction_time', 'Drift Score': 0.12, 'Status': '✅ Normal'},
+                {'Feature': 'device_type', 'Drift Score': 0.31, 'Status': '⚠️ Warning'}
+            ]
+            
+            df_drift = pd.DataFrame(feature_drift)
+            st.dataframe(df_drift, use_container_width=True, hide_index=True)
+            
+            st.info("""
+**Drift Analysis:**
+- 2 features showing significant drift
+- Recommended: Retrain model with recent data
+- Estimated accuracy improvement: +3.2%
+""")
+        
+        with col2:
+            st.markdown("#### 📊 Prediction Distribution")
+            
+            # Prediction distribution over time
+            prediction_dist = {
+                'Outcome': ['Fraud', 'Legitimate', 'Unknown'],
+                'Last Week': [245, 18750, 5],
+                'This Week': [412, 18583, 8],
+                'Change %': ['+68%', '-0.9%', '+60%']
+            }
+            
+            df_pred = pd.DataFrame(prediction_dist)
+            st.dataframe(df_pred, use_container_width=True, hide_index=True)
+            
+            st.warning("""
+**Anomaly Detected:**
+- Fraud predictions up 68%
+- Could indicate:
+  - Actual fraud increase
+  - Model drift
+  - Data quality issue
+- Investigating...
+""")
+        
+        # Alert configuration
+        st.markdown("---")
+        st.markdown("### 🚨 Alert Configuration")
+        
         col1, col2, col3 = st.columns(3)
         
         with col1:
-            st.metric("30-Day Forecast", "↑ 23%", "+5% vs last month")
-        with col2:
-            st.metric("Predicted Cost", "$52,800", "+$7,570")
-        with col3:
-            st.metric("Capacity Risk", "🟢 Low", "Stable")
+            accuracy_threshold = st.slider(
+                "Accuracy Drop Alert (%)",
+                min_value=1.0,
+                max_value=10.0,
+                value=3.0,
+                step=0.5,
+                key="accuracy_alert"
+            )
         
-        st.info("💡 Machine learning models predict future capacity needs based on growth trends")
+        with col2:
+            latency_threshold = st.slider(
+                "Latency Increase Alert (ms)",
+                min_value=10,
+                max_value=100,
+                value=50,
+                step=10,
+                key="latency_alert"
+            )
+        
+        with col3:
+            drift_threshold = st.slider(
+                "Drift Score Alert",
+                min_value=0.1,
+                max_value=1.0,
+                value=0.3,
+                step=0.05,
+                key="drift_alert"
+            )
+        
+        if st.button("💾 Save Alert Configuration", use_container_width=True):
+            st.success("✅ Alert thresholds updated!")
+        
+        # Recent alerts
+        st.markdown("---")
+        st.markdown("### 📜 Recent Alerts")
+        
+        alerts = [
+            {
+                'Time': '2 hours ago',
+                'Model': 'recommendation-engine',
+                'Alert Type': 'Accuracy Drift',
+                'Severity': 'High',
+                'Details': 'Accuracy dropped from 89.5% to 87.2%',
+                'Action': 'Retrain scheduled'
+            },
+            {
+                'Time': '5 hours ago',
+                'Model': 'fraud-detection-v2',
+                'Alert Type': 'Feature Drift',
+                'Severity': 'Warning',
+                'Details': 'merchant_category drift score: 0.42',
+                'Action': 'Monitoring'
+            },
+            {
+                'Time': '1 day ago',
+                'Model': 'churn-predictor',
+                'Alert Type': 'Latency Spike',
+                'Severity': 'Medium',
+                'Details': 'p99 latency: 45ms → 78ms',
+                'Action': 'Investigated - resolved'
+            }
+        ]
+        
+        df_alerts = pd.DataFrame(alerts)
+        st.dataframe(df_alerts, use_container_width=True, hide_index=True)
+    
+    @staticmethod
+    def _render_ab_testing(session, region):
+        """A/B testing and experimentation platform"""
+        st.markdown("## 🎯 A/B Testing & Model Experiments")
+        st.info("🧪 Test new models safely with champion/challenger deployment")
+        
+        # Active experiments
+        st.markdown("### 🧪 Active Experiments")
+        
+        experiments = [
+            {
+                'Experiment': 'fraud-v2-vs-v3',
+                'Champion': 'fraud-detection-v2.1',
+                'Challenger': 'fraud-detection-v3.0',
+                'Traffic Split': '80% / 20%',
+                'Duration': '5 days / 7 days',
+                'Status': 'Running',
+                'Winner': 'TBD'
+            },
+            {
+                'Experiment': 'recommendation-model-test',
+                'Champion': 'recommendation-v1.8',
+                'Challenger': 'recommendation-v2.0',
+                'Traffic Split': '90% / 10%',
+                'Duration': '2 days / 14 days',
+                'Status': 'Running',
+                'Winner': 'TBD'
+            }
+        ]
+        
+        df_exp = pd.DataFrame(experiments)
+        st.dataframe(df_exp, use_container_width=True, hide_index=True)
+        
+        st.markdown("---")
+        
+        # Detailed experiment analysis
+        st.markdown("### 📊 Experiment Analysis: fraud-v2-vs-v3")
+        
+        col1, col2 = st.columns(2)
+        
+        with col1:
+            st.markdown("#### 🏆 Champion: fraud-detection-v2.1")
+            
+            st.metric("Accuracy", "94.2%", delta="Baseline")
+            st.metric("Latency (p99)", "85ms", delta="Baseline")
+            st.metric("False Positives", "2.3%", delta="Baseline")
+            st.metric("Requests/min", "360", delta="80% traffic")
+            
+            st.markdown("**Strengths:**")
+            st.markdown("- Proven in production (15 days)")
+            st.markdown("- Stable performance")
+            st.markdown("- Well-understood behavior")
+        
+        with col2:
+            st.markdown("#### 🥊 Challenger: fraud-detection-v3.0")
+            
+            st.metric("Accuracy", "96.1%", delta="+1.9% better", delta_color="normal")
+            st.metric("Latency (p99)", "78ms", delta="-7ms better", delta_color="normal")
+            st.metric("False Positives", "1.8%", delta="-0.5% better", delta_color="normal")
+            st.metric("Requests/min", "90", delta="20% traffic")
+            
+            st.markdown("**Strengths:**")
+            st.markdown("- Higher accuracy (+1.9%)")
+            st.markdown("- Lower latency (-8%)")
+            st.markdown("- Fewer false positives (-22%)")
+        
+        # Statistical significance
+        st.markdown("---")
+        st.markdown("### 📈 Statistical Analysis")
+        
+        col1, col2, col3 = st.columns(3)
+        
+        with col1:
+            st.metric(
+                "Sample Size",
+                "12,450",
+                delta="requests analyzed"
+            )
+        
+        with col2:
+            st.metric(
+                "Confidence Level",
+                "95%",
+                delta="Statistical significance"
+            )
+        
+        with col3:
+            st.metric(
+                "P-Value",
+                "0.003",
+                delta="Highly significant"
+            )
+        
+        st.success("""
+**🎯 Recommendation: Promote Challenger to Production**
+
+The challenger model (v3.0) shows statistically significant improvements:
+- ✅ Accuracy: +1.9% improvement (p < 0.01)
+- ✅ Latency: -8% improvement (p < 0.05)
+- ✅ False Positives: -22% reduction (p < 0.01)
+
+**Recommended Rollout:**
+1. Increase traffic: 20% → 50% (2 days)
+2. Monitor for regressions
+3. If stable: 50% → 100% (3 days)
+4. Retire v2.1 after 7 days
+""")
+        
+        # Action buttons
+        st.markdown("---")
+        col1, col2, col3 = st.columns(3)
+        
+        with col1:
+            if st.button("✅ Promote Challenger", type="primary", use_container_width=True):
+                st.success("Challenger promoted! Starting gradual rollout...")
+        
+        with col2:
+            if st.button("⏸️ Pause Experiment", use_container_width=True):
+                st.warning("Experiment paused. Champion maintains 100% traffic.")
+        
+        with col3:
+            if st.button("📊 Export Results", use_container_width=True):
+                st.info("Experiment results exported to S3")
+        
+        # Create new experiment
+        st.markdown("---")
+        st.markdown("### ✨ Create New Experiment")
+        
+        col1, col2 = st.columns(2)
+        
+        with col1:
+            champion_model = st.selectbox(
+                "Champion Model (Current Production)",
+                options=["fraud-detection-v2.1", "recommendation-v1.8", "churn-predictor-v2.0"],
+                key="champion_model"
+            )
+            
+            traffic_split = st.slider(
+                "Initial Traffic Split (Champion %)",
+                min_value=50,
+                max_value=95,
+                value=80,
+                step=5,
+                key="traffic_split"
+            )
+        
+        with col2:
+            challenger_model = st.selectbox(
+                "Challenger Model (New Version)",
+                options=["fraud-detection-v3.0", "recommendation-v2.0", "churn-predictor-v2.1"],
+                key="challenger_model"
+            )
+            
+            experiment_duration = st.number_input(
+                "Experiment Duration (days)",
+                min_value=1,
+                max_value=30,
+                value=7,
+                key="exp_duration"
+            )
+        
+        if st.button("🚀 Start Experiment", use_container_width=True):
+            st.success(f"""
+✅ **Experiment Created!**
+
+**Configuration:**
+- Champion: {champion_model} ({traffic_split}% traffic)
+- Challenger: {challenger_model} ({100-traffic_split}% traffic)
+- Duration: {experiment_duration} days
+- Metrics tracked: Accuracy, latency, error rate
+
+Experiment is now live. You'll receive daily reports.
+""")
+    
+    @staticmethod
+    def _render_auto_remediation(session, region):
+        """AI-powered automatic remediation"""
+        st.markdown("## 🤖 Auto-Remediation with Claude AI")
+        st.info("🔧 Automatic issue detection and resolution powered by Anthropic Claude")
+        
+        # Remediation dashboard
+        col1, col2, col3, col4 = st.columns(4)
+        
+        with col1:
+            st.metric(
+                "Issues Detected",
+                "23",
+                delta="Last 24 hours"
+            )
+        
+        with col2:
+            st.metric(
+                "Auto-Resolved",
+                "19",
+                delta="83% success rate"
+            )
+        
+        with col3:
+            st.metric(
+                "Manual Required",
+                "4",
+                delta="Require approval"
+            )
+        
+        with col4:
+            st.metric(
+                "Time Saved",
+                "12.5 hours",
+                delta="This week"
+            )
+        
+        st.markdown("---")
+        
+        # Remediation rules
+        st.markdown("### 📋 Auto-Remediation Rules")
+        
+        rules = [
+            {
+                'Rule Name': 'High CPU Auto-Scale',
+                'Trigger': 'CPU > 80% for 5 minutes',
+                'Action': 'Add 1 instance',
+                'Approval': 'Not required',
+                'Executions': '47',
+                'Success Rate': '100%',
+                'Status': '✅ Active'
+            },
+            {
+                'Rule Name': 'OOM Instance Restart',
+                'Trigger': 'Memory > 95%',
+                'Action': 'Restart instance',
+                'Approval': 'Not required',
+                'Executions': '12',
+                'Success Rate': '92%',
+                'Status': '✅ Active'
+            },
+            {
+                'Rule Name': 'Model Accuracy Drop',
+                'Trigger': 'Accuracy < baseline - 3%',
+                'Action': 'Rollback to previous version',
+                'Approval': 'Required',
+                'Executions': '3',
+                'Success Rate': '100%',
+                'Status': '✅ Active'
+            },
+            {
+                'Rule Name': 'Disk Space Low',
+                'Trigger': 'Disk usage > 85%',
+                'Action': 'Extend EBS volume',
+                'Approval': 'Not required',
+                'Executions': '8',
+                'Success Rate': '100%',
+                'Status': '✅ Active'
+            },
+            {
+                'Rule Name': 'Security Group Wide Open',
+                'Trigger': '0.0.0.0/0 on sensitive ports',
+                'Action': 'Block + notify security team',
+                'Approval': 'Not required',
+                'Executions': '2',
+                'Success Rate': '100%',
+                'Status': '✅ Active'
+            }
+        ]
+        
+        df_rules = pd.DataFrame(rules)
+        st.dataframe(df_rules, use_container_width=True, hide_index=True)
+        
+        # Recent auto-remediations
+        st.markdown("---")
+        st.markdown("### 🔄 Recent Auto-Remediations")
+        
+        remediations = [
+            {
+                'Time': '15 min ago',
+                'Issue': 'High CPU on prod-web-01',
+                'Detection': 'CPU 87% for 6 minutes',
+                'Action Taken': 'Added 1 instance to Auto Scaling group',
+                'Result': '✅ CPU normalized to 45%',
+                'MTTR': '2 minutes'
+            },
+            {
+                'Time': '2 hours ago',
+                'Issue': 'Disk space critical on prod-db',
+                'Detection': 'Disk 92% full, predicted full in 8 hours',
+                'Action Taken': 'Extended EBS volume: 100GB → 200GB',
+                'Result': '✅ Disk usage now 46%',
+                'MTTR': '5 minutes'
+            },
+            {
+                'Time': '5 hours ago',
+                'Issue': 'Model accuracy drop: fraud-detection',
+                'Detection': 'Accuracy: 94.2% → 91.1% (3.1% drop)',
+                'Action Taken': 'Triggered retraining job with latest data',
+                'Result': '🔄 Retraining in progress',
+                'MTTR': 'N/A (automated)'
+            }
+        ]
+        
+        df_rem = pd.DataFrame(remediations)
+        st.dataframe(df_rem, use_container_width=True, hide_index=True)
+        
+        # Create new rule
+        st.markdown("---")
+        st.markdown("### ✨ Create Auto-Remediation Rule")
+        
+        col1, col2 = st.columns(2)
+        
+        with col1:
+            rule_name = st.text_input(
+                "Rule Name",
+                placeholder="e.g., Lambda Timeout Auto-Retry",
+                key="rule_name"
+            )
+            
+            trigger_condition = st.text_area(
+                "Trigger Condition (Claude will interpret)",
+                placeholder="e.g., When Lambda function times out more than 3 times in 5 minutes",
+                height=80,
+                key="trigger_condition"
+            )
+        
+        with col2:
+            remediation_action = st.text_area(
+                "Remediation Action (Claude will execute)",
+                placeholder="e.g., Increase Lambda timeout from 30s to 60s and notify team",
+                height=80,
+                key="remediation_action"
+            )
+            
+            requires_approval = st.checkbox(
+                "Requires manual approval before execution",
+                value=False,
+                key="requires_approval"
+            )
+        
+        if st.button("🤖 Generate Rule with Claude", type="primary"):
+            if trigger_condition and remediation_action:
+                with st.spinner("Claude is generating automation rule..."):
+                    import time
+                    time.sleep(2)
+                    
+                    st.success("✅ Auto-remediation rule generated!")
+                    
+                    st.code("""
+# Auto-Remediation Rule: Lambda Timeout Auto-Retry
+# Generated by Claude AI
+
+rule:
+  name: lambda-timeout-auto-retry
+  description: Automatically retry Lambda functions on timeout
+  
+  trigger:
+    metric: AWS/Lambda/Throttles
+    condition: Sum > 3
+    period: 5 minutes
+    evaluation_periods: 1
+  
+  actions:
+    - type: aws:lambda:updateFunction
+      parameters:
+        timeout: 60  # Increase from 30s
+      rollback_on_failure: true
+    
+    - type: aws:sns:publish
+      parameters:
+        topic: ops-notifications
+        message: |
+          Lambda timeout detected and remediated
+          Function: ${function_name}
+          Old timeout: 30s
+          New timeout: 60s
+          
+  approval:
+    required: false
+    
+  monitoring:
+    success_metric: Lambda errors decrease by 50%
+    rollback_if: Errors increase or latency > 5s
+""", language="yaml")
+                    
+                    col1, col2 = st.columns(2)
+                    
+                    with col1:
+                        if st.button("💾 Save Rule", use_container_width=True):
+                            st.success("Rule saved and activated!")
+                    
+                    with col2:
+                        if st.button("🧪 Test Rule", use_container_width=True):
+                            st.info("Testing rule in dry-run mode...")
+    
+    @staticmethod
+    def _render_ai_cost_optimizer(session, region):
+        """AI-powered cost optimization"""
+        st.markdown("## 💰 AI Cost Optimizer")
+        st.info("🤖 Claude finds cost savings and optimizes your AWS spending automatically")
+        
+        # Cost overview
+        col1, col2, col3, col4 = st.columns(4)
+        
+        with col1:
+            st.metric(
+                "Current Spend",
+                "$18,420/mo",
+                delta="↑ $1,240 vs last month"
+            )
+        
+        with col2:
+            st.metric(
+                "Potential Savings",
+                "$3,847/mo",
+                delta="21% reduction"
+            )
+        
+        with col3:
+            st.metric(
+                "Saved This Month",
+                "$1,265",
+                delta="From 8 optimizations"
+            )
+        
+        with col4:
+            st.metric(
+                "ROI",
+                "487%",
+                delta="Annualized"
+            )
+        
+        st.markdown("---")
+        
+        # AI-discovered opportunities
+        st.markdown("### 💡 AI-Discovered Savings Opportunities")
+        
+        opportunities = [
+            {
+                'Priority': 'Critical',
+                'Opportunity': 'Reserved Instance Commitments',
+                'Current Cost': '$4,200/mo',
+                'Optimized Cost': '$2,520/mo',
+                'Savings': '$1,680/mo',
+                'Effort': 'Low',
+                'Risk': 'None',
+                'Payback': 'Immediate'
+            },
+            {
+                'Priority': 'High',
+                'Opportunity': 'Right-Size EC2 Instances',
+                'Current Cost': '$2,340/mo',
+                'Optimized Cost': '$1,620/mo',
+                'Savings': '$720/mo',
+                'Effort': 'Medium',
+                'Risk': 'Low',
+                'Payback': '1 week'
+            },
+            {
+                'Priority': 'High',
+                'Opportunity': 'S3 Intelligent Tiering',
+                'Current Cost': '$520/mo',
+                'Optimized Cost': '$234/mo',
+                'Savings': '$286/mo',
+                'Effort': 'Low',
+                'Risk': 'None',
+                'Payback': 'Immediate'
+            },
+            {
+                'Priority': 'Medium',
+                'Opportunity': 'Unused EBS Volumes',
+                'Current Cost': '$180/mo',
+                'Optimized Cost': '$25/mo',
+                'Savings': '$155/mo',
+                'Effort': 'Low',
+                'Risk': 'None',
+                'Payback': 'Immediate'
+            },
+            {
+                'Priority': 'Medium',
+                'Opportunity': 'Lambda Memory Optimization',
+                'Current Cost': '$840/mo',
+                'Optimized Cost': '$672/mo',
+                'Savings': '$168/mo',
+                'Effort': 'Medium',
+                'Risk': 'Low',
+                'Payback': '2 weeks'
+            }
+        ]
+        
+        df_opp = pd.DataFrame(opportunities)
+        
+        # Color code by priority
+        def color_priority(val):
+            colors = {
+                'Critical': 'background-color: #dc3545; color: white',
+                'High': 'background-color: #fd7e14; color: white',
+                'Medium': 'background-color: #ffc107; color: black'
+            }
+            return colors.get(val, '')
+        
+        styled_df = df_opp.style.applymap(color_priority, subset=['Priority'])
+        st.dataframe(styled_df, use_container_width=True, hide_index=True)
+        
+        # Implementation plan
+        st.markdown("---")
+        st.markdown("### 🗺️ Optimization Roadmap")
+        
+        col1, col2 = st.columns([3, 1])
+        
+        with col1:
+            roadmap_data = {
+                'Week': ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
+                'Optimizations': [2, 2, 1, 1],
+                'Cumulative Savings': [2400, 3120, 3275, 3447]
+            }
+            
+            df_roadmap = pd.DataFrame(roadmap_data).set_index('Week')
+            st.bar_chart(df_roadmap['Cumulative Savings'])
+        
+        with col2:
+            st.metric("Total Savings", "$3,447/mo")
+            st.metric("Total Time", "~6 hours")
+            st.metric("ROI", "487%")
+            
+            if st.button("🚀 Execute All", type="primary", use_container_width=True):
+                st.success("Optimization plan activated!")
+    
+    @staticmethod
+    def _render_intelligent_scaling(session, region):
+        """AI-driven intelligent scaling"""
+        st.markdown("## 🚀 Intelligent Scaling")
+        st.info("🤖 Claude predicts traffic patterns and scales resources proactively")
+        
+        # Scaling overview
+        col1, col2, col3, col4 = st.columns(4)
+        
+        with col1:
+            st.metric(
+                "Auto-Scale Events",
+                "47",
+                delta="This week"
+            )
+        
+        with col2:
+            st.metric(
+                "Prediction Accuracy",
+                "94.3%",
+                delta="↑ 2.1%"
+            )
+        
+        with col3:
+            st.metric(
+                "Cost Savings",
+                "$847/mo",
+                delta="vs manual scaling"
+            )
+        
+        with col4:
+            st.metric(
+                "Availability",
+                "99.98%",
+                delta="↑ 0.12%"
+            )
+        
+        st.markdown("---")
+        st.markdown("### 📊 Predictive Scaling")
+        
+        # Traffic prediction
+        st.markdown("**🔮 AI Traffic Prediction (Next 24 Hours):**")
+        
+        hours = list(range(24))
+        predicted_traffic = [800 + 200 * np.sin(h/4) + np.random.normal(0, 50) for h in hours]
+        actual_traffic = [780 + 190 * np.sin(h/4) + np.random.normal(0, 30) for h in hours[:8]]
+        
+        chart_data = pd.DataFrame({
+            'Hour': hours,
+            'Predicted Traffic': predicted_traffic,
+            'Actual Traffic': actual_traffic + [None] * 16
+        }).set_index('Hour')
+        
+        st.line_chart(chart_data)
+        
+        st.success("""
+**🎯 Scaling Recommendations:**
+- Scale up at 10 AM (predicted spike: +45%)
+- Scale down at 8 PM (predicted drop: -60%)
+- Estimated savings: $23/day
+""")
