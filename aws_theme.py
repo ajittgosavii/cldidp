@@ -423,9 +423,9 @@ class AWSTheme:
             transition: all 0.3s ease;
         ">
             <div style="
-                color: #FF9900 !important;
-                font-weight: 600;
-                font-size: 13px;
+                color: #000000 !important;
+                font-weight: 700;
+                font-size: 14px;
                 text-transform: uppercase;
                 letter-spacing: 1px;
                 margin-bottom: 12px;
@@ -435,9 +435,9 @@ class AWSTheme:
                 {label}
             </div>
             <div style="
-                color: #232F3E !important;
-                font-weight: 700;
-                font-size: 42px;
+                color: #000000 !important;
+                font-weight: 900;
+                font-size: 48px;
                 line-height: 1;
                 font-family: 'Amazon Ember', 'Helvetica Neue', Roboto, Arial, sans-serif;
             ">
