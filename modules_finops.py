@@ -830,5 +830,8 @@ class FinOpsEnterpriseModule:
         with col3:
             st.metric("Tag Coverage Goal", "95%", delta="11% to go")
 
-# Export
-__all__ = ['FinOpsEnterpriseModule']
+# Backward compatibility - support both old and new class names
+FinOpsModule = FinOpsEnterpriseModule
+
+# Export both names for compatibility
+__all__ = ['FinOpsEnterpriseModule', 'FinOpsModule']
