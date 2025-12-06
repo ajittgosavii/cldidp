@@ -1,5 +1,5 @@
 """
-Cloud Infrastructure Platform - Enterprise Multi-Account Cloud Management
+Cloud Infrastructure Development Platform - Enterprise Multi-Account Cloud Management
 Simple Blue Theme - Clean & Professional
 """
 
@@ -18,7 +18,7 @@ from components_sidebar import GlobalSidebar
 
 # Page configuration
 st.set_page_config(
-    page_title="Cloud Infrastructure Platform",
+    page_title="Cloud Infrastructure Development Platform",
     page_icon="☁️",
     layout="wide",
     initial_sidebar_state="expanded"
@@ -190,11 +190,11 @@ td {
 # END SIMPLE BLUE THEME
 # ==================================================================================
 
-# Simple header
+# Simple header - centered
 st.markdown("""
-<div style="background: linear-gradient(135deg, #2E86DE 0%, #0652DD 100%); padding: 20px; border-radius: 10px; margin-bottom: 20px;">
-    <h1 style="color: white !important; margin: 0; font-weight: 600;">☁️ Cloud Infrastructure Platform</h1>
-    <p style="color: white !important; margin: 5px 0 0 0; font-size: 16px;">Enterprise Multi-Account Cloud Infrastructure Development Platform</p>
+<div style="background: linear-gradient(135deg, #2E86DE 0%, #0652DD 100%); padding: 20px; border-radius: 10px; margin-bottom: 20px; text-align: center;">
+    <h1 style="color: white !important; margin: 0; font-weight: 600;">☁️ Cloud Infrastructure Development Platform</h1>
+    <p style="color: white !important; margin: 5px 0 0 0; font-size: 16px;">Enterprise Multi-Account Cloud Management</p>
 </div>
 """, unsafe_allow_html=True)
 
@@ -218,7 +218,7 @@ def main():
     with col2:
         st.caption(f"🔗 Connected Accounts: {SessionManager.get_active_account_count()}")
     with col3:
-        st.caption("☁️ Cloud Infrastructure Platform")
+        st.caption("☁️ Cloud Infrastructure Development Platform")
 
 if __name__ == "__main__":
     main()
