@@ -4,6 +4,8 @@ Main Navigation Component - FIXED for Unified Security Module
 
 import streamlit as st
 from core_session_manager import SessionManager
+from modules_account_management import AccountManagementModule  # AWS connection management
+from modules_account_lifecycle import AccountLifecycleModule
 
 class Navigation:
     """Main application navigation"""
@@ -28,6 +30,7 @@ class Navigation:
             "🔌 EKS Management",
             "💰 FinOps & Cost",
             "🔄 Account Lifecycle",
+            "👨‍💻 Developer Experience",  # ← NEW: AI-powered DevEx
             "🤖 AI Assistant"
         ])
         
@@ -143,8 +146,16 @@ class Navigation:
             except Exception as e:
                 st.error(f"Error loading Account Lifecycle: {str(e)}")
         
-        # Module 14: AI Assistant
+        # Module 14: Developer Experience (DevEx) - AI-powered
         with tabs[14]:
+            try:
+                from modules_devex import DevExModule
+                DevExModule.render()
+            except Exception as e:
+                st.error(f"Error loading Developer Experience: {str(e)}")
+        
+        # Module 15: AI Assistant
+        with tabs[15]:
             try:
                 from modules_ai_assistant import AIAssistantModule
                 AIAssistantModule.render()
