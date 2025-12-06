@@ -1,6 +1,6 @@
 """
-Enterprise FinOps Module - AI-Powered Cost Management
-Combines traditional FinOps with advanced AI intelligence
+Enterprise FinOps Module - AI-Powered Cost Management + Sustainability
+Combines traditional FinOps with advanced AI intelligence and carbon emissions tracking
 
 Features:
 - AI-Powered Cost Analysis (Claude)
@@ -11,6 +11,7 @@ Features:
 - Smart Cost Allocation
 - Multi-Account Cost Management
 - Real-time Optimization
+- Sustainability & CO2 Emissions Tracking (NEW!)
 """
 
 import streamlit as st
@@ -168,6 +169,134 @@ Provide a concise, specific answer."""
         return f"Error processing query: {str(e)}"
 
 # ============================================================================
+# SUSTAINABILITY & CO2 DATA GENERATION
+# ============================================================================
+
+def generate_carbon_footprint_data() -> Dict:
+    """Generate carbon footprint data for cloud services"""
+    import random
+    
+    # AWS regions with carbon intensity (gCO2eq/kWh)
+    # Based on AWS Customer Carbon Footprint Tool data
+    region_carbon = {
+        'us-east-1': 415,      # Virginia - Medium
+        'us-east-2': 736,      # Ohio - High
+        'us-west-1': 296,      # California - Low
+        'us-west-2': 296,      # Oregon - Low
+        'eu-west-1': 316,      # Ireland - Low
+        'eu-west-2': 257,      # London - Low
+        'eu-central-1': 338,   # Frankfurt - Medium
+        'ap-southeast-1': 543, # Singapore - High
+        'ap-southeast-2': 790, # Sydney - High
+        'ap-northeast-1': 463  # Tokyo - Medium
+    }
+    
+    # Service energy consumption (kWh per $100 spend - estimates)
+    service_energy = {
+        'EC2': 45,
+        'RDS': 38,
+        'Lambda': 12,
+        'S3': 8,
+        'DynamoDB': 15,
+        'ECS': 42,
+        'EKS': 40,
+        'Redshift': 55,
+        'CloudFront': 18,
+        'ElastiCache': 35
+    }
+    
+    data = {
+        'total_emissions_kg': 0,
+        'by_service': {},
+        'by_region': {},
+        'by_account': {},
+        'trend': [],
+        'recommendations': []
+    }
+    
+    # Calculate emissions by service
+    services = ['EC2', 'RDS', 'S3', 'Lambda', 'DynamoDB', 'CloudFront']
+    for service in services:
+        cost = random.uniform(500, 5000)
+        energy_kwh = (cost / 100) * service_energy.get(service, 30)
+        # Use average carbon intensity
+        avg_carbon = sum(region_carbon.values()) / len(region_carbon)
+        emissions_kg = (energy_kwh * avg_carbon) / 1000
+        
+        data['by_service'][service] = {
+            'cost': cost,
+            'energy_kwh': round(energy_kwh, 2),
+            'emissions_kg': round(emissions_kg, 2)
+        }
+        data['total_emissions_kg'] += emissions_kg
+    
+    # Calculate by region
+    for region, carbon_intensity in region_carbon.items():
+        cost = random.uniform(1000, 8000)
+        energy_kwh = (cost / 100) * 35  # Average energy factor
+        emissions_kg = (energy_kwh * carbon_intensity) / 1000
+        
+        data['by_region'][region] = {
+            'cost': cost,
+            'carbon_intensity': carbon_intensity,
+            'emissions_kg': round(emissions_kg, 2),
+            'rating': 'Low' if carbon_intensity < 350 else 'Medium' if carbon_intensity < 500 else 'High'
+        }
+    
+    # Calculate by account
+    accounts = ['Production', 'Staging', 'Development', 'Shared Services']
+    for account in accounts:
+        emissions = random.uniform(50, 400)
+        data['by_account'][account] = round(emissions, 2)
+    
+    # 30-day trend
+    for i in range(30):
+        date = (datetime.now() - timedelta(days=30-i)).strftime('%Y-%m-%d')
+        emissions = 180 + i * 2 + random.uniform(-10, 10)
+        data['trend'].append({
+            'date': date,
+            'emissions_kg': round(emissions, 2)
+        })
+    
+    # Sustainability recommendations
+    data['recommendations'] = [
+        {
+            'action': 'Migrate to eu-west-2 (London)',
+            'current_region': 'us-east-2 (Ohio)',
+            'impact': '65% reduction',
+            'emissions_saved_kg': 180,
+            'co2_equivalent': '396 km driven',
+            'priority': 'High'
+        },
+        {
+            'action': 'Use Graviton processors for EC2',
+            'current': 'x86 instances',
+            'impact': '60% less energy',
+            'emissions_saved_kg': 145,
+            'co2_equivalent': '319 km driven',
+            'priority': 'High'
+        },
+        {
+            'action': 'Enable S3 Intelligent-Tiering',
+            'current': 'Standard storage',
+            'impact': '40% reduction',
+            'emissions_saved_kg': 42,
+            'co2_equivalent': '92 km driven',
+            'priority': 'Medium'
+        },
+        {
+            'action': 'Optimize Lambda memory allocation',
+            'current': 'Over-provisioned',
+            'impact': '35% reduction',
+            'emissions_saved_kg': 28,
+            'co2_equivalent': '62 km driven',
+            'priority': 'Medium'
+        }
+    ]
+    
+    return data
+
+# ============================================================================
 # DEMO DATA GENERATION
 # ============================================================================
 
@@ -266,14 +395,14 @@ def generate_demo_recommendations() -> List[Dict]:
 # ============================================================================
 
 class FinOpsEnterpriseModule:
-    """Enterprise FinOps with AI-powered intelligence"""
+    """Enterprise FinOps with AI-powered intelligence and sustainability tracking"""
     
     @staticmethod
     def render():
         """Main render method"""
         
-        st.markdown("## 💰 Enterprise FinOps & Cost Intelligence")
-        st.caption("AI-Powered Cloud Financial Operations | Multi-Account Cost Management | Intelligent Optimization")
+        st.markdown("## 💰 Enterprise FinOps, Cost Intelligence & Sustainability")
+        st.caption("AI-Powered Financial Operations | Cost Management | Carbon Emissions Tracking | Intelligent Optimization")
         
         account_mgr = get_account_manager()
         if not account_mgr:
@@ -284,14 +413,20 @@ class FinOpsEnterpriseModule:
         # Check AI availability
         ai_available = get_anthropic_client() is not None
         
-        if ai_available:
-            st.success("🤖 AI-Powered Analysis: **Enabled**")
-        else:
-            st.info("💡 Enable AI features by configuring ANTHROPIC_API_KEY in Streamlit secrets")
+        col1, col2 = st.columns(2)
+        with col1:
+            if ai_available:
+                st.success("🤖 AI-Powered Analysis: **Enabled**")
+            else:
+                st.info("💡 Enable AI features by configuring ANTHROPIC_API_KEY")
         
-        # Main tabs
+        with col2:
+            st.success("🌱 Sustainability Tracking: **Enabled**")
+        
+        # Main tabs - Added Sustainability
         tabs = st.tabs([
             "🎯 Cost Dashboard",
+            "🌱 Sustainability & CO2",
             "🤖 AI Insights",
             "💬 Ask AI",
             "📊 Multi-Account Costs",
@@ -305,24 +440,27 @@ class FinOpsEnterpriseModule:
             FinOpsEnterpriseModule._render_cost_dashboard(account_mgr, ai_available)
         
         with tabs[1]:
-            FinOpsEnterpriseModule._render_ai_insights(ai_available)
+            FinOpsEnterpriseModule._render_sustainability_carbon()
         
         with tabs[2]:
-            FinOpsEnterpriseModule._render_ai_query(ai_available)
+            FinOpsEnterpriseModule._render_ai_insights(ai_available)
         
         with tabs[3]:
-            FinOpsEnterpriseModule._render_multi_account_costs(account_mgr)
+            FinOpsEnterpriseModule._render_ai_query(ai_available)
         
         with tabs[4]:
-            FinOpsEnterpriseModule._render_cost_trends()
+            FinOpsEnterpriseModule._render_multi_account_costs(account_mgr)
         
         with tabs[5]:
-            FinOpsEnterpriseModule._render_optimization()
+            FinOpsEnterpriseModule._render_cost_trends()
         
         with tabs[6]:
-            FinOpsEnterpriseModule._render_budget_management()
+            FinOpsEnterpriseModule._render_optimization()
         
         with tabs[7]:
+            FinOpsEnterpriseModule._render_budget_management()
+        
+        with tabs[8]:
             FinOpsEnterpriseModule._render_tag_based_costs()
     
     @staticmethod
@@ -331,7 +469,7 @@ class FinOpsEnterpriseModule:
         
         st.markdown("### 🎯 Cost Overview")
         
-        # Generate demo data (in production, fetch from Cost Explorer)
+        # Generate demo data
         cost_data = generate_demo_cost_data()
         
         # Top metrics
@@ -423,6 +561,267 @@ class FinOpsEnterpriseModule:
                         st.markdown(f"- {insight}")
     
     @staticmethod
+    def _render_sustainability_carbon():
+        """NEW: Sustainability & CO2 emissions tracking"""
+        
+        st.markdown("### 🌱 Sustainability & Carbon Emissions")
+        st.info("📊 Track and optimize your cloud carbon footprint for a sustainable future")
+        
+        # Generate carbon data
+        carbon_data = generate_carbon_footprint_data()
+        
+        # Top metrics
+        col1, col2, col3, col4 = st.columns(4)
+        
+        with col1:
+            st.metric(
+                "Total CO2 Emissions",
+                f"{carbon_data['total_emissions_kg']:,.0f} kg",
+                delta="-12% vs last month",
+                delta_color="inverse",
+                help="Total carbon dioxide equivalent emissions"
+            )
+        
+        with col2:
+            trees_equivalent = carbon_data['total_emissions_kg'] / 21  # 1 tree absorbs ~21kg CO2/year
+            st.metric(
+                "Trees to Offset",
+                f"{trees_equivalent:,.0f} trees",
+                help="Number of trees needed to offset annual emissions"
+            )
+        
+        with col3:
+            # Carbon saved through optimization
+            total_saved = sum(r['emissions_saved_kg'] for r in carbon_data['recommendations'])
+            st.metric(
+                "Potential Reduction",
+                f"{total_saved:,.0f} kg CO2",
+                delta=f"{(total_saved/carbon_data['total_emissions_kg']*100):.0f}% opportunity",
+                help="Achievable through optimization"
+            )
+        
+        with col4:
+            km_driven = carbon_data['total_emissions_kg'] * 2.2  # ~2.2 km per kg CO2 for avg car
+            st.metric(
+                "Driving Equivalent",
+                f"{km_driven:,.0f} km",
+                help="Equivalent to driving this distance in average car"
+            )
+        
+        st.markdown("---")
+        
+        # Emissions by service
+        st.markdown("### 📊 Emissions by Service")
+        
+        service_emissions = pd.DataFrame([
+            {
+                'Service': service,
+                'Cost ($)': data['cost'],
+                'Energy (kWh)': data['energy_kwh'],
+                'CO2 (kg)': data['emissions_kg']
+            }
+            for service, data in carbon_data['by_service'].items()
+        ]).sort_values('CO2 (kg)', ascending=False)
+        
+        col1, col2 = st.columns([2, 1])
+        
+        with col1:
+            fig = px.bar(
+                service_emissions,
+                x='Service',
+                y='CO2 (kg)',
+                title='Carbon Emissions by Service',
+                color='CO2 (kg)',
+                color_continuous_scale='Greens',
+                text='CO2 (kg)'
+            )
+            fig.update_traces(texttemplate='%{text:.1f}', textposition='outside')
+            st.plotly_chart(fig, use_container_width=True)
+        
+        with col2:
+            st.dataframe(
+                service_emissions,
+                use_container_width=True,
+                hide_index=True
+            )
+        
+        # Regional carbon intensity
+        st.markdown("---")
+        st.markdown("### 🌍 Regional Carbon Intensity")
+        
+        st.info("""
+        **Carbon Intensity** measures grams of CO2 equivalent emitted per kilowatt-hour (gCO2eq/kWh).
+        Lower is better! Green regions use renewable energy sources.
+        """)
+        
+        region_emissions = pd.DataFrame([
+            {
+                'Region': region,
+                'Cost ($)': data['cost'],
+                'Carbon Intensity': data['carbon_intensity'],
+                'CO2 (kg)': data['emissions_kg'],
+                'Rating': data['rating']
+            }
+            for region, data in carbon_data['by_region'].items()
+        ]).sort_values('Carbon Intensity')
+        
+        # Color-code by rating
+        def rating_color(rating):
+            return '🟢' if rating == 'Low' else '🟡' if rating == 'Medium' else '🔴'
+        
+        region_emissions['Status'] = region_emissions['Rating'].apply(
+            lambda x: f"{rating_color(x)} {x}"
+        )
+        
+        col1, col2 = st.columns([3, 2])
+        
+        with col1:
+            fig = px.bar(
+                region_emissions,
+                x='Region',
+                y='Carbon Intensity',
+                title='Carbon Intensity by AWS Region (gCO2eq/kWh)',
+                color='Rating',
+                color_discrete_map={'Low': 'green', 'Medium': 'orange', 'High': 'red'},
+                text='Carbon Intensity'
+            )
+            fig.update_traces(texttemplate='%{text}', textposition='outside')
+            st.plotly_chart(fig, use_container_width=True)
+        
+        with col2:
+            st.markdown("**🟢 Low Carbon Regions:**")
+            low_carbon = region_emissions[region_emissions['Rating'] == 'Low']
+            for _, row in low_carbon.iterrows():
+                st.markdown(f"- **{row['Region']}**: {row['Carbon Intensity']} gCO2eq/kWh")
+            
+            st.markdown("**🔴 High Carbon Regions:**")
+            high_carbon = region_emissions[region_emissions['Rating'] == 'High']
+            for _, row in high_carbon.iterrows():
+                st.markdown(f"- **{row['Region']}**: {row['Carbon Intensity']} gCO2eq/kWh")
+        
+        # Emissions trend
+        st.markdown("---")
+        st.markdown("### 📈 30-Day Carbon Emissions Trend")
+        
+        trend_df = pd.DataFrame(carbon_data['trend'])
+        trend_df['date'] = pd.to_datetime(trend_df['date'])
+        
+        fig = px.line(
+            trend_df,
+            x='date',
+            y='emissions_kg',
+            title='Daily CO2 Emissions (kg)',
+            labels={'emissions_kg': 'CO2 Emissions (kg)', 'date': 'Date'}
+        )
+        fig.add_hline(
+            y=trend_df['emissions_kg'].mean(),
+            line_dash="dash",
+            line_color="red",
+            annotation_text="Average"
+        )
+        st.plotly_chart(fig, use_container_width=True)
+        
+        # Sustainability recommendations
+        st.markdown("---")
+        st.markdown("### 🎯 Sustainability Recommendations")
+        
+        total_savings_kg = sum(r['emissions_saved_kg'] for r in carbon_data['recommendations'])
+        total_savings_pct = (total_savings_kg / carbon_data['total_emissions_kg'] * 100)
+        
+        col1, col2, col3 = st.columns(3)
+        
+        with col1:
+            st.metric(
+                "Total Reduction Potential",
+                f"{total_savings_kg:,.0f} kg CO2",
+                delta=f"{total_savings_pct:.0f}%"
+            )
+        
+        with col2:
+            trees_saved = total_savings_kg / 21
+            st.metric(
+                "Trees Saved",
+                f"{trees_saved:,.0f} trees/year",
+                help="Trees not needed if optimizations implemented"
+            )
+        
+        with col3:
+            total_km = sum(
+                float(r['co2_equivalent'].split()[0])
+                for r in carbon_data['recommendations']
+            )
+            st.metric(
+                "Driving Saved",
+                f"{total_km:,.0f} km",
+                help="Equivalent driving distance saved"
+            )
+        
+        st.markdown("#### Recommended Actions:")
+        
+        for rec in carbon_data['recommendations']:
+            priority_color = {
+                'High': '🔴',
+                'Medium': '🟡',
+                'Low': '🟢'
+            }.get(rec['priority'], '🟡')
+            
+            with st.expander(
+                f"{priority_color} {rec['action']} | Save {rec['emissions_saved_kg']} kg CO2 ({rec['impact']})"
+            ):
+                col1, col2 = st.columns([2, 1])
+                
+                with col1:
+                    st.markdown(f"**Current:** {rec.get('current_region', rec.get('current', 'N/A'))}")
+                    st.markdown(f"**Impact:** {rec['impact']}")
+                    st.markdown(f"**CO2 Saved:** {rec['emissions_saved_kg']} kg")
+                    st.markdown(f"**Equivalent:** {rec['co2_equivalent']}")
+                
+                with col2:
+                    st.metric("Priority", rec['priority'])
+                    st.metric("CO2 Reduction", rec['impact'])
+                    
+                    if st.button("📋 Create Action", key=f"carbon_{rec['action'][:20]}", use_container_width=True):
+                        st.success("Action item created for sustainability team!")
+        
+        # Carbon offset calculator
+        st.markdown("---")
+        st.markdown("### 🌳 Carbon Offset Calculator")
+        
+        col1, col2 = st.columns(2)
+        
+        with col1:
+            st.info("""
+            **Ways to offset your cloud carbon footprint:**
+            
+            🌳 **Plant Trees:** ~21 kg CO2 absorbed per tree per year
+            💚 **Carbon Credits:** Purchase verified carbon offsets
+            ⚡ **Renewable Energy:** Invest in renewable energy projects
+            🔋 **Energy Efficiency:** Optimize workloads to use less power
+            """)
+        
+        with col2:
+            offset_method = st.selectbox(
+                "Offset Method",
+                ["Trees", "Carbon Credits", "Renewable Energy"],
+                key="offset_method"
+            )
+            
+            if offset_method == "Trees":
+                trees_needed = carbon_data['total_emissions_kg'] / 21
+                st.metric("Trees to Plant", f"{trees_needed:,.0f}")
+                st.markdown(f"**Cost Estimate:** ${trees_needed * 5:,.0f} (at $5/tree)")
+            
+            elif offset_method == "Carbon Credits":
+                credits_needed = carbon_data['total_emissions_kg'] / 1000  # tonnes
+                st.metric("Carbon Credits", f"{credits_needed:,.2f} tonnes")
+                st.markdown(f"**Cost Estimate:** ${credits_needed * 15:,.2f} (at $15/tonne)")
+            
+            else:
+                energy_kwh = carbon_data['total_emissions_kg'] * 2.2  # Rough estimate
+                st.metric("Renewable Energy", f"{energy_kwh:,.0f} kWh")
+                st.markdown(f"**Cost Estimate:** ${energy_kwh * 0.10:,.2f} (at $0.10/kWh)")
+    
+    @staticmethod
     def _render_ai_insights(ai_available):
         """AI-powered cost insights and analysis"""
         
@@ -512,8 +911,8 @@ class FinOpsEnterpriseModule:
         with col2:
             if st.button("🎯 Where should I focus optimization?", key="q3", use_container_width=True):
                 st.session_state.ai_query = "Where should I focus my optimization efforts?"
-            if st.button("📊 Compare this month to last month", key="q4", use_container_width=True):
-                st.session_state.ai_query = "Compare this month's costs to last month"
+            if st.button("🌱 How can I reduce my carbon footprint?", key="q5", use_container_width=True):
+                st.session_state.ai_query = "How can I reduce my carbon footprint?"
         
         # Query input
         query = st.text_input(
