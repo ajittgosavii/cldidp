@@ -68,8 +68,8 @@ class UnifiedCICDModule:
         # Phase 1: Pipeline Builder
         with phase_tabs[0]:
             try:
-                from modules_cicd_orchestration import CICDOrchestrationUI
-                CICDOrchestrationUI.render()
+                from modules_cicd_orchestration import CICDOrchestrationModule
+                CICDOrchestrationModule.render()
             except Exception as e:
                 st.error(f"Error loading Pipeline Builder: {str(e)}")
         
