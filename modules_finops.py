@@ -1,9 +1,10 @@
 """
-Enterprise FinOps Module - AI-Powered Cost Management + Sustainability
-Combines traditional FinOps with advanced AI intelligence and carbon emissions tracking
+Enterprise FinOps Module - AI-Powered Cost Management + Sustainability + Anomalies
+Complete FinOps platform with cost intelligence, carbon tracking, and anomaly detection
 
 Features:
 - AI-Powered Cost Analysis (Claude)
+- Cost Anomaly Detection (NEW!)
 - Natural Language Query Interface
 - Intelligent Right-Sizing Recommendations
 - Advanced Anomaly Detection
@@ -11,7 +12,7 @@ Features:
 - Smart Cost Allocation
 - Multi-Account Cost Management
 - Real-time Optimization
-- Sustainability & CO2 Emissions Tracking (NEW!)
+- Sustainability & CO2 Emissions Tracking
 """
 
 import streamlit as st
@@ -25,6 +26,7 @@ from core_account_manager import get_account_manager
 from utils_helpers import Helpers
 import json
 import os
+import random
 
 # ============================================================================
 # AI CLIENT INITIALIZATION
@@ -58,6 +60,113 @@ def get_anthropic_client():
     except Exception as e:
         st.error(f"Error initializing AI client: {str(e)}")
         return None
+
+# ============================================================================
+# COST ANOMALY DETECTION
+# ============================================================================
+
+def generate_cost_anomalies() -> List[Dict]:
+    """Generate cost anomaly data for detection and alerting"""
+    anomalies = [
+        {
+            'date': (datetime.now() - timedelta(days=1)).strftime('%Y-%m-%d'),
+            'service': 'EC2',
+            'account': 'Production',
+            'normal_cost': 450,
+            'actual_cost': 1250,
+            'deviation': '+178%',
+            'severity': 'Critical',
+            'cause': 'Unexpected auto-scaling spike',
+            'recommendation': 'Review scaling policies and set max instance limits',
+            'estimated_waste': '$800',
+            'status': 'Open'
+        },
+        {
+            'date': (datetime.now() - timedelta(days=2)).strftime('%Y-%m-%d'),
+            'service': 'Data Transfer',
+            'account': 'Production',
+            'normal_cost': 120,
+            'actual_cost': 580,
+            'deviation': '+383%',
+            'severity': 'Critical',
+            'cause': 'Cross-region data transfer spike',
+            'recommendation': 'Enable VPC endpoints and review data flow',
+            'estimated_waste': '$460',
+            'status': 'Investigating'
+        },
+        {
+            'date': (datetime.now() - timedelta(days=3)).strftime('%Y-%m-%d'),
+            'service': 'RDS',
+            'account': 'Staging',
+            'normal_cost': 280,
+            'actual_cost': 480,
+            'deviation': '+71%',
+            'severity': 'High',
+            'cause': 'Database instance left running overnight',
+            'recommendation': 'Implement auto-stop for non-production RDS',
+            'estimated_waste': '$200',
+            'status': 'Resolved'
+        },
+        {
+            'date': (datetime.now() - timedelta(days=5)).strftime('%Y-%m-%d'),
+            'service': 'S3',
+            'account': 'Development',
+            'normal_cost': 85,
+            'actual_cost': 165,
+            'deviation': '+94%',
+            'severity': 'Medium',
+            'cause': 'Increased PUT requests from testing',
+            'recommendation': 'Optimize test data upload patterns',
+            'estimated_waste': '$80',
+            'status': 'Resolved'
+        },
+        {
+            'date': (datetime.now() - timedelta(days=7)).strftime('%Y-%m-%d'),
+            'service': 'Lambda',
+            'account': 'Production',
+            'normal_cost': 45,
+            'actual_cost': 125,
+            'deviation': '+178%',
+            'severity': 'Medium',
+            'cause': 'Function timeout causing retries',
+            'recommendation': 'Optimize function code and increase timeout',
+            'estimated_waste': '$80',
+            'status': 'Fixed'
+        }
+    ]
+    
+    return anomalies
+
+def detect_anomalies_ml(cost_history: List[Dict]) -> Dict:
+    """ML-based anomaly detection with statistical analysis"""
+    # Calculate baseline statistics
+    costs = [item['cost'] for item in cost_history]
+    mean = sum(costs) / len(costs)
+    variance = sum((x - mean) ** 2 for x in costs) / len(costs)
+    std_dev = variance ** 0.5
+    
+    # Detect anomalies (> 2 standard deviations)
+    anomaly_threshold = mean + (2 * std_dev)
+    
+    detected = []
+    for item in cost_history[-7:]:  # Last 7 days
+        if item['cost'] > anomaly_threshold:
+            deviation_pct = ((item['cost'] - mean) / mean) * 100
+            detected.append({
+                'date': item['date'],
+                'expected': f"${mean:.2f}",
+                'actual': f"${item['cost']:.2f}",
+                'deviation': f"+{deviation_pct:.0f}%",
+                'confidence': '95%' if item['cost'] > anomaly_threshold * 1.5 else '85%'
+            })
+    
+    return {
+        'detected': detected,
+        'baseline_mean': mean,
+        'baseline_std': std_dev,
+        'threshold': anomaly_threshold,
+        'total_anomalies': len(detected)
+    }
 
 # ============================================================================
 # AI-POWERED COST ANALYSIS
@@ -114,16 +223,13 @@ Respond ONLY with valid JSON."""
         
         # Extract JSON
         try:
-            # Try direct parse
             return json.loads(response_text)
         except:
-            # Try to extract JSON from markdown
             import re
             json_match = re.search(r'\{.*\}', response_text, re.DOTALL)
             if json_match:
                 return json.loads(json_match.group())
             
-            # Fallback
             return {
                 'executive_summary': 'AI analysis completed but response parsing failed.',
                 'key_insights': [response_text[:200]],
@@ -174,35 +280,19 @@ Provide a concise, specific answer."""
 
 def generate_carbon_footprint_data() -> Dict:
     """Generate carbon footprint data for cloud services"""
-    import random
     
     # AWS regions with carbon intensity (gCO2eq/kWh)
-    # Based on AWS Customer Carbon Footprint Tool data
     region_carbon = {
-        'us-east-1': 415,      # Virginia - Medium
-        'us-east-2': 736,      # Ohio - High
-        'us-west-1': 296,      # California - Low
-        'us-west-2': 296,      # Oregon - Low
-        'eu-west-1': 316,      # Ireland - Low
-        'eu-west-2': 257,      # London - Low
-        'eu-central-1': 338,   # Frankfurt - Medium
-        'ap-southeast-1': 543, # Singapore - High
-        'ap-southeast-2': 790, # Sydney - High
-        'ap-northeast-1': 463  # Tokyo - Medium
+        'us-east-1': 415, 'us-east-2': 736, 'us-west-1': 296, 'us-west-2': 296,
+        'eu-west-1': 316, 'eu-west-2': 257, 'eu-central-1': 338,
+        'ap-southeast-1': 543, 'ap-southeast-2': 790, 'ap-northeast-1': 463
     }
     
-    # Service energy consumption (kWh per $100 spend - estimates)
+    # Service energy consumption (kWh per $100 spend)
     service_energy = {
-        'EC2': 45,
-        'RDS': 38,
-        'Lambda': 12,
-        'S3': 8,
-        'DynamoDB': 15,
-        'ECS': 42,
-        'EKS': 40,
-        'Redshift': 55,
-        'CloudFront': 18,
-        'ElastiCache': 35
+        'EC2': 45, 'RDS': 38, 'Lambda': 12, 'S3': 8,
+        'DynamoDB': 15, 'ECS': 42, 'EKS': 40, 'Redshift': 55,
+        'CloudFront': 18, 'ElastiCache': 35
     }
     
     data = {
@@ -219,7 +309,6 @@ def generate_carbon_footprint_data() -> Dict:
     for service in services:
         cost = random.uniform(500, 5000)
         energy_kwh = (cost / 100) * service_energy.get(service, 30)
-        # Use average carbon intensity
         avg_carbon = sum(region_carbon.values()) / len(region_carbon)
         emissions_kg = (energy_kwh * avg_carbon) / 1000
         
@@ -233,7 +322,7 @@ def generate_carbon_footprint_data() -> Dict:
     # Calculate by region
     for region, carbon_intensity in region_carbon.items():
         cost = random.uniform(1000, 8000)
-        energy_kwh = (cost / 100) * 35  # Average energy factor
+        energy_kwh = (cost / 100) * 35
         emissions_kg = (energy_kwh * carbon_intensity) / 1000
         
         data['by_region'][region] = {
@@ -253,10 +342,7 @@ def generate_carbon_footprint_data() -> Dict:
     for i in range(30):
         date = (datetime.now() - timedelta(days=30-i)).strftime('%Y-%m-%d')
         emissions = 180 + i * 2 + random.uniform(-10, 10)
-        data['trend'].append({
-            'date': date,
-            'emissions_kg': round(emissions, 2)
-        })
+        data['trend'].append({'date': date, 'emissions_kg': round(emissions, 2)})
     
     # Sustainability recommendations
     data['recommendations'] = [
@@ -302,7 +388,6 @@ def generate_carbon_footprint_data() -> Dict:
 
 def generate_demo_cost_data() -> Dict:
     """Generate demo cost data for visualization"""
-    import random
     
     services = ['EC2', 'S3', 'RDS', 'Lambda', 'CloudFront', 'ELB', 'DynamoDB', 'VPC', 'CloudWatch', 'ECS']
     
@@ -323,10 +408,7 @@ def generate_demo_cost_data() -> Dict:
     for i in range(30):
         date = (datetime.now() - timedelta(days=30-i)).strftime('%Y-%m-%d')
         daily_cost = cost_data['total_cost'] / 30 * random.uniform(0.8, 1.2)
-        cost_data['daily_costs'].append({
-            'date': date,
-            'cost': daily_cost
-        })
+        cost_data['daily_costs'].append({'date': date, 'cost': daily_cost})
     
     # By account
     accounts = ['Production', 'Staging', 'Development', 'Shared Services']
@@ -395,14 +477,14 @@ def generate_demo_recommendations() -> List[Dict]:
 # ============================================================================
 
 class FinOpsEnterpriseModule:
-    """Enterprise FinOps with AI-powered intelligence and sustainability tracking"""
+    """Enterprise FinOps with AI-powered intelligence, sustainability tracking, and anomaly detection"""
     
     @staticmethod
     def render():
         """Main render method"""
         
         st.markdown("## 💰 Enterprise FinOps, Cost Intelligence & Sustainability")
-        st.caption("AI-Powered Financial Operations | Cost Management | Carbon Emissions Tracking | Intelligent Optimization")
+        st.caption("AI-Powered Financial Operations | Cost Anomaly Detection | Carbon Emissions Tracking | Intelligent Optimization")
         
         account_mgr = get_account_manager()
         if not account_mgr:
@@ -421,11 +503,12 @@ class FinOpsEnterpriseModule:
                 st.info("💡 Enable AI features by configuring ANTHROPIC_API_KEY")
         
         with col2:
-            st.success("🌱 Sustainability Tracking: **Enabled**")
+            st.success("🌱 Sustainability + 🚨 Anomaly Detection: **Enabled**")
         
-        # Main tabs - Added Sustainability
+        # Main tabs - Added Cost Anomalies
         tabs = st.tabs([
             "🎯 Cost Dashboard",
+            "🚨 Cost Anomalies",
             "🌱 Sustainability & CO2",
             "🤖 AI Insights",
             "💬 Ask AI",
@@ -440,27 +523,30 @@ class FinOpsEnterpriseModule:
             FinOpsEnterpriseModule._render_cost_dashboard(account_mgr, ai_available)
         
         with tabs[1]:
-            FinOpsEnterpriseModule._render_sustainability_carbon()
+            FinOpsEnterpriseModule._render_cost_anomalies()
         
         with tabs[2]:
-            FinOpsEnterpriseModule._render_ai_insights(ai_available)
+            FinOpsEnterpriseModule._render_sustainability_carbon()
         
         with tabs[3]:
-            FinOpsEnterpriseModule._render_ai_query(ai_available)
+            FinOpsEnterpriseModule._render_ai_insights(ai_available)
         
         with tabs[4]:
-            FinOpsEnterpriseModule._render_multi_account_costs(account_mgr)
+            FinOpsEnterpriseModule._render_ai_query(ai_available)
         
         with tabs[5]:
-            FinOpsEnterpriseModule._render_cost_trends()
+            FinOpsEnterpriseModule._render_multi_account_costs(account_mgr)
         
         with tabs[6]:
-            FinOpsEnterpriseModule._render_optimization()
+            FinOpsEnterpriseModule._render_cost_trends()
         
         with tabs[7]:
-            FinOpsEnterpriseModule._render_budget_management()
+            FinOpsEnterpriseModule._render_optimization()
         
         with tabs[8]:
+            FinOpsEnterpriseModule._render_budget_management()
+        
+        with tabs[9]:
             FinOpsEnterpriseModule._render_tag_based_costs()
     
     @staticmethod
@@ -469,7 +555,6 @@ class FinOpsEnterpriseModule:
         
         st.markdown("### 🎯 Cost Overview")
         
-        # Generate demo data
         cost_data = generate_demo_cost_data()
         
         # Top metrics
@@ -561,13 +646,219 @@ class FinOpsEnterpriseModule:
                         st.markdown(f"- {insight}")
     
     @staticmethod
+    def _render_cost_anomalies():
+        """NEW: Cost Anomaly Detection and Alerting"""
+        
+        st.markdown("### 🚨 Cost Anomaly Detection")
+        st.info("📊 ML-powered detection of unusual spending patterns and cost spikes")
+        
+        anomalies = generate_cost_anomalies()
+        
+        # Summary metrics
+        total_waste = sum(
+            float(a['estimated_waste'].replace('$', '').replace(',', ''))
+            for a in anomalies
+        )
+        
+        critical_count = sum(1 for a in anomalies if a['severity'] == 'Critical')
+        open_count = sum(1 for a in anomalies if a['status'] in ['Open', 'Investigating'])
+        
+        col1, col2, col3, col4 = st.columns(4)
+        
+        with col1:
+            st.metric(
+                "Anomalies Detected",
+                len(anomalies),
+                delta="Last 7 days",
+                help="Total cost anomalies identified"
+            )
+        
+        with col2:
+            st.metric(
+                "Critical Anomalies",
+                critical_count,
+                delta="🔴 Immediate attention",
+                help="High-severity cost spikes"
+            )
+        
+        with col3:
+            st.metric(
+                "Estimated Waste",
+                f"${total_waste:,.0f}",
+                delta="Recoverable",
+                help="Total wasted spend from anomalies"
+            )
+        
+        with col4:
+            st.metric(
+                "Open Investigations",
+                open_count,
+                delta=f"{len(anomalies)-open_count} resolved",
+                help="Anomalies under investigation"
+            )
+        
+        st.markdown("---")
+        
+        # Anomalies table
+        st.markdown("### 🔍 Detected Anomalies")
+        
+        for anomaly in anomalies:
+            severity_icon = {
+                'Critical': '🔴',
+                'High': '🟠',
+                'Medium': '🟡',
+                'Low': '🟢'
+            }.get(anomaly['severity'], '⚪')
+            
+            status_icon = {
+                'Open': '🔴',
+                'Investigating': '🟡',
+                'Resolved': '🟢',
+                'Fixed': '✅'
+            }.get(anomaly['status'], '⚪')
+            
+            with st.expander(
+                f"{severity_icon} {anomaly['service']} - {anomaly['account']} | {anomaly['deviation']} spike on {anomaly['date']} | {status_icon} {anomaly['status']}"
+            ):
+                col1, col2, col3 = st.columns([2, 2, 1])
+                
+                with col1:
+                    st.markdown("**📊 Cost Details:**")
+                    st.markdown(f"- **Normal Cost:** ${anomaly['normal_cost']}")
+                    st.markdown(f"- **Actual Cost:** ${anomaly['actual_cost']}")
+                    st.markdown(f"- **Deviation:** {anomaly['deviation']}")
+                    st.markdown(f"- **Wasted:** {anomaly['estimated_waste']}")
+                
+                with col2:
+                    st.markdown("**🔍 Analysis:**")
+                    st.markdown(f"- **Root Cause:** {anomaly['cause']}")
+                    st.markdown(f"- **Severity:** {anomaly['severity']}")
+                    st.markdown(f"- **Status:** {anomaly['status']}")
+                    st.markdown(f"- **Recommendation:** {anomaly['recommendation']}")
+                
+                with col3:
+                    st.markdown("**⚡ Actions:**")
+                    
+                    if st.button("🔔 Alert Team", key=f"alert_{anomaly['date']}_{anomaly['service']}", use_container_width=True):
+                        st.success("Team notified!")
+                    
+                    if st.button("📋 Create Ticket", key=f"ticket_{anomaly['date']}_{anomaly['service']}", use_container_width=True):
+                        st.success("Ticket created!")
+                    
+                    if anomaly['status'] in ['Open', 'Investigating']:
+                        if st.button("✅ Mark Resolved", key=f"resolve_{anomaly['date']}_{anomaly['service']}", use_container_width=True):
+                            st.success("Marked as resolved!")
+        
+        # ML Detection visualization
+        st.markdown("---")
+        st.markdown("### 📈 ML Anomaly Detection")
+        
+        # Generate sample cost history
+        cost_history = []
+        base_cost = 450
+        for i in range(30):
+            date = (datetime.now() - timedelta(days=30-i)).strftime('%Y-%m-%d')
+            # Normal variation
+            cost = base_cost + random.uniform(-50, 50)
+            # Add some anomalies
+            if i in [28, 25, 20]:  # Add spikes
+                cost = base_cost + random.uniform(300, 800)
+            cost_history.append({'date': date, 'cost': cost})
+        
+        ml_results = detect_anomalies_ml(cost_history)
+        
+        col1, col2 = st.columns([2, 1])
+        
+        with col1:
+            # Visualization
+            history_df = pd.DataFrame(cost_history)
+            history_df['date'] = pd.to_datetime(history_df['date'])
+            
+            fig = go.Figure()
+            
+            # Plot cost line
+            fig.add_trace(go.Scatter(
+                x=history_df['date'],
+                y=history_df['cost'],
+                mode='lines+markers',
+                name='Daily Cost',
+                line=dict(color='blue', width=2)
+            ))
+            
+            # Add baseline
+            fig.add_hline(
+                y=ml_results['baseline_mean'],
+                line_dash="dash",
+                line_color="green",
+                annotation_text=f"Baseline (${ml_results['baseline_mean']:.2f})"
+            )
+            
+            # Add anomaly threshold
+            fig.add_hline(
+                y=ml_results['threshold'],
+                line_dash="dash",
+                line_color="red",
+                annotation_text=f"Anomaly Threshold (${ml_results['threshold']:.2f})"
+            )
+            
+            fig.update_layout(
+                title='Cost History with ML-Detected Anomalies',
+                xaxis_title='Date',
+                yaxis_title='Cost ($)',
+                hovermode='x unified'
+            )
+            
+            st.plotly_chart(fig, use_container_width=True)
+        
+        with col2:
+            st.markdown("**📊 ML Statistics:**")
+            st.metric("Baseline Mean", f"${ml_results['baseline_mean']:.2f}")
+            st.metric("Std Deviation", f"${ml_results['baseline_std']:.2f}")
+            st.metric("Anomaly Threshold", f"${ml_results['threshold']:.2f}")
+            st.metric("Anomalies Found", ml_results['total_anomalies'])
+            
+            if ml_results['detected']:
+                st.markdown("**🚨 Recent Anomalies:**")
+                for det in ml_results['detected']:
+                    st.markdown(f"- **{det['date']}:** {det['actual']} (expected {det['expected']})")
+        
+        # Anomaly prevention tips
+        st.markdown("---")
+        st.markdown("### 💡 Anomaly Prevention")
+        
+        col1, col2 = st.columns(2)
+        
+        with col1:
+            st.info("""
+            **Prevent Cost Anomalies:**
+            
+            ✅ Set up AWS Budgets with alerts
+            ✅ Implement auto-scaling limits
+            ✅ Use AWS Cost Anomaly Detection
+            ✅ Tag all resources for tracking
+            ✅ Review costs daily
+            ✅ Enable CloudWatch alarms
+            """)
+        
+        with col2:
+            st.warning("""
+            **Common Anomaly Causes:**
+            
+            🔴 Runaway auto-scaling
+            🔴 Forgotten test resources
+            🔴 Data transfer spikes
+            🔴 Instance size misconfiguration
+            🔴 Storage accumulation
+            🔴 API call loops
+            """)
+    
+    @staticmethod
     def _render_sustainability_carbon():
-        """NEW: Sustainability & CO2 emissions tracking"""
+        """Sustainability & CO2 emissions tracking"""
         
         st.markdown("### 🌱 Sustainability & Carbon Emissions")
         st.info("📊 Track and optimize your cloud carbon footprint for a sustainable future")
         
-        # Generate carbon data
         carbon_data = generate_carbon_footprint_data()
         
         # Top metrics
@@ -578,35 +869,24 @@ class FinOpsEnterpriseModule:
                 "Total CO2 Emissions",
                 f"{carbon_data['total_emissions_kg']:,.0f} kg",
                 delta="-12% vs last month",
-                delta_color="inverse",
-                help="Total carbon dioxide equivalent emissions"
+                delta_color="inverse"
             )
         
         with col2:
-            trees_equivalent = carbon_data['total_emissions_kg'] / 21  # 1 tree absorbs ~21kg CO2/year
-            st.metric(
-                "Trees to Offset",
-                f"{trees_equivalent:,.0f} trees",
-                help="Number of trees needed to offset annual emissions"
-            )
+            trees_equivalent = carbon_data['total_emissions_kg'] / 21
+            st.metric("Trees to Offset", f"{trees_equivalent:,.0f} trees")
         
         with col3:
-            # Carbon saved through optimization
             total_saved = sum(r['emissions_saved_kg'] for r in carbon_data['recommendations'])
             st.metric(
                 "Potential Reduction",
                 f"{total_saved:,.0f} kg CO2",
-                delta=f"{(total_saved/carbon_data['total_emissions_kg']*100):.0f}% opportunity",
-                help="Achievable through optimization"
+                delta=f"{(total_saved/carbon_data['total_emissions_kg']*100):.0f}% opportunity"
             )
         
         with col4:
-            km_driven = carbon_data['total_emissions_kg'] * 2.2  # ~2.2 km per kg CO2 for avg car
-            st.metric(
-                "Driving Equivalent",
-                f"{km_driven:,.0f} km",
-                help="Equivalent to driving this distance in average car"
-            )
+            km_driven = carbon_data['total_emissions_kg'] * 2.2
+            st.metric("Driving Equivalent", f"{km_driven:,.0f} km")
         
         st.markdown("---")
         
@@ -639,39 +919,25 @@ class FinOpsEnterpriseModule:
             st.plotly_chart(fig, use_container_width=True)
         
         with col2:
-            st.dataframe(
-                service_emissions,
-                use_container_width=True,
-                hide_index=True
-            )
+            st.dataframe(service_emissions, use_container_width=True, hide_index=True)
         
         # Regional carbon intensity
         st.markdown("---")
         st.markdown("### 🌍 Regional Carbon Intensity")
         
-        st.info("""
-        **Carbon Intensity** measures grams of CO2 equivalent emitted per kilowatt-hour (gCO2eq/kWh).
-        Lower is better! Green regions use renewable energy sources.
-        """)
-        
         region_emissions = pd.DataFrame([
             {
                 'Region': region,
-                'Cost ($)': data['cost'],
                 'Carbon Intensity': data['carbon_intensity'],
-                'CO2 (kg)': data['emissions_kg'],
                 'Rating': data['rating']
             }
             for region, data in carbon_data['by_region'].items()
         ]).sort_values('Carbon Intensity')
         
-        # Color-code by rating
         def rating_color(rating):
             return '🟢' if rating == 'Low' else '🟡' if rating == 'Medium' else '🔴'
         
-        region_emissions['Status'] = region_emissions['Rating'].apply(
-            lambda x: f"{rating_color(x)} {x}"
-        )
+        region_emissions['Status'] = region_emissions['Rating'].apply(lambda x: f"{rating_color(x)} {x}")
         
         col1, col2 = st.columns([3, 2])
         
@@ -693,198 +959,43 @@ class FinOpsEnterpriseModule:
             low_carbon = region_emissions[region_emissions['Rating'] == 'Low']
             for _, row in low_carbon.iterrows():
                 st.markdown(f"- **{row['Region']}**: {row['Carbon Intensity']} gCO2eq/kWh")
-            
-            st.markdown("**🔴 High Carbon Regions:**")
-            high_carbon = region_emissions[region_emissions['Rating'] == 'High']
-            for _, row in high_carbon.iterrows():
-                st.markdown(f"- **{row['Region']}**: {row['Carbon Intensity']} gCO2eq/kWh")
-        
-        # Emissions trend
-        st.markdown("---")
-        st.markdown("### 📈 30-Day Carbon Emissions Trend")
-        
-        trend_df = pd.DataFrame(carbon_data['trend'])
-        trend_df['date'] = pd.to_datetime(trend_df['date'])
-        
-        fig = px.line(
-            trend_df,
-            x='date',
-            y='emissions_kg',
-            title='Daily CO2 Emissions (kg)',
-            labels={'emissions_kg': 'CO2 Emissions (kg)', 'date': 'Date'}
-        )
-        fig.add_hline(
-            y=trend_df['emissions_kg'].mean(),
-            line_dash="dash",
-            line_color="red",
-            annotation_text="Average"
-        )
-        st.plotly_chart(fig, use_container_width=True)
-        
-        # Sustainability recommendations
-        st.markdown("---")
-        st.markdown("### 🎯 Sustainability Recommendations")
-        
-        total_savings_kg = sum(r['emissions_saved_kg'] for r in carbon_data['recommendations'])
-        total_savings_pct = (total_savings_kg / carbon_data['total_emissions_kg'] * 100)
-        
-        col1, col2, col3 = st.columns(3)
-        
-        with col1:
-            st.metric(
-                "Total Reduction Potential",
-                f"{total_savings_kg:,.0f} kg CO2",
-                delta=f"{total_savings_pct:.0f}%"
-            )
-        
-        with col2:
-            trees_saved = total_savings_kg / 21
-            st.metric(
-                "Trees Saved",
-                f"{trees_saved:,.0f} trees/year",
-                help="Trees not needed if optimizations implemented"
-            )
-        
-        with col3:
-            total_km = sum(
-                float(r['co2_equivalent'].split()[0])
-                for r in carbon_data['recommendations']
-            )
-            st.metric(
-                "Driving Saved",
-                f"{total_km:,.0f} km",
-                help="Equivalent driving distance saved"
-            )
-        
-        st.markdown("#### Recommended Actions:")
-        
-        for rec in carbon_data['recommendations']:
-            priority_color = {
-                'High': '🔴',
-                'Medium': '🟡',
-                'Low': '🟢'
-            }.get(rec['priority'], '🟡')
-            
-            with st.expander(
-                f"{priority_color} {rec['action']} | Save {rec['emissions_saved_kg']} kg CO2 ({rec['impact']})"
-            ):
-                col1, col2 = st.columns([2, 1])
-                
-                with col1:
-                    st.markdown(f"**Current:** {rec.get('current_region', rec.get('current', 'N/A'))}")
-                    st.markdown(f"**Impact:** {rec['impact']}")
-                    st.markdown(f"**CO2 Saved:** {rec['emissions_saved_kg']} kg")
-                    st.markdown(f"**Equivalent:** {rec['co2_equivalent']}")
-                
-                with col2:
-                    st.metric("Priority", rec['priority'])
-                    st.metric("CO2 Reduction", rec['impact'])
-                    
-                    if st.button("📋 Create Action", key=f"carbon_{rec['action'][:20]}", use_container_width=True):
-                        st.success("Action item created for sustainability team!")
-        
-        # Carbon offset calculator
-        st.markdown("---")
-        st.markdown("### 🌳 Carbon Offset Calculator")
-        
-        col1, col2 = st.columns(2)
-        
-        with col1:
-            st.info("""
-            **Ways to offset your cloud carbon footprint:**
-            
-            🌳 **Plant Trees:** ~21 kg CO2 absorbed per tree per year
-            💚 **Carbon Credits:** Purchase verified carbon offsets
-            ⚡ **Renewable Energy:** Invest in renewable energy projects
-            🔋 **Energy Efficiency:** Optimize workloads to use less power
-            """)
-        
-        with col2:
-            offset_method = st.selectbox(
-                "Offset Method",
-                ["Trees", "Carbon Credits", "Renewable Energy"],
-                key="offset_method"
-            )
-            
-            if offset_method == "Trees":
-                trees_needed = carbon_data['total_emissions_kg'] / 21
-                st.metric("Trees to Plant", f"{trees_needed:,.0f}")
-                st.markdown(f"**Cost Estimate:** ${trees_needed * 5:,.0f} (at $5/tree)")
-            
-            elif offset_method == "Carbon Credits":
-                credits_needed = carbon_data['total_emissions_kg'] / 1000  # tonnes
-                st.metric("Carbon Credits", f"{credits_needed:,.2f} tonnes")
-                st.markdown(f"**Cost Estimate:** ${credits_needed * 15:,.2f} (at $15/tonne)")
-            
-            else:
-                energy_kwh = carbon_data['total_emissions_kg'] * 2.2  # Rough estimate
-                st.metric("Renewable Energy", f"{energy_kwh:,.0f} kWh")
-                st.markdown(f"**Cost Estimate:** ${energy_kwh * 0.10:,.2f} (at $0.10/kWh)")
     
     @staticmethod
     def _render_ai_insights(ai_available):
-        """AI-powered cost insights and analysis"""
+        """AI-powered cost insights"""
         
         st.markdown("### 🤖 AI-Powered Cost Intelligence")
         
         if not ai_available:
             st.warning("⚠️ AI features not available")
-            st.info("""
-            **To enable AI-powered analysis:**
-            1. Get an Anthropic API key from console.anthropic.com
-            2. Add to Streamlit secrets:
-               ```
-               [anthropic]
-               api_key = "sk-ant-..."
-               ```
-            3. Restart the application
-            """)
+            st.info("Configure ANTHROPIC_API_KEY in Streamlit secrets to enable AI features")
             return
         
         cost_data = generate_demo_cost_data()
         
         with st.spinner("🤖 AI analyzing your cost data..."):
-            analysis = analyze_costs_with_ai(
-                cost_data,
-                cost_data['total_cost'],
-                cost_data['services']
-            )
+            analysis = analyze_costs_with_ai(cost_data, cost_data['total_cost'], cost_data['services'])
         
-        # Executive Summary
         st.markdown("#### 📊 Executive Summary")
         st.success(analysis['executive_summary'])
         
-        # Key Insights
         st.markdown("---")
         st.markdown("#### 💡 Key Insights")
         
         for i, insight in enumerate(analysis.get('key_insights', []), 1):
             st.markdown(f"**{i}.** {insight}")
         
-        # Recommendations
         st.markdown("---")
         st.markdown("#### 🎯 AI Recommendations")
         
         recommendations = analysis.get('recommendations', [])
         if recommendations:
             for rec in recommendations:
-                priority_color = {
-                    'High': '🔴',
-                    'Medium': '🟡',
-                    'Low': '🟢'
-                }.get(rec.get('priority', 'Medium'), '🟡')
+                priority_color = {'High': '🔴', 'Medium': '🟡', 'Low': '🟢'}.get(rec.get('priority', 'Medium'), '🟡')
                 
                 with st.expander(f"{priority_color} {rec.get('action', 'Recommendation')} - {rec.get('priority', 'Medium')} Priority"):
                     st.markdown(f"**Estimated Savings:** {rec.get('estimated_savings', 'TBD')}")
                     st.markdown(f"**Implementation:** {rec.get('implementation', 'See details')}")
-        
-        # Anomalies
-        if analysis.get('anomalies'):
-            st.markdown("---")
-            st.markdown("#### ⚠️ Detected Anomalies")
-            
-            for anomaly in analysis['anomalies']:
-                st.warning(f"🔍 {anomaly}")
     
     @staticmethod
     def _render_ai_query(ai_available):
@@ -899,30 +1010,29 @@ class FinOpsEnterpriseModule:
         st.info("💡 Ask questions in plain English about your AWS costs")
         
         # Sample questions
-        st.markdown("**Example questions:**")
         col1, col2 = st.columns(2)
         
         with col1:
-            if st.button("💰 What are my top 3 cost drivers?", key="q1", use_container_width=True):
-                st.session_state.ai_query = "What are my top 3 cost drivers?"
-            if st.button("📈 How can I reduce my EC2 costs?", key="q2", use_container_width=True):
-                st.session_state.ai_query = "How can I reduce my EC2 costs?"
+            if st.button("💰 What are my top 3 cost drivers?", key="finops_query_btn_1", use_container_width=True):
+                st.session_state.finops_ai_query = "What are my top 3 cost drivers?"
+            if st.button("📈 How can I reduce my EC2 costs?", key="finops_query_btn_2", use_container_width=True):
+                st.session_state.finops_ai_query = "How can I reduce my EC2 costs?"
         
         with col2:
-            if st.button("🎯 Where should I focus optimization?", key="q3", use_container_width=True):
-                st.session_state.ai_query = "Where should I focus my optimization efforts?"
-            if st.button("🌱 How can I reduce my carbon footprint?", key="q5", use_container_width=True):
-                st.session_state.ai_query = "How can I reduce my carbon footprint?"
+            if st.button("🎯 Where should I focus optimization?", key="finops_query_btn_3", use_container_width=True):
+                st.session_state.finops_ai_query = "Where should I focus my optimization efforts?"
+            if st.button("🌱 How can I reduce my carbon footprint?", key="finops_query_btn_4", use_container_width=True):
+                st.session_state.finops_ai_query = "How can I reduce my carbon footprint?"
         
-        # Query input
+        # Query input - FIXED: Unique key
         query = st.text_input(
             "Your question:",
-            value=st.session_state.get('ai_query', ''),
+            value=st.session_state.get('finops_ai_query', ''),
             placeholder="e.g., What's driving my S3 costs?",
-            key="ai_query_input"
+            key="finops_ai_query_text_input_unique"
         )
         
-        if st.button("🔍 Ask AI", type="primary", key="ask_ai_btn"):
+        if st.button("🔍 Ask AI", type="primary", key="finops_ask_ai_submit_btn"):
             if query:
                 cost_data = generate_demo_cost_data()
                 
@@ -943,7 +1053,6 @@ class FinOpsEnterpriseModule:
         
         cost_data = generate_demo_cost_data()
         
-        # Account costs
         account_df = pd.DataFrame([
             {
                 'Account': k,
@@ -957,7 +1066,6 @@ class FinOpsEnterpriseModule:
         col1, col2 = st.columns([2, 1])
         
         with col1:
-            st.markdown("#### Cost Distribution")
             fig = px.bar(
                 account_df,
                 x='Account',
@@ -971,7 +1079,6 @@ class FinOpsEnterpriseModule:
             st.plotly_chart(fig, use_container_width=True)
         
         with col2:
-            st.markdown("#### Account Summary")
             st.dataframe(
                 account_df[['Account', 'Cost_Formatted', 'Percentage']],
                 use_container_width=True,
@@ -986,14 +1093,10 @@ class FinOpsEnterpriseModule:
         
         cost_data = generate_demo_cost_data()
         
-        # Prepare trend data
         trend_df = pd.DataFrame(cost_data['daily_costs'])
         trend_df['date'] = pd.to_datetime(trend_df['date'])
-        
-        # Add 7-day moving average
         trend_df['7day_avg'] = trend_df['cost'].rolling(window=7).mean()
         
-        # Create visualization
         fig = go.Figure()
         
         fig.add_trace(go.Scatter(
@@ -1021,17 +1124,12 @@ class FinOpsEnterpriseModule:
         
         st.plotly_chart(fig, use_container_width=True)
         
-        # Trend analysis
         col1, col2, col3 = st.columns(3)
         
         with col1:
-            avg_daily = trend_df['cost'].mean()
-            st.metric("Avg Daily Cost", Helpers.format_currency(avg_daily))
-        
+            st.metric("Avg Daily Cost", Helpers.format_currency(trend_df['cost'].mean()))
         with col2:
-            max_daily = trend_df['cost'].max()
-            st.metric("Peak Daily Cost", Helpers.format_currency(max_daily))
-        
+            st.metric("Peak Daily Cost", Helpers.format_currency(trend_df['cost'].max()))
         with col3:
             trend = "↑ Increasing" if trend_df['cost'].iloc[-1] > trend_df['cost'].iloc[0] else "↓ Decreasing"
             st.metric("Trend", trend)
@@ -1044,7 +1142,6 @@ class FinOpsEnterpriseModule:
         
         recommendations = generate_demo_recommendations()
         
-        # Summary metrics
         total_monthly_savings = sum(
             float(rec['savings'].replace('$', '').replace(',', '').replace('/month', ''))
             for rec in recommendations
@@ -1054,37 +1151,17 @@ class FinOpsEnterpriseModule:
         col1, col2, col3 = st.columns(3)
         
         with col1:
-            st.metric(
-                "Monthly Savings Potential",
-                Helpers.format_currency(total_monthly_savings),
-                help="Total identified monthly savings"
-            )
-        
+            st.metric("Monthly Savings Potential", Helpers.format_currency(total_monthly_savings))
         with col2:
-            st.metric(
-                "Annual Savings Potential",
-                Helpers.format_currency(annual_savings),
-                help="Projected annual savings"
-            )
-        
+            st.metric("Annual Savings Potential", Helpers.format_currency(annual_savings))
         with col3:
-            st.metric(
-                "Recommendations",
-                len(recommendations),
-                help="Number of optimization opportunities"
-            )
+            st.metric("Recommendations", len(recommendations))
         
         st.markdown("---")
-        
-        # Detailed recommendations
         st.markdown("#### 🎯 Optimization Recommendations")
         
         for rec in recommendations:
-            priority_color = {
-                'High': '🔴',
-                'Medium': '🟡',
-                'Low': '🟢'
-            }.get(rec['priority'], '🟡')
+            priority_color = {'High': '🔴', 'Medium': '🟡', 'Low': '🟢'}.get(rec['priority'], '🟡')
             
             with st.expander(
                 f"{priority_color} {rec['type']} - {rec['resource']} | Save {rec['savings']} ({rec['savings_percentage']})"
@@ -1101,100 +1178,35 @@ class FinOpsEnterpriseModule:
                     st.metric("Savings %", rec['savings_percentage'])
                     st.markdown(f"**Priority:** {rec['priority']}")
                     
-                    if st.button("📋 Create Action Item", key=f"action_{rec['resource']}", use_container_width=True):
+                    if st.button("📋 Create Action Item", key=f"finops_opt_action_{rec['resource']}_unique", use_container_width=True):
                         st.success("Action item created!")
     
     @staticmethod
     def _render_budget_management():
-        """Budget management and alerts"""
+        """Budget management"""
         
         st.markdown("### 🎯 Budget Management")
         
         budgets = [
-            {
-                'Budget Name': 'Production Monthly',
-                'Amount': '$15,000',
-                'Current Spend': '$11,400',
-                'Utilization': '76%',
-                'Forecast': '$14,250',
-                'Status': '✅ On Track'
-            },
-            {
-                'Budget Name': 'Staging Monthly',
-                'Amount': '$5,000',
-                'Current Spend': '$4,650',
-                'Utilization': '93%',
-                'Forecast': '$5,580',
-                'Status': '⚠️ At Risk'
-            },
-            {
-                'Budget Name': 'Development Monthly',
-                'Amount': '$3,000',
-                'Current Spend': '$2,100',
-                'Utilization': '70%',
-                'Forecast': '$2,520',
-                'Status': '✅ On Track'
-            }
+            {'Budget Name': 'Production Monthly', 'Amount': '$15,000', 'Current Spend': '$11,400', 'Utilization': '76%', 'Forecast': '$14,250', 'Status': '✅ On Track'},
+            {'Budget Name': 'Staging Monthly', 'Amount': '$5,000', 'Current Spend': '$4,650', 'Utilization': '93%', 'Forecast': '$5,580', 'Status': '⚠️ At Risk'},
+            {'Budget Name': 'Development Monthly', 'Amount': '$3,000', 'Current Spend': '$2,100', 'Utilization': '70%', 'Forecast': '$2,520', 'Status': '✅ On Track'}
         ]
         
         df = pd.DataFrame(budgets)
         st.dataframe(df, use_container_width=True, hide_index=True)
-        
-        st.markdown("---")
-        
-        st.info("""
-        **Budget Features:**
-        - ✅ Set budgets per account/service/tag
-        - ✅ Configure multi-threshold alerts (50%, 80%, 100%)
-        - ✅ Forecast vs budget comparison
-        - ✅ Automatic notifications via email/SNS
-        - ✅ Budget utilization tracking
-        
-        **To configure:** Use AWS Budgets console or CloudFormation
-        """)
     
     @staticmethod
     def _render_tag_based_costs():
-        """Tag-based cost allocation and chargeback"""
+        """Tag-based cost allocation"""
         
         st.markdown("### 🏷️ Tag-Based Cost Allocation")
         
-        st.info("""
-        **Cost Allocation Tags:**
-        Organize and track costs by:
-        - 🏢 Department / Business Unit
-        - 📁 Project / Application
-        - 🌍 Environment (Prod/Staging/Dev)
-        - 💰 Cost Center
-        - 👤 Owner / Team
-        """)
-        
-        # Sample tag-based costs
         tag_costs = [
-            {
-                'Tag': 'Department',
-                'Value': 'Engineering',
-                'Cost': '$8,450',
-                'Percentage': '42%'
-            },
-            {
-                'Tag': 'Department',
-                'Value': 'Data Science',
-                'Cost': '$5,230',
-                'Percentage': '26%'
-            },
-            {
-                'Tag': 'Department',
-                'Value': 'Marketing',
-                'Cost': '$3,120',
-                'Percentage': '16%'
-            },
-            {
-                'Tag': 'Department',
-                'Value': 'Untagged',
-                'Cost': '$3,200',
-                'Percentage': '16%'
-            }
+            {'Tag': 'Department', 'Value': 'Engineering', 'Cost': '$8,450', 'Percentage': '42%'},
+            {'Tag': 'Department', 'Value': 'Data Science', 'Cost': '$5,230', 'Percentage': '26%'},
+            {'Tag': 'Department', 'Value': 'Marketing', 'Cost': '$3,120', 'Percentage': '16%'},
+            {'Tag': 'Department', 'Value': 'Untagged', 'Cost': '$3,200', 'Percentage': '16%'}
         ]
         
         df = pd.DataFrame(tag_costs)
@@ -1202,26 +1214,16 @@ class FinOpsEnterpriseModule:
         col1, col2 = st.columns([2, 1])
         
         with col1:
-            fig = px.bar(
-                df,
-                x='Value',
-                y='Cost',
-                text='Percentage',
-                title='Cost by Department',
-                color='Cost'
-            )
+            fig = px.bar(df, x='Value', y='Cost', text='Percentage', title='Cost by Department', color='Cost')
             st.plotly_chart(fig, use_container_width=True)
         
         with col2:
             st.dataframe(df, use_container_width=True, hide_index=True)
         
         st.markdown("---")
-        
-        # Tag compliance
         st.markdown("#### 🎯 Tag Compliance")
         
         col1, col2, col3 = st.columns(3)
-        
         with col1:
             st.metric("Tagged Resources", "84%", delta="↑ 5%")
         with col2:
